@@ -65,7 +65,7 @@ def test_summary_denominators_quartiles_and_sample_sd():
 
 
 def test_summary_rejects_malformed_numeric_and_missing_columns():
-    with pytest.raises(ValueError, match="nonnumeric"):
+    with pytest.raises(TypeError, match="nonnumeric"):
         numeric_summary([{"x": "bad"}], "x", unit="unitless")
     with pytest.raises(ValueError, match="Nonempty"):
         complete_pair_summary([{"x": 1.0}], "x", "y")

@@ -20,7 +20,7 @@ def _numeric(rows: list[dict], column: str) -> tuple[list[float], int]:
         if value is None:
             continue
         if isinstance(value, bool) or not isinstance(value, (float, int)):
-            raise ValueError(f"{column}: nonnumeric at row {index}; only None denotes missing")
+            raise TypeError(f"{column}: nonnumeric at row {index}; only None denotes missing")
         if not math.isfinite(value):
             raise ValueError(f"{column}: nonfinite number at row {index}; normalize source missing codes")
         values.append(float(value))

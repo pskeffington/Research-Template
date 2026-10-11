@@ -415,7 +415,7 @@ class FigureKit:
         """Export complete figure formats plus an adjacent JSON trace/manifest."""
         metadata = getattr(fig, "_research_meta", None)
         if not isinstance(metadata, dict):
-            raise ValueError("Use a FigureKit figure to export traceable graphics")
+            raise TypeError("Use a FigureKit figure to export traceable graphics")
         root = Path(stem)
         if root.suffix:
             raise ValueError("Supply a filename stem without extension")
