@@ -46,13 +46,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - name: Set up R
-        uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05 # pinned v2
-        with:
-          r-version: 'release'
-          use-public-rspm: true
-      - name: Install plotting package
-        run: Rscript --vanilla -e 'install.packages("ggplot2", repos="https://cloud.r-project.org")'
+      - name: Install system R and ggplot2
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends r-base-core r-cran-ggplot2
       - name: Test R summary and all charts
         run: Rscript --vanilla R/tests/test_research_plots.R
       - name: Confirm R exports ignored
