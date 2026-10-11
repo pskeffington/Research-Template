@@ -51,8 +51,10 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends \
             r-base-core r-cran-ggplot2 r-cran-dplyr r-cran-tidyr r-cran-tibble r-cran-readr
-      - name: Check R style contract
+      - name: Check all R modules
         run: Rscript --vanilla R/tests/test_style_contract.R
+      - name: Validate documented R examples
+        run: Rscript --vanilla R/tests/test_documentation_examples.R
       - name: Test tidyverse joins, pivots, summaries and ggplot
         run: Rscript --vanilla R/tests/test_tidy_workflow.R
       - name: Test R summary and scientific plots

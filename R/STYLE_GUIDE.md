@@ -111,3 +111,7 @@ The older `rt_*` plotting calls remain available, returning editable `ggplot` ob
 ## Validation
 
 CI installs R, ggplot2, dplyr, tidyr, and tibble, tests full plots and joins/wide-long round trips, and checks the style contract without auto-rewriting files. Python and its documented ML tools remain supported, but R examples should demonstrate data cleaning in tidyverse grammar first.
+
+## Repository-wide enforcement
+
+The [repository coding contract](../docs/CODING_CONVENTIONS.md) distinguishes tidyverse-style R from idiomatic Python. CI discovers every `R/**/*.R` file, checks parseability, snake_case function names, explicit namespaces, native pipes and no source-time execution in reusable modules. A second gate parses complete R examples in Markdown. Existing source identifiers are never renamed by the style checker.

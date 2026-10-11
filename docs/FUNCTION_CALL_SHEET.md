@@ -23,7 +23,6 @@ The complete executable path is below. Each operation remains visible and return
 
 ~~~r
 source("R/research_tidy.R")
-source("R/research_tidy.R")
 source("R/research_plots.R")
 source("R/synthetic_demo.R")
 source("R/example_tidy_workflow.R")
@@ -250,9 +249,10 @@ print(data_audit["missing_counts"], model_report["metrics"], sha256_file(path))
 
 The demonstration compares a dummy majority-class baseline to a logistic model with **group-preserving holdout** and **train-only preprocessing**. It does not establish external validity, calibration, clinical usefulness or causal effects.
 
-## 6. Full R equivalent calls (ggplot2 is optional)
+## 6. Full R equivalent calls (ggplot2 and tidyverse are optional)
 
 ~~~r
+source("R/research_tidy.R")
 source("R/research_plots.R")
 source("R/synthetic_demo.R")
 

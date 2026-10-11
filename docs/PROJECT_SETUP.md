@@ -16,3 +16,5 @@ Environment installation is *not* itself data access, scientific review, or perm
 ## R/tidyverse execution style
 
 Use [R/STYLE_GUIDE.md](../R/STYLE_GUIDE.md). Keep external source names unchanged; normalize with `rename_source_columns()` only after documenting the mapping. Audit IDs and joins before `dplyr` transformations. Use `tidyr::pivot_longer()` and `pivot_wider()` via row-count and unit-validated wrappers; summarize with `summarize_measurements()` and `summarize_missingness()`. Build figures as editable layered `ggplot2` objects and save only intentionally.
+
+The repository-level [coding conventions](CODING_CONVENTIONS.md) apply to new scripts and guides. R uses tidyverse/ggplot2 grammar; Python uses Python's PEP 8 and Ruff. Neither convention authorizes silent changes to clinical/source data contracts.
