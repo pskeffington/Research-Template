@@ -5,10 +5,10 @@ from __future__ import annotations
 import hashlib
 import importlib.metadata
 import json
-from pathlib import Path
 import platform
 import subprocess
 import sys
+from pathlib import Path
 
 
 def sha256_file(path: Path) -> str:

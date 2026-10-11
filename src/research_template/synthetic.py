@@ -15,7 +15,7 @@ def make_cohort(n: int = 120, seed: int = 711) -> list[dict]:
     if not isinstance(n, int) or isinstance(n, bool) or n < 40:
         raise ValueError("n must be an integer of at least 40")
     if not isinstance(seed, int) or isinstance(seed, bool):
-        raise ValueError("seed must be an integer")
+        raise TypeError("seed must be an integer")
     rng = random.Random(seed)
     rows = []
     for i in range(n):
@@ -26,7 +26,7 @@ def make_cohort(n: int = 120, seed: int = 711) -> list[dict]:
         prob = 1.0 / (1.0 + math.exp(-z))
         rows.append(
             {
-                "participant_id": "SIM-%05d" % (i + 1),
+                "participant_id": f"SIM-{i + 1:05d}",
                 "site": ("North", "South", "West")[i % 3],
                 "age_years": age if i % 29 else None,
                 "measurement_mg_dl": measurement if i % 17 else None,

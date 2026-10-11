@@ -23,8 +23,9 @@ def demo(out: Path, *, n: int = 120, seed: int = 711, plots: bool = False, ml: b
         writer.writerows(rows)
     artifacts = [dataset, save_json(out / "quality_summary.json", summary)]
     if plots:
-        from .plots import group_box, histogram, heatmap, save_figure, scatter
         import matplotlib.pyplot as plt
+
+        from .plots import group_box, heatmap, histogram, save_figure, scatter
 
         graph_calls = [
             (histogram(rows, "measurement_mg_dl", name="Simulated measurement", unit="mg/dL"),
