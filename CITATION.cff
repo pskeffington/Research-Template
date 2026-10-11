@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this starter in research software, please cite it and its upstream methodological sources."
+title: "Research Template: Reproducible Biomedical Research Starter"
+type: software
+authors:
+  - family-names: Skeffington
+    given-names: Paul
+version: 0.1.0
+date-released: 2026-10-11
+repository-code: "https://github.com/pskeffington/Research-Template"
+license: MIT

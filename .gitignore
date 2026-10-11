@@ -1,0 +1,36 @@
+# Identifiable/restricted inputs and all derived artifacts (ignore is not an access control)
+data/raw/
+data/derived/
+data/private/
+artifacts/
+reports/generated/
+models/
+*.pkl
+*.joblib
+*.pt
+*.pth
+*.rds
+.env
+.env.*
+!.env.example
+.secrets/
+.credentials/
+*.key
+*.pem
+*.sqlite
+*.db
+# Runtime and editor
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage*
+.Rhistory
+.RData
+.Rproj.user/
+renv/library/
+renv/staging/
+.ipynb_checkpoints/
+.DS_Store
