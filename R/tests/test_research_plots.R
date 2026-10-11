@@ -1,4 +1,5 @@
 # Synthetic only; executable R plotting and negative-input checks.
+source("R/research_tidy.R")
 source("R/research_plots.R")
 source("R/synthetic_demo.R")
 stopifnot(requireNamespace("ggplot2", quietly = TRUE))
@@ -6,7 +7,7 @@ d <- rt_make_synthetic(n = 90L, seed = 711L)
 s <- rt_summary(d, "measurement_mg_dl", "mg/dL")
 stopifnot(nrow(s) == 1L, s$n_total == 90L, s$n_missing > 0L)
 g <- rt_summary_by(d, "measurement_mg_dl", "site", "mg/dL")
-stopifnot(length(g) == 3L)
+stopifnot(inherits(g, "tbl_df"), nrow(g) == 3L)
 
 dict <- list(
   site = list(label = "Site", unit = "category",

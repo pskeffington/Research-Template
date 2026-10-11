@@ -9,10 +9,10 @@ run_tidy_example <- function(n = 90L, seed = 711L) {
 
   participants_source <- make_synthetic_cohort(n = n, seed = seed) |>
     dplyr::rename(
-      Subject_ID = .data$participant_id,
-      Site = .data$site,
-      Age = .data$age_years,
-      Marker = .data$measurement_mg_dl
+      Subject_ID = participant_id,
+      Site = site,
+      Age = age_years,
+      Marker = measurement_mg_dl
     )
 
   # External source names are preserved in participants_source.

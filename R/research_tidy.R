@@ -60,7 +60,7 @@ rename_source_columns <- function(source_data, source_to_analysis) {
       anyNA(source_to_analysis) || anyDuplicated(source_to_analysis) ||
       anyDuplicated(names(source_to_analysis)) ||
       !all(source_to_analysis %in% names(source_data)) ||
-      !all(grepl("^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$",
+      !all(grepl("^[a-z][a-z0-9]*(_[a-z0-9]+)*$",
                  names(source_to_analysis)))) {
     stop("Provide a complete source-to-snake_case mapping for existing columns.",
          call. = FALSE)
