@@ -12,7 +12,11 @@ from .quality import REQUIRED_COLUMNS, validate_cohort
 from .synthetic import make_cohort
 
 
-def demo(out: Path, *, n: int = 120, seed: int = 711, plots: bool = False, ml: bool = False) -> None:
+def demo(out: Path, *, n: int = 120, seed: int = 711,
+         plots: bool = False, ml: bool = False) -> None:
+    """Write a synthetic research gallery, descriptive tables and provenance manifest."""
+    from .biomed import synthetic_kit
+
     rows = make_cohort(n=n, seed=seed)
     summary = validate_cohort(rows)
     out.mkdir(parents=True, exist_ok=True)
@@ -22,39 +26,56 @@ def demo(out: Path, *, n: int = 120, seed: int = 711, plots: bool = False, ml: b
         writer.writeheader()
         writer.writerows(rows)
     artifacts = [dataset, save_json(out / "quality_summary.json", summary)]
+    kit = synthetic_kit(rows)
+    artifacts.append(save_json(out / "summary_numeric.json", kit.summary("measurement_mg_dl")))
+    artifacts.append(save_json(
+        out / "summary_by_site.json", kit.summary("measurement_mg_dl", group="site")
+    ))
     if plots:
         import matplotlib.pyplot as plt
 
-        from .plots import group_box, heatmap, histogram, save_figure, scatter
-
-        graph_calls = [
-            (histogram(rows, "measurement_mg_dl", name="Simulated measurement", unit="mg/dL"),
-             out / "measurement_histogram.png"),
-            (group_box(rows, "measurement_mg_dl", "site", name="Simulated measurement", unit="mg/dL"),
-             out / "measurement_by_site.pdf"),
-            (scatter(rows, "age_years", "measurement_mg_dl", x_name="Age", x_unit="years",
-                     y_name="Simulated measurement", y_unit="mg/dL"),
-             out / "age_measurement_scatter.png"),
-            (heatmap([[1, 2, 3], [2, 4, 3], [3, 5, 7]], row_labels=["F1", "F2", "F3"],
-                     col_labels=["S1", "S2", "S3"], name="Synthetic signal", unit="unitless"),
-             out / "signal_heatmap.pdf"),
+        plots_to_export = [
+            ("measurement_histogram", kit.histogram("measurement_mg_dl")),
+            ("measurement_box", kit.box("measurement_mg_dl", group="site")),
+            ("measurement_violin", kit.box("measurement_mg_dl", group="site", violin=True)),
+            ("age_scatter", kit.scatter("age_years", "measurement_mg_dl", group="site")),
+            ("site_counts", kit.category_bar("site")),
+            ("missingness", kit.missingness("age_years", "measurement_mg_dl", "outcome")),
+            ("correlation", kit.correlation_heatmap("age_years", "measurement_mg_dl")),
+            ("sequential_heatmap", kit.matrix_heatmap(
+                [[1.2, 2.0, 3.2], [2.1, None, 3.6], [3.0, 5.0, 7.0]],
+                row_labels=["Feature A", "Feature B", "Feature C"],
+                col_labels=["Sample 1", "Sample 2", "Sample 3"],
+                name="Synthetic abundance", unit="unitless", study=kit.study,
+            )),
+            ("diverging_heatmap", kit.matrix_heatmap(
+                [[-1.2, 0, 1.5], [0.8, None, -1.6], [2, -0.5, 0]],
+                row_labels=["Feature A", "Feature B", "Feature C"],
+                col_labels=["Sample 1", "Sample 2", "Sample 3"],
+                name="Synthetic signed deviation", unit="unitless",
+                mode="diverging", center=0, study=kit.study,
+            )),
         ]
-        for fig, destination in graph_calls:
-            artifacts.append(save_figure(fig, destination))
+        for stem, fig in plots_to_export:
+            artifacts.extend(kit.save(fig, out / stem))
             plt.close(fig)
     if ml:
         from .ml import run_classification
+
         artifacts.append(save_json(out / "ml_demo_metrics.json", run_classification(rows, seed=seed)))
     manifest = create_manifest(out, artifacts, seed=seed, purpose="Synthetic research-template smoke run")
     save_json(out / "run_manifest.json", manifest)
-    print(json.dumps({"quality": summary, "manifest": str(out / "run_manifest.json")}, indent=2))
+    print(json.dumps({"quality": summary, "manifest": str(out / "run_manifest.json"),
+                      "artifacts": len(artifacts)}, indent=2))
 
 
 def audit(root: Path, *, require_release: bool = False) -> int:
     required = [
         "README.md", "pyproject.toml", "docs/PROTOCOL.md", "docs/DATA_DICTIONARY.md",
         "docs/SOURCE_REGISTER.md", "docs/RELEASE_GATES.md", "references/LITERATURE_MATRIX.csv",
-        ".github/workflows/ci.yml",
+        ".github/workflows/ci.yml", "docs/FUNCTION_CALL_SHEET.md",
+        "docs/FIGURE_STANDARD.md", "src/research_template/biomed.py",
+        "src/research_template/summary.py",
     ]
     missing = [path for path in required if not (root / path).is_file()]
     result = {
