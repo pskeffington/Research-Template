@@ -11,7 +11,7 @@ def test_schema_has_complete_labels_and_types():
     rows = make_cohort()
     with pytest.raises(ValueError, match="unit"):
         Variable("Measurement", "")
-    with pytest.raises(ValueError, match="categorical"):
+    with pytest.raises(ValueError, match="Categorical"):
         Variable("Site", "mg/dL", kind="categorical")
     with pytest.raises(ValueError, match="Column"):
         FigureKit(rows, variables={"unknown": Variable("Unknown", "unitless")},

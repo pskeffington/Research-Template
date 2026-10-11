@@ -284,7 +284,7 @@ class FigureKit:
                       rotation=45, ha="right")
         ax.set_yticks([0], ["Missing %"])
         for idx, value in enumerate(values):
-            ax.text(idx, 0, f"{value:.1f}%", color="white" if value > 65 else "#202A36",
+            ax.text(idx, 0, f"{value:.1f}%", color="#202A36" if value > 65 else "white",
                     weight="bold", ha="center", va="center", fontsize=9)
         fig.colorbar(image, ax=ax, label="Missing observations (%)", fraction=0.035, pad=0.03)
         return self._finish(
@@ -323,8 +323,7 @@ class FigureKit:
         import matplotlib as mpl
 
         fig, ax = self._canvas(wide=True)
-        cmap = mpl.colormaps[DIVERGING].copy()
-        cmap.set_bad(NEUTRAL_MISSING)
+        cmap = mpl.colormaps[DIVERGING].with_extremes(bad=NEUTRAL_MISSING)
         image = ax.imshow(np.ma.masked_invalid(correlation), vmin=-1, vmax=1, cmap=cmap)
         ax.grid(False)
         ax.set_xticks(range(len(selected)), [self.variables[c].label for c in selected],
@@ -377,8 +376,7 @@ class FigureKit:
         fig, ax = plt.subplots(figsize=(max(8, min(16, data.shape[1] * 0.55)), 6.2))
         fig.subplots_adjust(left=0.18, right=0.83, top=0.75, bottom=0.26)
         finite = data[np.isfinite(data)]
-        cmap = mpl.colormaps[SEQUENTIAL if mode == "sequential" else DIVERGING].copy()
-        cmap.set_bad(NEUTRAL_MISSING)
+        cmap = mpl.colormaps[SEQUENTIAL if mode == "sequential" else DIVERGING].with_extremes(bad=NEUTRAL_MISSING)
         if mode == "diverging":
             radius = max(float(np.max(np.abs(finite - center))), 1e-9)
             norm = mpl.colors.TwoSlopeNorm(vmin=center-radius, vcenter=center,

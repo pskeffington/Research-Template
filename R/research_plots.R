@@ -160,7 +160,7 @@ rt_bar <- function(data, group, levels = NULL) {
   clean[[group]] <- factor(as.character(clean[[group]]), levels = levels)
   ggplot2::ggplot(clean, ggplot2::aes(x = .data[[group]], fill = .data[[group]])) +
     ggplot2::geom_bar(color = "#313E4A", linewidth = 0.4) +
-    ggplot2::geom_text(stat = "count", ggplot2::aes(label = after_stat(count)),
+    ggplot2::geom_text(stat = "count", ggplot2::aes(label = ggplot2::after_stat(count)),
                       vjust = -0.4) +
     ggplot2::scale_fill_manual(
       values = stats::setNames(rt_palette()[seq_along(levels)], levels), drop = FALSE
