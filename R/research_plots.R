@@ -1,6 +1,7 @@
 # Independent, reusable biomedical plot functions.
 # Author: Paul Skeffington. Prepared with OpenAI.
 # No install, external I/O, or plotting when sourced.
+# Source R/research_tidy.R before this file for dplyr/tidyr contracts.
 
 rt_palette <- function() {
   c("#0072B2", "#D55E00", "#009E73", "#CC79A7",
@@ -16,6 +17,7 @@ rt_axis_label <- function(name, unit) {
 }
 
 rt_require <- function() {
+  require_tidy_tools()
   if (!requireNamespace("ggplot2", quietly = TRUE))
     stop("ggplot2 required; restore it in your approved R environment.")
 }
@@ -41,39 +43,32 @@ rt_numeric <- function(data, column) {
 }
 
 rt_summary <- function(data, column, unit) {
-  rt_axis_label(column, unit)
-  measured <- rt_numeric(data, column)
-  if (!length(measured)) stop("No finite measurements.")
-  q <- stats::quantile(measured, c(0.25, 0.5, 0.75), names = FALSE)
-  data.frame(
-    variable = column, unit = unit, n_total = nrow(data),
-    n_measured = length(measured), n_missing = nrow(data) - length(measured),
-    missing_pct = 100 * (nrow(data) - length(measured)) / nrow(data),
-    mean = mean(measured),
-    sd = if (length(measured) > 1L) stats::sd(measured) else NA_real_,
-    median = q[2], q1 = q[1], q3 = q[3], iqr = q[3] - q[1],
-    minimum = min(measured), maximum = max(measured)
-  )
+  # Compatibility call; the documented tidy result is a one-row tibble.
+  summarize_measurements(data, measurement = column, unit = unit)
 }
 
 rt_summary_by <- function(data, value, group, unit, levels = NULL) {
   if (!group %in% names(data)) stop("Group column required.")
-  if (is.null(levels)) levels <- sort(unique(as.character(stats::na.omit(data[[group]]))))
-  if (anyDuplicated(levels) || any(!nzchar(levels))) stop("Unique group levels required.")
-  lapply(levels, function(level) {
-    subset <- data[!is.na(data[[group]]) & as.character(data[[group]]) == level, ,
-                   drop = FALSE]
-    if (!nrow(subset)) return(data.frame(group = level, n_total = 0L,
-                                         n_measured = 0L, n_missing = 0L))
-    cbind(group = level, rt_summary(subset, value, unit))
-  })
+  if (!is.null(levels) && (!is.character(levels) || anyDuplicated(levels) ||
+                          !all(stats::na.omit(data[[group]]) %in% levels))) {
+    stop("Declared category levels must uniquely cover observed categories.")
+  }
+  prepared <- tibble::as_tibble(data)
+  if (!is.null(levels)) {
+    prepared <- prepared |>
+      dplyr::mutate(dplyr::across(
+        dplyr::all_of(group), ~ factor(as.character(.x), levels = levels)
+      ))
+  }
+  summarize_measurements(prepared, measurement = value, unit = unit, by = group)
 }
 
 rt_hist <- function(data, value, name, unit, bins = 12L) {
   rt_require()
   measured <- rt_numeric(data, value)
   if (!length(measured) || bins < 2L) stop("Need measured values and >=2 bins.")
-  clean <- data[is.finite(data[[value]]), , drop = FALSE]
+  clean <- data |>
+    dplyr::filter(!is.na(.data[[value]]))
   counts <- rt_summary(data, value, unit)
   ggplot2::ggplot(clean, ggplot2::aes(x = .data[[value]])) +
     ggplot2::geom_histogram(bins = bins, fill = rt_palette()[1],
@@ -91,8 +86,10 @@ rt_hist <- function(data, value, name, unit, bins = 12L) {
 
 rt_scatter <- function(data, x, y, x_name, x_unit, y_name, y_unit) {
   rt_require()
-  rt_numeric(data, x); rt_numeric(data, y)
-  clean <- data[is.finite(data[[x]]) & is.finite(data[[y]]), , drop = FALSE]
+  rt_numeric(data, x)
+  rt_numeric(data, y)
+  clean <- data |>
+    dplyr::filter(!is.na(.data[[x]]), !is.na(.data[[y]]))
   if (!nrow(clean)) stop("No finite complete pairs.")
   ggplot2::ggplot(clean, ggplot2::aes(x = .data[[x]], y = .data[[y]])) +
     ggplot2::geom_point(color = rt_palette()[1], alpha = 0.76, size = 1.8) +
@@ -109,12 +106,16 @@ rt_group_plot <- function(data, group, value, y_name, y_unit,
   rt_require()
   rt_numeric(data, value)
   if (!group %in% names(data)) stop("Group column required.")
-  clean <- data[!is.na(data[[group]]) & is.finite(data[[value]]), , drop = FALSE]
+  clean <- data |>
+    dplyr::filter(!is.na(.data[[group]]), !is.na(.data[[value]]))
   if (is.null(levels)) levels <- sort(unique(as.character(clean[[group]])))
   if (length(levels) < 2L || length(levels) > 8L ||
       anyDuplicated(levels) || !all(as.character(clean[[group]]) %in% levels))
     stop("Declared levels must cover 2–8 unique groups.")
-  clean[[group]] <- factor(as.character(clean[[group]]), levels = levels)
+  clean <- clean |>
+    dplyr::mutate(dplyr::across(
+      dplyr::all_of(group), ~ factor(as.character(.x), levels = levels)
+    ))
   counts <- table(clean[[group]])
   if (any(counts < 2)) stop("Each group requires >=2 complete observations.")
   p <- ggplot2::ggplot(clean, ggplot2::aes(
@@ -152,7 +153,8 @@ rt_violin <- function(data, group, value, y_name, y_unit, levels = NULL) {
 rt_bar <- function(data, group, levels = NULL) {
   rt_require()
   if (!group %in% names(data)) stop("Unknown group.")
-  clean <- data[!is.na(data[[group]]), , drop = FALSE]
+  clean <- data |>
+    dplyr::filter(!is.na(.data[[group]]))
   if (is.null(levels)) levels <- sort(unique(as.character(clean[[group]])))
   if (length(levels) < 2L || length(levels) > 8L ||
       !all(as.character(clean[[group]]) %in% levels))
@@ -180,75 +182,130 @@ rt_heatmap <- function(x, row_labels, col_labels, name, unit,
   mode <- match.arg(mode)
   if (!is.matrix(x) || !is.numeric(x) || any(is.infinite(x)) ||
       all(is.na(x)) || nrow(x) != length(row_labels) ||
-      ncol(x) != length(col_labels))
-    stop("Numeric matrix with finite observed cells and aligned labels required.")
+      ncol(x) != length(col_labels) || anyDuplicated(row_labels) ||
+      anyDuplicated(col_labels) || anyNA(row_labels) || anyNA(col_labels)) {
+    stop("Numeric matrix with finite cells, unique aligned labels required.")
+  }
   if (mode == "diverging" &&
-      (is.null(center) || length(center) != 1L || !is.finite(center)))
+      (is.null(center) || length(center) != 1L || !is.finite(center))) {
     stop("Diverging mode requires explicit finite scientific center.")
-  if (mode == "sequential" && !is.null(center))
+  }
+  if (mode == "sequential" && !is.null(center)) {
     stop("Sequential mode does not accept center.")
+  }
   rt_axis_label(name, unit)
-  long <- expand.grid(row = seq_len(nrow(x)), col = seq_len(ncol(x)))
-  long$value <- as.vector(x)
-  p <- ggplot2::ggplot(long, ggplot2::aes(
-    x = .data$col, y = .data$row, fill = .data$value
-  )) + ggplot2::geom_tile(color = "#F5F6F8", linewidth = 0.2) +
-    ggplot2::scale_x_continuous(breaks = seq_along(col_labels), labels = col_labels) +
-    ggplot2::scale_y_reverse(breaks = seq_along(row_labels), labels = row_labels) +
+
+  # Matrix orientation: rows are features, columns are samples.
+  # Pivot explicitly rather than silently flattening by column order.
+  wide <- tibble::as_tibble(x, .name_repair = "minimal")
+  names(wide) <- col_labels
+  long <- wide |>
+    dplyr::mutate(feature_id = row_labels, .before = 1) |>
+    tidyr::pivot_longer(
+      cols = dplyr::all_of(col_labels),
+      names_to = "sample_id",
+      values_to = "value",
+      values_drop_na = FALSE
+    ) |>
+    dplyr::mutate(
+      feature_id = factor(.data$feature_id, levels = rev(row_labels)),
+      sample_id = factor(.data$sample_id, levels = col_labels)
+    )
+  p <- ggplot2::ggplot(
+    long,
+    ggplot2::aes(x = .data$sample_id, y = .data$feature_id, fill = .data$value)
+  ) +
+    ggplot2::geom_tile(color = "#F5F6F8", linewidth = 0.2) +
     ggplot2::labs(
       title = name,
       subtitle = sprintf("%d features x %d samples | missing cells=%d",
                          nrow(x), ncol(x), sum(is.na(x))),
       x = "Sample identifier", y = "Feature identifier",
-      caption = if (mode == "diverging") paste("Signed deviation; center =", center, unit,
-                                               "| missing in gray.") else
-                "Sequential magnitude; missing cells in gray."
-    ) + rt_theme() +
+      caption = if (mode == "diverging") {
+        paste("Signed deviation; center =", center, unit, "| missing in gray.")
+      } else {
+        "Sequential magnitude; missing cells in gray."
+      }
+    ) +
+    rt_theme() +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
   if (mode == "sequential") {
-    p + ggplot2::scale_fill_viridis_c(
+    return(p + ggplot2::scale_fill_viridis_c(
       name = rt_axis_label(name, unit), na.value = "#CED4DC"
-    )
-  } else {
-    limit <- max(abs(x - center), na.rm = TRUE)
-    if (limit == 0) limit <- 1
-    p + ggplot2::scale_fill_gradient2(
-      name = rt_axis_label(name, unit),
-      low = "#2166AC", mid = "#F7F7F7", high = "#B2182B",
-      midpoint = center, limits = c(center - limit, center + limit),
-      na.value = "#CED4DC"
-    )
+    ))
   }
+  limit <- max(abs(x - center), na.rm = TRUE)
+  if (limit == 0) limit <- 1
+  p + ggplot2::scale_fill_gradient2(
+    name = rt_axis_label(name, unit),
+    low = "#2166AC", mid = "#F7F7F7", high = "#B2182B",
+    midpoint = center, limits = c(center - limit, center + limit),
+    na.value = "#CED4DC"
+  )
 }
 
 rt_corr_heatmap <- function(data, columns) {
   rt_require()
-  if (length(columns) < 2L || anyDuplicated(columns)) stop("2+ distinct columns required.")
+  if (length(columns) < 2L || anyDuplicated(columns)) {
+    stop("Select two or more distinct numeric variables.")
+  }
   for (column in columns) rt_numeric(data, column)
-  x <- as.matrix(data[columns])
-  r <- stats::cor(x, use = "pairwise.complete.obs", method = "pearson")
-  counts <- outer(seq_along(columns), seq_along(columns),
-                  Vectorize(function(i, j) sum(stats::complete.cases(x[, c(i, j)]))))
-  long <- expand.grid(x = seq_along(columns), y = seq_along(columns))
-  long$r <- as.vector(r)
-  long$n <- as.vector(counts)
-  ggplot2::ggplot(long, ggplot2::aes(x = .data$x, y = .data$y, fill = .data$r)) +
+  numeric_data <- data |>
+    dplyr::select(dplyr::all_of(columns))
+  observed <- as.matrix(numeric_data)
+  coefficients <- stats::cor(
+    observed, use = "pairwise.complete.obs", method = "pearson"
+  )
+  counts <- outer(
+    seq_along(columns), seq_along(columns),
+    Vectorize(function(i, j) {
+      sum(stats::complete.cases(observed[, c(i, j)]))
+    })
+  )
+  coefficients_wide <- tibble::as_tibble(coefficients, .name_repair = "minimal")
+  counts_wide <- tibble::as_tibble(counts, .name_repair = "minimal")
+  names(coefficients_wide) <- columns
+  names(counts_wide) <- columns
+  coefficient_long <- coefficients_wide |>
+    dplyr::mutate(variable_y = columns, .before = 1) |>
+    tidyr::pivot_longer(
+      cols = dplyr::all_of(columns), names_to = "variable_x",
+      values_to = "pearson_r"
+    )
+  counts_long <- counts_wide |>
+    dplyr::mutate(variable_y = columns, .before = 1) |>
+    tidyr::pivot_longer(
+      cols = dplyr::all_of(columns), names_to = "variable_x",
+      values_to = "n_pair"
+    )
+  long <- dplyr::left_join(
+    coefficient_long, counts_long, by = c("variable_x", "variable_y")
+  ) |>
+    dplyr::mutate(
+      variable_x = factor(.data$variable_x, levels = columns),
+      variable_y = factor(.data$variable_y, levels = rev(columns)),
+      label = ifelse(is.na(.data$pearson_r),
+                     paste0("NA\nn=", .data$n_pair),
+                     sprintf("%.2f\nn=%d", .data$pearson_r, .data$n_pair))
+    )
+  ggplot2::ggplot(
+    long, ggplot2::aes(
+      x = .data$variable_x, y = .data$variable_y, fill = .data$pearson_r
+    )
+  ) +
     ggplot2::geom_tile(color = "#F3F4F6") +
-    ggplot2::geom_text(ggplot2::aes(
-      label = ifelse(is.na(.data$r), paste0("NA\nn=", .data$n),
-                     sprintf("%.2f\nn=%d", .data$r, .data$n))
-    ), size = 3) +
-    ggplot2::scale_x_continuous(breaks = seq_along(columns), labels = columns) +
-    ggplot2::scale_y_reverse(breaks = seq_along(columns), labels = columns) +
+    ggplot2::geom_text(ggplot2::aes(label = .data$label), size = 3) +
     ggplot2::scale_fill_gradient2(
-      limits = c(-1, 1), midpoint = 0, low = "#2166AC",
-      mid = "#F7F7F7", high = "#B2182B",
+      limits = c(-1, 1), midpoint = 0,
+      low = "#2166AC", mid = "#F7F7F7", high = "#B2182B",
       na.value = "#CED4DC", name = "Pearson r (unitless)"
     ) +
-    ggplot2::labs(title = "Pearson correlation matrix",
-                  subtitle = "Pairwise complete cases; n shown in every cell",
-                  x = "Variable", y = "Variable",
-                  caption = "No p-values, causal conclusions or multiple-testing claims.") +
+    ggplot2::labs(
+      title = "Pearson correlation matrix",
+      subtitle = "Pairwise complete cases; n reported in each cell",
+      x = "Variable", y = "Variable",
+      caption = "Descriptive associations; no p-values or causal claims."
+    ) +
     rt_theme() +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
 }
@@ -279,7 +336,7 @@ rt_plot <- function(kit, kind, value = NULL, x = NULL, y = NULL, group = NULL,
   if (!all(unlist(fields) %in% names(kit$variables)))
     stop("Every plotted field must have a dictionary label and unit.")
   get <- function(col) kit$variables[[col]]
-  data <- kit$data
+  data <- tibble::as_tibble(kit$data)
   p <- switch(kind,
     hist = rt_hist(data, value, get(value)$label, get(value)$unit, bins),
     box = rt_box(data, group, value, get(value)$label, get(value)$unit,
