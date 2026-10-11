@@ -31,6 +31,23 @@ result <- run_tidy_example(n = 90L, seed = 711L)
 print(result$join_audit)
 print(result$site_summary)
 
+# Visible tidyr grammar: keep each participant and both measurement units.
+# No missing values are silently discarded; each synthetic person yields two rows.
+measurement_columns <- c("age_years", "measurement_mg_dl")
+measurements_long <- result$analysis_ready |>
+  dplyr::select(dplyr::all_of(c("participant_id", "site", measurement_columns))) |>
+  tidyr::pivot_longer(
+    cols = dplyr::all_of(measurement_columns),
+    names_to = "measurement",
+    values_to = "measurement_value",
+    values_drop_na = FALSE
+  ) |>
+  dplyr::mutate(measurement_unit = dplyr::case_when(
+    .data$measurement == "age_years" ~ "years",
+    .data$measurement == "measurement_mg_dl" ~ "mg/dL"
+  ))
+stopifnot(nrow(measurements_long) == 2L * nrow(result$analysis_ready))
+
 # A direct ggplot grammar example, layered after dplyr preparation.
 observed_data <- result$analysis_ready |>
   dplyr::filter(!is.na(.data$measurement_mg_dl)) |>
