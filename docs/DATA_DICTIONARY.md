@@ -13,3 +13,7 @@
 **Contracts:** validate types without implicit coercion; preserve missingness; reject duplicate IDs; maintain explicit row-level unit and ID semantics. For longitudinal data, explicitly model repeated participant IDs and visit keys rather than bypassing duplicate checks. Maintain a source-to-internal-name crosswalk and join cardinality proof. Never infer that a similarly named real source column uses the same units.
 
 New study dictionary fields: source variable, unit, missing codes/reasons, range, controlled vocabulary, derivation, measurement date, transformation, provenance, confidentiality class, and release permission.
+
+## Source-to-analysis name preservation
+
+The normalized columns in this table are internal schema choices. The runnable [tidyverse workflow](../R/example_tidy_workflow.R) deliberately retains synthetic source field names (`Subject_ID`, `Age`, `Site`, `Marker`) before applying the explicit mapping to `participant_id`, `age_years`, `site`, `measurement_mg_dl`. Never silently rename accession IDs, NHANES variable names, external standards or repeated visit keys.
