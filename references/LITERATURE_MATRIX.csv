@@ -1,0 +1,15 @@
+id,reference,type,practice,application,limitation,url
+L01,FAIR Principles Wilkinson 2016,peer-reviewed,FAIR metadata and provenance,Source register and manifest,FAIR does not grant redistribution rights,https://doi.org/10.1038/sdata.2016.18
+L02,Wilson et al Good enough practices in scientific computing 2017,peer-reviewed,Research repository organization tests and automation,Project scaffold and CI,General guidance not study-specific validation,https://doi.org/10.1371/journal.pcbi.1005510
+L03,GitHub template repositories,official documentation,Template from reviewed source,README creation instructions,Requires repository owner setting,https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-template-repository
+L04,GitHub Actions secure use,official documentation,Pin trusted actions and limit permissions,CI workflow,Owners must maintain pin versions,https://docs.github.com/en/actions/reference/security/secure-use
+L05,scikit-learn common pitfalls,primary software manual,Prevent data leakage with pipelines,ml.py,Group split alone does not ensure external validity,https://scikit-learn.org/stable/common_pitfalls.html
+L06,scikit-learn model evaluation,primary software manual,Multiple metrics and performance assessment,ml.py,AUROC not clinical usefulness,https://scikit-learn.org/stable/modules/model_evaluation.html
+L07,TRIPOD+AI Collins et al 2024,reporting guideline,Prediction model reporting,ML playbook,Not regulatory approval,https://doi.org/10.1136/bmj-2023-078378
+L08,PROBAST+AI Moons et al 2025,peer-reviewed appraisal,Risk of bias and applicability,ML release review,Not a replacement for independent review,https://doi.org/10.1136/bmj-2024-082505
+L09,PyTorch reproducibility,primary software manual,Control randomness where possible,Optional torch script,Reproducibility across hardware is not guaranteed,https://pytorch.org/docs/stable/notes/randomness.html
+L10,Okabe and Ito color universal design,primary design guidance,Accessible categorical palette,Python and R plotting helpers,Color alone cannot convey categories to all readers,https://jfly.uni-koeln.de/color/
+L11,R extensions manual,primary software manual,Functional interfaces and package checks,R companion,Package checks do not verify scientific design,https://cran.r-project.org/doc/manuals/r-release/R-exts.html
+L12,NIH data management and sharing,official policy guidance,Source inventory and permissions,Project setup and release gates,Policy scope varies by funder and award,https://sharing.nih.gov/data-management-and-sharing-policy
+L13,Best Practices Git,independent source repository,Scientific software release gates,Release gate architecture,Adapt practices to project needs,https://github.com/pskeffington/Best-Practices-Git
+L14,Paul's Notes public resources,independent learning companion,Scientific graph interpretation and function contracts,Figure and R reference calls,Demonstrations are not clinical evidence,https://github.com/pskeffington/Dartmouth.HSE.Public/tree/main/06_RESOURCES
