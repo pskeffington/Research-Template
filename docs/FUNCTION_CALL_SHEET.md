@@ -1,5 +1,7 @@
 # Full biomedical researcher function-call sheet
 
+**R + tidyverse is the canonical biomedical coding style; Python remains supported.** Start with the [R style contract](../R/STYLE_GUIDE.md) and [runnable R workflow](../R/README.md). R code preserves source fields, normalizes internal analysis fields to snake_case, uses `dplyr`/`tidyr` pipelines, and shows `ggplot2` aesthetics, geoms and scales explicitly.
+
 **Author: Paul Skeffington · Prepared with OpenAI**
 
 The **minimum complete call** is a declared study and variable dictionary. Set labels, units, data class, observation unit, and categorical ordering once; subsequent calls supply missingness, denominators, captions, colors and export metadata automatically. All examples below use invented observations.
@@ -14,6 +16,54 @@ research-template audit --root .
 ~~~
 
 The gallery produces nine scientific chart presets (each PNG + PDF + JSON trace), numeric/stratified summaries, synthetic CSV, ML baseline metrics and execution checksum manifest.
+
+## 0. Canonical tidyverse, dplyr, tidyr and ggplot2 calls
+
+The complete executable path is below. Each operation remains visible and returns either a tidy tibble or an editable ggplot object:
+
+~~~r
+source("R/research_tidy.R")
+source("R/research_tidy.R")
+source("R/research_plots.R")
+source("R/synthetic_demo.R")
+source("R/example_tidy_workflow.R")
+
+result <- run_tidy_example(n = 90L, seed = 711L)
+print(result$join_audit)
+print(result$site_summary)
+
+# A direct ggplot grammar example, layered after dplyr preparation.
+observed_data <- result$analysis_ready |>
+  dplyr::filter(!is.na(.data$measurement_mg_dl)) |>
+  dplyr::mutate(site = factor(
+    .data$site, levels = c("North", "South", "West")
+  ))
+p <- ggplot2::ggplot(
+  observed_data,
+  ggplot2::aes(x = .data$site, y = .data$measurement_mg_dl,
+               fill = .data$site)
+) +
+  ggplot2::geom_boxplot(outlier.shape = NA, alpha = 0.75) +
+  ggplot2::geom_point(
+    position = ggplot2::position_jitter(width = 0.10, seed = 711),
+    alpha = 0.45
+  ) +
+  ggplot2::scale_fill_manual(values = stats::setNames(
+    rt_palette()[1:3], c("North", "South", "West")
+  )) +
+  ggplot2::labs(
+    title = "Synthetic measurement by site",
+    x = "Enrollment site (category)",
+    y = "Simulated measurement (mg/dL)",
+    caption = "Synthetic descriptive data; no clinical claim."
+  ) +
+  rt_theme()
+rt_save(p, "artifacts/tidy/explicit_grammar.pdf")
+~~~
+
+Documented tidy data entry points: `rename_source_columns()`, `validate_join_keys()`, `join_research_tables()`, `pivot_measurements_longer()`, `pivot_measurements_wider()`, `summarize_measurements()`, and `summarize_missingness()`. Refer to [R/README.md](../R/README.md) for complete plot and statistics calls.
+
+---
 
 ## 1. Set complete study context once
 
@@ -218,8 +268,8 @@ kit <- rt_kit(cohort, dictionary, study = "Synthetic methods",
               source = "rt_make_synthetic(seed=711)",
               status = "SYNTHETIC / DESCRIPTIVE ONLY")
 
-summary <- rt_summary(cohort, "measurement_mg_dl", "mg/dL")
-by_site <- rt_summary_by(cohort, "measurement_mg_dl", "site", "mg/dL")
+summary <- summarize_measurements(cohort, "measurement_mg_dl", "mg/dL")
+by_site <- summarize_measurements(cohort, "measurement_mg_dl", "mg/dL", by = "site")
 
 p <- rt_plot(kit, "hist", value = "age_years", bins = 12L)
 rt_save(p, "artifacts/r/hist.pdf")

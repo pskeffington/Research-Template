@@ -12,3 +12,7 @@ Use this as a working procedure, not a substitute for a study-specific approved 
 8. **Separate evidence from release.** Record run parameters, code revision, input/output checksums, figure captions, denominators and source claims; use [RELEASE_GATES.md](RELEASE_GATES.md) for documented scientific decisions.
 
 Environment installation is *not* itself data access, scientific review, or permission to deploy.
+
+## R/tidyverse execution style
+
+Use [R/STYLE_GUIDE.md](../R/STYLE_GUIDE.md). Keep external source names unchanged; normalize with `rename_source_columns()` only after documenting the mapping. Audit IDs and joins before `dplyr` transformations. Use `tidyr::pivot_longer()` and `pivot_wider()` via row-count and unit-validated wrappers; summarize with `summarize_measurements()` and `summarize_missingness()`. Build figures as editable layered `ggplot2` objects and save only intentionally.

@@ -46,11 +46,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - name: Install system R and ggplot2
+      - name: Install R and tidyverse core
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends r-base-core r-cran-ggplot2
-      - name: Test R summary and all charts
+          sudo apt-get install -y --no-install-recommends \
+            r-base-core r-cran-ggplot2 r-cran-dplyr r-cran-tidyr r-cran-tibble r-cran-readr
+      - name: Check R style contract
+        run: Rscript --vanilla R/tests/test_style_contract.R
+      - name: Test tidyverse joins, pivots, summaries and ggplot
+        run: Rscript --vanilla R/tests/test_tidy_workflow.R
+      - name: Test R summary and scientific plots
         run: Rscript --vanilla R/tests/test_research_plots.R
       - name: Confirm R exports ignored
         run: git check-ignore artifacts/r_ci/test_plot.pdf

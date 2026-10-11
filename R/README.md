@@ -1,46 +1,93 @@
-# R biomedical graph and summary calls
+# R-first biomedical research: tidyverse and ggplot2
 
 **Author: Paul Skeffington · Prepared with OpenAI**
 
-R/ggplot2 are optional and installed separately. The scripts do not read identifiable records, install packages, or write artifacts on source. Source files from the repository root.
+All R examples follow the [R coding style contract](STYLE_GUIDE.md): source field names preserved, internal snake_case, native `|>`, explicit `dplyr::` and `tidyr::` transformations, and editable layered `ggplot2` figures. R 4.1+ and installed `ggplot2`, `dplyr`, `tidyr`, `tibble` are required. Sourcing these scripts defines functions only, with no downloads, hidden data reads, package installation or file writes.
+
+## Fully runnable tidyverse workflow
 
 ~~~r
+source("R/research_tidy.R")
 source("R/research_plots.R")
 source("R/synthetic_demo.R")
-d <- rt_make_synthetic(n = 90L, seed = 711L)
-dict <- list(
+source("R/example_tidy_workflow.R")
+
+result <- run_tidy_example(n = 90L, seed = 711L)
+print(result$id_audit)
+print(result$join_audit)
+print(result$site_summary)
+print(result$missingness_summary)
+print(result$measurements_long)
+print(result$figure)
+rt_save(result$figure, "artifacts/tidy/relationship.pdf")
+~~~
+
+This runnable example demonstrates a source-to-analysis rename, verified one-to-one join, unmatched row audit, reversible wide/long transformation with source units and NA retained, grouped mean/SD/median/IQR/n/missing summaries, and an explicit `ggplot2::ggplot() + geom_point() + scale_color_manual() + labs() + theme` composition.
+
+## Standalone functions and figure calls
+
+~~~r
+source("R/research_tidy.R")
+source("R/research_plots.R")
+source("R/synthetic_demo.R")
+participants_clean <- make_synthetic_cohort(n = 90L, seed = 711L)
+
+summary_total <- summarize_measurements(
+  participants_clean, "measurement_mg_dl", "mg/dL"
+)
+summary_by_site <- summarize_measurements(
+  participants_clean, "measurement_mg_dl", "mg/dL", by = "site"
+)
+missingness <- summarize_missingness(
+  participants_clean, c("age_years", "measurement_mg_dl")
+)
+
+dictionary <- list(
   site = list(label = "Site", unit = "category",
               levels = c("North", "South", "West")),
   age_years = list(label = "Age", unit = "years"),
-  measurement_mg_dl = list(label = "Simulated measurement", unit = "mg/dL")
+  measurement_mg_dl = list(label = "Synthetic measurement", unit = "mg/dL")
 )
-kit <- rt_kit(
-  d, dict, study = "Synthetic cohort",
-  observation_unit = "simulated person", source = "rt_make_synthetic()",
+figure_kit <- rt_kit(
+  participants_clean, dictionary, study = "Synthetic methods",
+  observation_unit = "simulated person",
+  source = "make_synthetic_cohort(seed=711)",
   status = "SYNTHETIC / DESCRIPTIVE ONLY"
 )
-numeric <- rt_summary(d, "measurement_mg_dl", "mg/dL")
-grouped <- rt_summary_by(d, "measurement_mg_dl", "site", "mg/dL")
-p <- rt_plot(kit, "hist", value = "measurement_mg_dl", bins = 12L)
-rt_save(p, "artifacts/r/histogram.pdf")
-p <- rt_plot(kit, "box", value = "measurement_mg_dl", group = "site")
-rt_save(p, "artifacts/r/box.pdf")
-p <- rt_plot(kit, "violin", value = "measurement_mg_dl", group = "site")
-rt_save(p, "artifacts/r/violin.png")
-p <- rt_plot(kit, "scatter", x = "age_years", y = "measurement_mg_dl")
-rt_save(p, "artifacts/r/scatter.pdf")
-p <- rt_plot(kit, "bar", group = "site")
-rt_save(p, "artifacts/r/counts.pdf")
-p <- rt_corr_heatmap(d, c("age_years", "measurement_mg_dl"))
-rt_save(p, "artifacts/r/correlation.pdf")
-p <- rt_heatmap(
-  matrix(c(-1, 0, NA, 1), nrow = 2), c("G1", "G2"), c("S1", "S2"),
-  name = "Synthetic signed measurement", unit = "unitless",
+p_hist <- rt_plot(figure_kit, "hist", value = "age_years")
+p_box <- rt_plot(figure_kit, "box", value = "measurement_mg_dl", group = "site")
+p_violin <- rt_plot(figure_kit, "violin", value = "measurement_mg_dl", group = "site")
+p_scatter <- rt_plot(figure_kit, "scatter", x = "age_years", y = "measurement_mg_dl")
+p_bar <- rt_plot(figure_kit, "bar", group = "site")
+p_corr <- rt_corr_heatmap(participants_clean, c("age_years", "measurement_mg_dl"))
+p_heat <- rt_heatmap(
+  matrix(c(-1, 0, NA, 1), nrow = 2),
+  row_labels = c("G1", "G2"), col_labels = c("S1", "S2"),
+  name = "Synthetic deviation", unit = "unitless",
   mode = "diverging", center = 0
 )
-rt_save(p, "artifacts/r/heatmap.pdf")
+rt_save(p_box, "artifacts/tidy/boxplot.pdf")
 ~~~
 
-All R figures use named axes and units, sample-size captions, Okabe–Ito categories, Viridis magnitude or explicitly centered diverging colors, and neutral gray for missing cells. `rt_summary` reports n measured/missing, mean, sample SD, median, quartiles, IQR and observed range. Statistical inference must separately follow a study-appropriate protocol.
+All return editable `ggplot` objects. The numeric summary interface now returns a **tidy tibble** for both ungrouped and grouped results. Compatibility: `rt_make_synthetic()` aliases `make_synthetic_cohort()`; `rt_summary_by()` now returns a grouped tibble, not its earlier list format. Source `R/research_tidy.R` before `R/research_plots.R`. See the [complete function atlas](../docs/FUNCTION_CALL_SHEET.md) and [figure conventions](../docs/FIGURE_STANDARD.md).
 
-Consult [the complete function-call sheet](../docs/FUNCTION_CALL_SHEET.md) and [figure standard](../docs/FIGURE_STANDARD.md) for Python equivalents, interpretations and export limits.
+## Explicit permitted-data imports
+
+Only use approved files. For example, after confirming the file exists and units/codes are documented:
+
+~~~r
+# participants_source <- readr::read_csv(
+#   "data/raw/approved_source.csv",
+#   col_types = readr::cols(
+#     Subject_ID = readr::col_character(),
+#     Age = readr::col_double(),
+#     Site = readr::col_character()
+#   )
+# )
+# participants_clean <- rename_source_columns(
+#   participants_source, c(participant_id = "Subject_ID",
+#                          age_years = "Age", site = "Site")
+# )
+~~~
+
+The example never reads real records or implies clinical validity.
