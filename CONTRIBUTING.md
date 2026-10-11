@@ -11,3 +11,7 @@ Reviewer gates: (1) code correctness and tests, (2) schema and provenance, (3) a
 ## R style and tidyverse validation
 
 Follow [R/STYLE_GUIDE.md](R/STYLE_GUIDE.md): snake_case internal names, native `|>`, namespaced `dplyr`/`tidyr`/`ggplot2`, complete units and no source-time side effects. Confirm `Rscript --vanilla R/tests/test_style_contract.R`, `Rscript --vanilla R/tests/test_tidy_workflow.R`, and `Rscript --vanilla R/tests/test_research_plots.R` all pass before merging. Do not substitute style for data integrity or clinical evidence.
+
+## Complete repository style checks
+
+Before merging run `ruff check .`, `python -m pytest -q`, `Rscript --vanilla R/tests/test_style_contract.R`, `Rscript --vanilla R/tests/test_documentation_examples.R`, `Rscript --vanilla R/tests/test_tidy_workflow.R` and `Rscript --vanilla R/tests/test_research_plots.R`. The [coding conventions](docs/CODING_CONVENTIONS.md) apply to all source files, not just the original examples. Preserve external variable names, identifiers, units and analysis semantics.
