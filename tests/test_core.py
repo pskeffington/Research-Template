@@ -6,6 +6,12 @@ from research_template.cli import audit, demo
 from research_template.plots import axis_label
 from research_template.provenance import create_manifest
 from research_template.quality import DataContractError, validate_cohort
+from research_template.summary import (
+    category_summary,
+    complete_pair_summary,
+    grouped_numeric_summary,
+    numeric_summary,
+)
 from research_template.synthetic import make_cohort
 
 
@@ -45,13 +51,39 @@ def test_axis_label_requires_units():
         axis_label("Age", "")
 
 
+def test_summary_denominators_quartiles_and_sample_sd():
+    rows = [{"x": 1.0, "g": "a"}, {"x": 2.0, "g": "a"},
+            {"x": 3.0, "g": "b"}, {"x": None, "g": "b"}]
+    result = numeric_summary(rows, "x", unit="mg/dL")
+    assert result["n_total"] == 4 and result["n_measured"] == 3
+    assert result["n_missing"] == 1 and result["median"] == 2
+    assert result["q1"] == 1.5 and result["q3"] == 2.5
+    assert result["sd"] == 1
+    result = grouped_numeric_summary(rows, "x", "g", unit="mg/dL", levels=("a", "b"))
+    assert result["groups"][1]["numeric"]["n_measured"] == 1
+    assert category_summary(rows, "g")["categories"][0]["n"] == 2
+
+
+def test_summary_rejects_malformed_numeric_and_missing_columns():
+    with pytest.raises(TypeError, match="nonnumeric"):
+        numeric_summary([{"x": "bad"}], "x", unit="unitless")
+    with pytest.raises(ValueError, match="Nonempty"):
+        complete_pair_summary([{"x": 1.0}], "x", "y")
+
+
+def test_complete_pair_exclusions():
+    rows = [{"x": 1.0, "y": 1.0}, {"x": None, "y": 2.0}]
+    assert complete_pair_summary(rows, "x", "y")["n_complete_pairs"] == 1
+
+
 def test_core_demo_produces_checksums(tmp_path):
     out = tmp_path / "synthetic"
     demo(out, n=60, seed=9)
     manifest = json.loads((out / "run_manifest.json").read_text())
     assert manifest["status"] == "DEMONSTRATION_ONLY"
     assert manifest["scientific_release"] == "BLOCKED_UNTIL_REVIEWED"
-    assert len(manifest["artifacts"]) == 2
+    assert len(manifest["artifacts"]) == 4
+    assert (out / "summary_numeric.json").is_file()
 
 
 def test_manifest_refuses_outside_directory(tmp_path):

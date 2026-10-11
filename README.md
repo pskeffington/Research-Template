@@ -19,15 +19,15 @@ research-template demo --out artifacts/demo --plots --ml
 research-template audit --root .
 ```
 
-The run generates synthetic CSV data, a schema/missingness report, publication-quality PDF/PNG examples, baseline ML metrics and a checksum-indexed manifest in `artifacts/demo/` (gitignored). Run without optional packages via `python -m pip install -e .` and `research-template demo`. Audit verifies the scaffold, **not scientific validity**; `research-template audit --require-release` intentionally fails until a specific study passes independent scientific review.
+The run generates synthetic CSV data, numeric and grouped summary-statistics tables (n, missing values, mean, SD, median, quartiles, IQR, range), nine publication-oriented PNG/PDF figure presets with JSON provenance/checksums, baseline ML metrics and a run manifest in `artifacts/demo/` (gitignored). Run without optional packages via `python -m pip install -e .` and `research-template demo`. Audit verifies the scaffold, **not scientific validity**; `research-template audit --require-release` intentionally fails until a specific study passes independent scientific review.
 
 ## Find the right tool
 
 | Goal | Start here | Ready-to-call interface |
 | --- | --- | --- |
 | Configure a study | [Project setup](docs/PROJECT_SETUP.md), [protocol](docs/PROTOCOL.md), [data dictionary](docs/DATA_DICTIONARY.md) | `research-template audit --root .` |
-| Find a function | [Python/R call sheet](docs/FUNCTION_CALL_SHEET.md) | `make_cohort()`, `validate_cohort()`, one-call plots |
-| Produce scientific figures | [Figure conventions](docs/FIGURE_STANDARD.md) | `histogram()`, `scatter()`, `group_box()`, `heatmap()`, `save_figure()` |
+| Find a function | **[Complete biomedical R/Python function sheet](docs/FUNCTION_CALL_SHEET.md)** | `FigureKit`, `kit.summary()`, `kit.box()`, `kit.correlation_heatmap()` |
+| Produce scientific figures | [Colors, heatmaps and complete figure conventions](docs/FIGURE_STANDARD.md) | `kit.histogram()`, `kit.missingness()`, `FigureKit.matrix_heatmap()` |
 | Start statistical comparison | [Statistical workflow](docs/STATISTICAL_WORKFLOW.md) | R comparison/test recipe with explicit assumptions |
 | Develop a prediction model | [ML playbook](docs/ML_PLAYBOOK.md) | `run_classification()`, optional PyTorch |
 | Track evidence | [Source register](docs/SOURCE_REGISTER.md), [literature matrix](references/LITERATURE_MATRIX.csv) | `create_manifest()`, `sha256_file()` |
@@ -38,7 +38,7 @@ The run generates synthetic CSV data, a schema/missingness report, publication-q
 ## Included capabilities
 
 - **Python core:** zero mandatory runtime dependencies, validated synthetic example, explicit units, missingness and duplicate-key checks, manifest with Git revision, environment versions, SHA-256 outputs.
-- **Figures:** optional Matplotlib with Okabe–Ito categorical colors, viridis magnitude and diverging palettes; axes, units and denominators are explicit. PNG 300 dpi plus PDF/SVG.
+- **Figures and summaries:** dictionary-driven `FigureKit` declares units and study provenance once, then builds full-axis histograms, boxes, violins, grouped scatters, counts, missingness, Pearson correlation matrices and both heatmap types. Matching R companion, one-call mean/SD/median/IQR/group statistics, category-safe Okabe–Ito colors, Viridis magnitude, centered RdBu diverging heatmaps, missing-gray and 300 dpi PNG/vector PDF + JSON figure trace.
 - **Machine learning:** optional scikit-learn group-preserving holdout, training-only imputation/scaling, logistic regression versus dummy baseline, balanced accuracy, AUROC and Brier score. An additional CPU PyTorch example is opt-in.
 - **R companion:** optional ggplot2 helpers and an independent synthetic demo; no package installs performed when scripts are sourced.
 - **Governance:** CI, tests, PR checklist, no automatic deployment, data boundary, literature matrix, project protocol and scientific gates.
