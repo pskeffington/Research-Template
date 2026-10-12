@@ -25,6 +25,10 @@ rt_figure_audit <- function(output_stem, min_ink_fraction = 0.0001,
   meta <- readRDS(paths[["metadata"]])
   if (!identical(meta$figure_review, "PENDING_VISUAL_AND_SCIENTIFIC_REVIEW"))
     stop("Figure must remain pending scientific and visual review.")
+  if (grepl("PRIVATE|RESTRICTED|PHI", meta$data_status, ignore.case = TRUE) &&
+      (isTRUE(meta$public_release_approved) ||
+       isTRUE(meta$public_release_requested)))
+    stop("Restricted data cannot be marked as approved for public release.")
   required <- c("figure_id", "legend", "source", "data_status",
                 "width_in", "height_in", "dpi", "files")
   if (!all(required %in% names(meta)) ||
@@ -39,14 +43,14 @@ rt_figure_audit <- function(output_stem, min_ink_fraction = 0.0001,
   if (!identical(normalizePath(as.character(meta$files)),
                  normalizePath(paths[c("pdf", "png")])))
     stop("Provenance must identify the matching figure files.")
-  if ("sha256" %in% names(meta) && length(meta$sha256)) {
-    if (!requireNamespace("digest", quietly = TRUE))
-      stop("The digest package is required to verify recorded checksums.")
-    calculated <- vapply(paths[c("pdf", "png")], digest::digest, character(1),
-                         file = TRUE, algo = "sha256")
-    if (!identical(unname(calculated), unname(as.character(meta$sha256))))
-      stop("Figure checksums do not match provenance.")
-  }
+  if (!"sha256" %in% names(meta) || length(meta$sha256) != 2L)
+    stop("Both figure SHA-256 checksums are required for automated review.")
+  if (!requireNamespace("digest", quietly = TRUE))
+    stop("The digest package is required to verify recorded checksums.")
+  calculated <- vapply(paths[c("pdf", "png")], digest::digest, character(1),
+                       file = TRUE, algo = "sha256")
+  if (!identical(unname(calculated), unname(as.character(meta$sha256))))
+    stop("Figure checksums do not match provenance.")
   image <- png::readPNG(paths[["png"]], info = TRUE)
   shape <- dim(image)
   if (length(shape) < 2L)
