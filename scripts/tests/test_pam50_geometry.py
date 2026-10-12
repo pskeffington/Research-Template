@@ -9,8 +9,8 @@ import unittest
 from pathlib import Path
 
 import pymupdf
-from scripts.audit_pam50_layout import _matrix_to_column_labels_gap
 
+from scripts.audit_pam50_layout import _matrix_to_column_labels_gap
 
 LABELS = {
     "paired_effects": ("Basal", "Her2", "LumA", "LumB"),
