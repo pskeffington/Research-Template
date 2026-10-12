@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -55,10 +56,40 @@ def _page_words(pdf: Path) -> tuple[float, float, list[tuple[float, float, float
     return width, height, boxes
 
 
+def _paired_label_to_legend_gap(pdf: Path) -> float:
+    """Measure the vertical clearance between subtype n-labels and legend title.
+
+    Outer page margin checks cannot detect collisions INSIDE the figure.
+    The frozen 60x4 paired-effect layout has four explicit "n=... pairs" labels.
+    """
+    root = ET.fromstring(_poppler(pdf, "-bbox-layout"))
+    lines = []
+    for line in root.findall(".//x:line", NS):
+        words = line.findall("x:word", NS)
+        if not words:
+            continue
+        label = " ".join((w.text or "") for w in words)
+        ymin = min(float(w.attrib["yMin"]) for w in words)
+        ymax = max(float(w.attrib["yMax"]) for w in words)
+        lines.append((label, ymin, ymax))
+    counts = []
+    for text, _, ymax in lines:
+        if re.search(r"n\s*=\s*(?:16|9|59|22)\s+pairs\b", text):
+            counts.append(ymax)
+    titles = [ymin for text, ymin, _ in lines
+              if "Paired tumor - adjacent normal" in text]
+    if len(counts) != 4 or len(titles) != 1:
+        raise ValueError("Cannot identify all four subtype labels or continuous legend heading")
+    return min(titles) - max(counts)
+
+
 def audit_folder(folder: Path, min_margin_pt: float = 12.0,
-                 check_labels: bool = False) -> dict:
+                 check_labels: bool = False,
+                 min_footer_gap_pt: float = 12.0) -> dict:
     if not math.isfinite(min_margin_pt) or not (0 < min_margin_pt <= 72):
         raise ValueError("Margin must be between 0 and 72 points")
+    if not math.isfinite(min_footer_gap_pt) or not (0 < min_footer_gap_pt <= 72):
+        raise ValueError("Footer gap must be between 0 and 72 points")
     summaries = {}
     metadata = {}
     for kind in KINDS:
@@ -75,6 +106,10 @@ def audit_folder(folder: Path, min_margin_pt: float = 12.0,
             raise ValueError("Unexpected inferential status for post-selection figure")
         if meta.get("sample_level_columns") is not False:
             raise ValueError("Model effect columns must not be labeled as samples")
+        if meta.get("internal_bottom_legend_gap_mm") != 12:
+            raise ValueError("Internal legend clearance must be 12 mm")
+        if meta.get("anchor_legend_alignment") != "heatmap_top":
+            raise ValueError("Categorical anchor key must align with heatmap top")
         if meta.get("anchor_legend") != "GENE_ANCHOR_15_PER_GROUP_SHOWN_LEFT":
             raise ValueError("On-page gene-anchor key is not declared")
         if meta.get("caption_review") != "PENDING_AUTHOR_AND_SCIENTIFIC_REVIEW":
@@ -119,7 +154,18 @@ def audit_folder(folder: Path, min_margin_pt: float = 12.0,
             for label in meta["gene_labels"]:
                 if label not in page_text:
                     raise ValueError("A declared gene label was lost during PDF export")
+        measured_footer_gap = (
+            _paired_label_to_legend_gap(pdf) if kind == "paired_effects" else None
+        )
+        if measured_footer_gap is not None and measured_footer_gap < min_footer_gap_pt:
+            raise ValueError(
+                f"Subtype labels and bottom legend are only "
+                f"{measured_footer_gap:.2f}pt apart; require {min_footer_gap_pt:.1f}pt"
+            )
         summaries[kind] = {
+            "measured_subtype_label_to_legend_gap_pt": (
+                round(measured_footer_gap, 2) if measured_footer_gap is not None else None
+            ),
             "pdf_page_in": [float(meta["width_in"]), float(meta["height_in"])],
             "min_observed_text_margin_pt": round(min(observed), 2),
             "text_box_count": len(boxes),
@@ -145,6 +191,7 @@ def audit_folder(folder: Path, min_margin_pt: float = 12.0,
         "human_visual_review": "PENDING",
         "scientific_review": "PENDING",
         "min_margin_required_pt": min_margin_pt,
+        "min_footer_gap_required_pt": min_footer_gap_pt,
         "figures": summaries,
     }
 
@@ -153,11 +200,14 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("folder", type=Path, help="Directory with two PAM50 manuscript PDF/metadata pairs")
     parser.add_argument("--min-margin-pt", type=float, default=12.0)
+    parser.add_argument("--min-footer-gap-pt", type=float, default=12.0,
+                        help="Minimum distance between the paired subtype labels and bottom legend title")
     parser.add_argument("--check-labels", action="store_true",
                         help="Require all 60 gene labels within extracted PDF text")
     args = parser.parse_args()
     try:
-        review = audit_folder(args.folder, args.min_margin_pt, args.check_labels)
+        review = audit_folder(args.folder, args.min_margin_pt, args.check_labels,
+                              args.min_footer_gap_pt)
     except (ValueError, KeyError, TypeError, OSError) as error:
         print(f"MANUSCRIPT LAYOUT BLOCKED: {error}", file=sys.stderr)
         return 1
