@@ -96,3 +96,5 @@ The optional PAM50 **full-range color-scale diagnostic** (`R/research_pam50_scal
 
 
 **Private PAM50 manuscript handoff:** Following frozen ST06/ST07/ST09 source verification and two-panel PDF geometry acceptance, `scripts/build_pam50_review_packet.py` generates a protected, **unsigned** reviewer worksheet and audit JSON in the private output directory. It checks figure/caption provenance and returns `REVIEW_REQUIRED_NOT_APPROVED`; it never signs off science, authorizes public release or merges repository changes. See the [manuscript visualization release guide](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md).
+
+**Unsigned review governance:** For private manuscript handoff, `scripts/pam50_review_governance.py` adds five revision-linked human decision fields and explicit journal-policy metadata preflight after the verified packet. All decisions default to pending; structural decision validation never grants merge or distribution authorization. See [human review and journal preflight](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md#revision-aware-human-decisions-and-journal-policy-preflight).
