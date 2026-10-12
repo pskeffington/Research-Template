@@ -180,12 +180,18 @@ rt_export_complex_heatmap <- function(bundle, output_stem, figure_id, legend,
     stop("Use positive printable dimensions <= 30 inches and >= 300 dpi.")
   if (grepl("[\\\\/]$", output_stem) || !nzchar(basename(output_stem)))
     stop("Output stem must include a basename.")
-  files <- paste0(output_stem, c(".pdf", ".png", ".metadata.rds"))
+  files <- paste0(output_stem, c(".pdf", ".png", ".metadata.rds",
+                                  ".metadata.json"))
   if (any(file.exists(files))) stop("Refusing to overwrite figure artifacts.")
   dir.create(dirname(output_stem), recursive = TRUE, showWarnings = FALSE)
   complete <- FALSE
   on.exit(if (!complete) unlink(files), add = TRUE)
-  grDevices::pdf(files[1], width = width, height = height, useDingbats = FALSE)
+  if (capabilities("cairo")) {
+    grDevices::cairo_pdf(files[1], width = width, height = height)
+  } else {
+    grDevices::pdf(files[1], width = width, height = height,
+                   useDingbats = FALSE)
+  }
   tryCatch(ComplexHeatmap::draw(bundle$heatmap, heatmap_legend_side = "right",
                                 annotation_legend_side = "right"),
            finally = grDevices::dev.off())
@@ -215,6 +221,8 @@ rt_export_complex_heatmap <- function(bundle, output_stem, figure_id, legend,
     meta$sha256 <- vapply(files[1:2], digest::digest,
                           character(1), file = TRUE, algo = "sha256")
   saveRDS(meta, files[3])
+  if (requireNamespace("jsonlite", quietly = TRUE))
+    jsonlite::write_json(meta, files[4], auto_unbox = TRUE, pretty = TRUE)
   complete <- TRUE
   invisible(meta)
 }
