@@ -54,6 +54,12 @@ rt_prepare_pam50_research <- function(signature, contrasts = NULL,
   ordered <- signature[order_index, , drop = FALSE]
   effect_matrix <- as.matrix(ordered[columns])
   dimnames(effect_matrix) <- list(ordered$gene_id, subtypes)
+  computed_anchor <- apply(effect_matrix, 1L, function(z) {
+    subtypes[which.max(z)]
+  })
+  if (!identical(unname(computed_anchor),
+                 as.character(ordered$anchor_subtype)))
+    stop("Frozen gene anchor must equal its highest paired subtype effect.")
   gene_label <- as.character(ordered$SYMBOL)
   missing_symbol <- is.na(gene_label) | !nzchar(trimws(gene_label))
   gene_label[missing_symbol] <- ordered$gene_id[missing_symbol]
