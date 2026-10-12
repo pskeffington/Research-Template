@@ -373,3 +373,13 @@ Preserve exact user-provided variable casing and source identifier labels.
 | `rt_figure_audit(file_stem)` | One generated manuscript file stem | Structural, font, hash, pixel-size and nonblank QA, **not** scientific approval |
 
 For input file examples, frozen subtype-specific interpretations and strict privacy, see the [manuscript heatmap adapter section](MANUSCRIPT_VISUALIZATION_DELIVERY.md#tcga-brca-pam50-frozen-research-heatmaps-aligned-adapter). Do not confuse the formal 106-pair subtype model with the primary 109-pair discovery analysis, and do not infer clinical biomarker validity from discovery-selected genes.
+
+
+### Frozen-source and physical-print QA gates
+
+| Call | Inputs | Fail-closed behavior |
+| --- | --- | --- |
+| `rt_read_pam50_locked(st06_file, st07_file, st09_file, expected_sha256)` | Three **local, full** frozen CSVs and explicit named SHA-256 values for ST06/ST07/ST09 | Rejects absent/mismatched hashes, 21,432/128,592/60 row-contract errors, missing genes, 240 selected-effect disagreement, 360 incorrect contrasts, and wrong anchor maxima |
+| `python3 scripts/audit_pam50_layout.py <local_output_dir> --min-margin-pt 12 --check-labels` | Locally generated two manuscript PDF + JSON sidecar pairs, Poppler | Rejects text too close to PDF perimeter, missing declared gene labels, inconsistent gene order, subtype denominators, scale, contrast sequence or inferential status |
+
+The research export uses a 7 mm bottom/top and 6 mm left/right **ComplexHeatmap plot padding**. A structural audit cannot verify biological interpretation, accessibility, patient identity, or that an operator-supplied SHA-256 source pin represents authorized study evidence.
