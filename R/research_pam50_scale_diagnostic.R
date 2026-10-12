@@ -82,7 +82,8 @@ rt_pam50_scale_diagnostic <- function(bundle, neutral_fraction = 0.2,
       caption = paste(
         "Diagnostic only: bars count 240 subtype effects and 360 contrasts across 60 frozen genes.",
         "Values are correlated post-selection model outputs, NOT independent patients or uncertainty.",
-        "No clipping, new normalization, model fitting or significance testing."
+        "No clipping, new normalization, model fitting or significance testing.",
+        sep = "\n"
       )
     ) +
     rt_theme() +
