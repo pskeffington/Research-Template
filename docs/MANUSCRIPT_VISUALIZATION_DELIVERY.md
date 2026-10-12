@@ -285,3 +285,12 @@ The earlier PDF exposed a **layout problem inside the figure**: the paired-subty
 The renderer now uses a temporary, locally restored `ComplexHeatmap::ht_opt(HEATMAP_LEGEND_PADDING = grid::unit(12, "mm"))` while drawing *each* PDF and PNG, together with `align_annotation_legend = "heatmap_top"` for the separate left-side gene anchor key. The 7/6/7/6-mm outer page padding is unchanged. The change creates dedicated whitespace below the four subtype labels, **not** a data transform, font reduction, altered gene ordering or taller paper size.
 
 `scripts/audit_pam50_layout.py --min-footer-gap-pt 12` now measures actual PDF text bounding boxes and rejects the paired-effect PDF if the bottom legend title lies fewer than **12 pt** below the four `n=... pairs` labels. This is an independent inner-layout gate, in addition to the existing 12-pt PDF perimeter margin gate. Record the requested 12-mm internal separation and top-aligned anchor legend in the private figure sidecar; visual sign-off is still required.
+
+
+### Independent rotated-contrast geometry regression
+
+The `scripts/audit_pam50_layout.py` PDF validator now measures the true lower edge of vector heatmap cells against column-name glyph bounding boxes on **both** PAM50 figures. It expects exactly 240 vector cells and four unrotated labels for the paired-effect matrix, and exactly 360 vector cells and six approximately 35-degree rotated comparison labels for the contrast matrix. It rejects missing labels, missing cells, unknown figure modes, and any matrix-to-text clearance below **12 PDF points**.
+
+The negative-control suite `scripts/tests/test_pam50_geometry.py` constructs **entirely synthetic vector PDFs** and demonstrates that deliberately overlapped layouts, missing labels, and missing heatmap cells are rejected, while properly spaced labels are accepted. No actual gene identifiers, frozen research bytes or private figures are included in those fixtures. Both panel checks are run in CI; an outer-page-margin pass is not sufficient to approve figure layout.
+
+The corrected renderer retains a scoped 7-mm `DIMNAME_PADDING` to separate the heatmap body from column labels and 12-mm `HEATMAP_LEGEND_PADDING` to separate column labels from the bottom legend; the two settings address different gaps.
