@@ -12,6 +12,11 @@ id <- sprintf("SYNTHETIC_%05d", seq_len(n))
 set.seed(711)
 effect <- matrix(stats::rnorm(n * 4L), ncol = 4L)
 colnames(effect) <- paste0("logFC_", sub)
+for (group in seq_along(sub)) {
+  selected_rows <- chosen <- seq_len(60L)
+  selected_rows <- selected_rows[rep(sub, each = 15L) == sub[group]]
+  effect[selected_rows, group] <- effect[selected_rows, group] + 8.0
+}
 full <- data.frame(gene_id = id, effect, check.names = FALSE)
 chosen <- seq_len(60L)
 st09 <- data.frame(
