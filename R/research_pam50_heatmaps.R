@@ -282,11 +282,16 @@ rt_draw_pam50_with_legend_gap <- function(heatmap,
       is.na(legend_gap_mm) || !is.finite(legend_gap_mm) ||
       legend_gap_mm < 8 || legend_gap_mm > 25)
     stop("Bottom legend separation must be 8-25 mm.")
-  previous <- ComplexHeatmap::ht_opt("HEATMAP_LEGEND_PADDING")
+  previous_legend <- ComplexHeatmap::ht_opt("HEATMAP_LEGEND_PADDING")
+  previous_dimnames <- ComplexHeatmap::ht_opt("DIMNAME_PADDING")
   on.exit(ComplexHeatmap::ht_opt(
-    HEATMAP_LEGEND_PADDING = previous), add = TRUE)
+    HEATMAP_LEGEND_PADDING = previous_legend,
+    DIMNAME_PADDING = previous_dimnames), add = TRUE)
+  # This governs MATRIX -> COLUMN NAMES (Basal/Her2/LumA/LumB).
+  # HEATMAP_LEGEND_PADDING instead governs column names -> color legend.
   ComplexHeatmap::ht_opt(
-    HEATMAP_LEGEND_PADDING = grid::unit(legend_gap_mm, "mm"))
+    HEATMAP_LEGEND_PADDING = grid::unit(legend_gap_mm, "mm"),
+    DIMNAME_PADDING = grid::unit(7, "mm"))
   ComplexHeatmap::draw(
     heatmap, heatmap_legend_side = "bottom",
     annotation_legend_side = "left",
@@ -394,6 +399,7 @@ rt_export_pam50_research <- function(bundle, output_dir,
       n_missing_cells = 0L, width_in = width, height_in = height,
       outer_padding_mm = c(bottom = 7, left = 6, top = 7, right = 6),
       internal_bottom_legend_gap_mm = 12,
+      matrix_to_column_names_padding_mm = 7,
       anchor_legend_alignment = "heatmap_top",
       dpi = dpi, files = paths[1:2]
     )
