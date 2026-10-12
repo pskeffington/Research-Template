@@ -367,3 +367,26 @@ Each journal row separates official journal instructions from publisher-wide gen
 **Scope and evidence controls:** Briefings in Bioinformatics expressly does not accept pure original research; its review/protocol/case-study formats must not be confused with original discovery reports. Cancer Research's current matrix row is based on AACR-shared guidelines and remains pending journal-specific confirmation. The BMC Cancer row records Springer Nature *author-services* guidance, not verified BMC Cancer submission requirements. Recheck all live author instructions before submission, and record the source/date/version of whichever requirements the author personally accepts. No matrix row grants copyright rights, data permission, manuscript approval or merge authorization.
 
 Synthetic CI contract: `python3 -m unittest discover -s scripts/tests -p 'test_journal_policy_matrix.py' -v` requires dated HTTPS sources, unique IDs, honest authority labels, sensible numeric fields and conditional reporting guidance. These machine checks do not validate external websites and must not be described as journal certification.
+
+### Independent physical PDF/PNG export verification (12 October 2026)
+
+The source-locked research figures and the journal requirement matrix are now connected by an **independent read-only physical media auditor**: `scripts/audit_manuscript_physical.py`. The auditor uses PyMuPDF to open each of the two PAM50 heatmap PDFs and the scale-diagnostic PDF, then checks the actual PDF page count/dimensions, selectable text, vector drawings and all page font resources for embedded font bytes. It independently decodes the companion PNG images, measures pixel width/height and derives effective raster DPI from PDF physical inches rather than trusting the exporter-provided `dpi` field. Source SHA-256 digests and pending review flags are also independently reconciled. It refuses unembedded fonts, missing or corrupt images, unexpected page size, lowered effective DPI, altered outputs and forged figure approvals.
+
+Run in an authorized private checkout **after** the original source, geometry and manuscript-packet gates:
+
+~~~bash
+python3 plot-template/scripts/audit_manuscript_physical.py \
+  "$PAM50_OUTPUT_DIR" > "$PAM50_OUTPUT_DIR/PAM50_PHYSICAL_EXPORT_AUDIT.json"
+~~~
+
+The resulting JSON is a supplementary mechanical evidence record retained **only in the private artifact**. It does not alter, re-render, recolor or resize the original PDF/PNG files. It reports `PHYSICAL_EXPORTS_VERIFIED_MANUAL_REVIEW_PENDING` only if all three original pairs pass. Color-blind accessibility, detailed text legibility at a future journal's actual column width and publisher production acceptance still require human review.
+
+For a selected target journal, a read-only **advisory** may compare only explicitly present numerical rules from the journal literature CSV; this does not select a journal automatically and cannot authorize a derivative:
+
+~~~bash
+python3 scripts/audit_manuscript_physical.py PRIVATE_DIR \
+  --journal-id J03 \
+  --policy-matrix references/JOURNAL_FIGURE_REQUIREMENTS_MATRIX_2026-10-12.csv
+~~~
+
+J03 (PLOS ONE) is an example of a journal whose required TIFF/EPS final format and maximum page geometry would require a **separate author-reviewed export**. Do not interpret passing master figure physical QA as TIFF/EPS or column-scale certification. When no journal is selected, only the general master media check runs. The eight synthetic regression tests in `scripts/tests/test_manuscript_physical.py` use no research data and demonstrate rejection of checksum tampering, insufficient effective DPI, unembedded fonts, metadata geometry errors, forged approvals and incompatible journal policies.
