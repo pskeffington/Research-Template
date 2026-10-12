@@ -119,3 +119,6 @@ Unlike a typical sample-by-feature heatmap, **PAM50 subtype columns here are mod
 
 
 **Source seals and geometric QA.** Use `rt_read_pam50_locked(st06_file, st07_file, st09_file, expected_sha256)` before plotting actual frozen research sources. It matches three externally reviewed source digests; checks 21,432 gene effects, 128,592 six-family contrast rows, the 60-gene selection and high-effect anchor semantics; and returns selected records only when admission passes. Following local PDF export run `python3 scripts/audit_pam50_layout.py ... --min-margin-pt 12 --check-labels` to check full gene-label presence and glyph bounding boxes. These are structural checks, not scientific approval.
+
+
+**Color-scale sensitivity without hidden manipulation.** Source `R/research_pam50_scale_diagnostic.R` after `research_plots.R`, `research_pam50_heatmaps.R`, and supply the validated research bundle to `rt_pam50_scale_diagnostic(bundle, neutral_fraction = 0.2)`. It returns a supplementary 2-panel ggplot and tabulated counts/quantiles (240 subtype-effect cells, 360 contrast cells) using the exact shared unclipped main heatmap scale. Export this figure **separately** with `rt_manuscript_export()` and keep its analysis unit as *modeled effect cell*, never patient. The complete code appears in the [manuscript delivery guide](../docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md).
