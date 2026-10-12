@@ -91,3 +91,5 @@ The [manuscript visualization guide](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md#t
 
 
 **Manuscript preflight:** The research-aligned PAM50 adapter now has a separate hash-pinned full-source loader (`R/research_pam50_sources.R`) and automated PDF geometry check (`scripts/audit_pam50_layout.py`). Both must pass before source-specific review of private R11 research figures. The template does not embed frozen source hashes or research data; the operator must supply independently approved ST06/ST07/ST09 hashes. See [manuscript visualization delivery](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md).
+
+The optional PAM50 **full-range color-scale diagnostic** (`R/research_pam50_scale_diagnostic.R`) explains visually pale/near-zero modeled effects without altering either main heatmap. Its supplementary histogram distinguishes 240 subtype effects from 360 planned contrast values, preserves the same signed scale, and explicitly labels counts as correlated model-output cells rather than patient observations. See the [manuscript guide](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md).
