@@ -232,7 +232,9 @@ rt_pam50_manuscript_caption <- function(bundle, kind) {
   if (!identical(sum(as.integer(profile$n_pairs)), 106L) ||
       !identical(profile$genes_per_anchor, 15L))
     stop("Figure caption denominators and anchor sizes do not match the frozen cohort.")
-  cohort <- paste0("106 matched tumor/adjacent-normal patient pairs ",
+  cohort <- paste0(
+    "The formal subtype analysis includes 106 matched ",
+    "tumor/adjacent-normal patient pairs ",
     "(Basal n=16, Her2 n=9, LumA n=59, LumB n=22).")
   common <- paste(
     "Rows show 60 discovery-selected genes arranged in four immutable",
@@ -260,7 +262,7 @@ rt_pam50_manuscript_caption <- function(bundle, kind) {
       "60-gene paired-effect signature.",
       "Each column gives the first named subtype's paired log2 effect",
       "minus the second's, in this fixed order:",
-      paste(profile$contrasts, collapse = ", "), ".",
+      paste0(paste(profile$contrasts, collapse = ", "), "."),
       "These are differences between modeled paired effects,",
       "not independent patient measurements or standalone p-values.",
       common
