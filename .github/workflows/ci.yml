@@ -69,6 +69,8 @@ jobs:
         run: Rscript --vanilla R/tests/test_complex_heatmap.R
       - name: Generate and structurally audit synthetic manuscript references
         run: Rscript --vanilla R/tests/generate_manuscript_review.R
+      - name: Validate manuscript PAM50 frozen 60-gene effect and contrast alignment
+        run: Rscript --vanilla R/tests/test_pam50_heatmap_alignment.R
       - name: Test actual Plotly HTML creation and release guards
         run: Rscript --vanilla R/tests/test_plotly_export.R
       - name: Reject corrupted or scientifically unapproved figure artifacts
