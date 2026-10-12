@@ -160,7 +160,7 @@ installation or I/O is performed when sourcing the reusable modules.
 
 ## Visual-review defects and adversarial export checks (October 2026)
 
-The first synthetic reference export passed file-integrity checks, but rendered inspection found truncated captions/subtitles and a crowded, partially clipped ComplexHeatmap heading. The updated code wraps violin captions and volcano subtitles, places the unchanged heatmap measurement name in the title while retaining the full transformation in figure metadata, and wraps heatmap legend headings. Check the **new** CI artifact visually rather than treating the earlier structural PASS as proof of typographic quality.
+The first synthetic reference export passed file-integrity checks, but rendered inspection found truncated captions/subtitles and a crowded, partially clipped ComplexHeatmap heading. The updated code wraps violin captions and volcano subtitles, places the unchanged heatmap measurement name in the title while retaining the full transformation in figure metadata, and separates the continuous heatmap legend below the panel from categorical annotation legends on the right. Check the **new** CI artifact visually rather than treating the earlier structural PASS as proof of typographic quality.
 
 The CI gate also runs `R/tests/test_figure_audit_negative.R`: it requires rejection of absent PDF/PNG/metadata files, checksum mismatches or omissions, unreadable bytes, wrong PNG resolution, wholly white figures, wrong PDF page size, unembedded PDF fonts, heatmap sample-count inconsistency, restricted data marked public, and forged visual review status. Every synthetic comparison is isolated to temporary copied artifacts; production figures are not modified.
 
