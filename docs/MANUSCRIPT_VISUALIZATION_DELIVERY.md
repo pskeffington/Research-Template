@@ -309,3 +309,14 @@ It produces two **nonapproval** outputs: `PAM50_MANUSCRIPT_REVIEW.md` and `PAM50
 Admission is fail-closed: full ST06/ST07/ST09 source pins must be present in the **private validation result**; both panel SHA-256 digests must still match the locally exported PDF/PNG bytes; the 60-gene order, four anchored blocks, six first-minus-second contrasts, 106 formal paired patients, 109 primary-discovery pairs, unlabeled vs patient-level semantics, source scope, full symmetric scale and geometry pass must all remain consistent. The builder refuses missing captions, forged scientific/visual approval states, missing supplement evidence, modified figures or a preexisting packet. It does **not** independently retrieve clinical data or authenticate the original pin authority.
 
 GitHub Actions' private figure job may generate this packet as a seven-day private review artifact. **Automated assembly must never check boxes, record approval, authorize publication or merge a PR.** Reviewer decisions belong to the human manuscript/research governance process; storing a completed worksheet is a separate controlled act. CI tests use fabricated miniature files and metadata, never protected genes, patient observations or genuine figures. External paired-cohort replication and uncertainty gates remain blocked.
+
+
+### Post-assembly evidence verification
+
+The unsigned private reviewer packet now records SHA-256 digests for the 14 exact input/figure/caption/sidecar/layout files and a digest for the worksheet. The check is reproducible on the downloaded, unmodified private artifact directory:
+
+~~~bash
+python3 scripts/build_pam50_review_packet.py --verify /path/to/private/pam50-private-manuscript
+~~~
+
+The verification command reconstructs the expected packet, checks each source/output hash and pending human-review state, and compares the worksheet byte-for-byte. Missing/altered files, checked-off worksheet boxes and forged release states fail closed. This is tamper detection against an independently retained reference, **not a cryptographic signature or independent certification**. If an attacker can replace the entire packet and all evidence, these internal checks alone cannot establish provenance; independently retain the GitHub Actions run, pinned commit SHAs and artifact digest. The verification command is read-only and does not sign, merge or distribute figures.
