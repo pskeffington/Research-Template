@@ -100,6 +100,8 @@ stopifnot(requireNamespace("ComplexHeatmap", quietly = TRUE),
           requireNamespace("digest", quietly = TRUE),
           requireNamespace("jsonlite", quietly = TRUE))
 bundle <- rt_pam50_research_heatmaps(signature, contrasts)
+previous_gap <- ComplexHeatmap::ht_opt("HEATMAP_LEGEND_PADDING")
+stopifnot(inherits(previous_gap, "unit"))
 stopifnot(inherits(bundle, "rt_pam50_research_bundle"),
           identical(bundle$assessment, "POST_SELECTION_DESCRIPTIVE_ONLY"),
           inherits(bundle$paired_effects$heatmap, "HeatmapList"),
@@ -156,6 +158,7 @@ exports <- rt_export_pam50_research(
   bundle, output_dir = folder,
   source = "synthetic 60-gene aligned fixture, seed=711",
   data_status = "SYNTHETIC", width = 9, height = 13, dpi = 300L)
+stopifnot(identical(ComplexHeatmap::ht_opt("HEATMAP_LEGEND_PADDING"), previous_gap))
 stopifnot(length(exports) == 2L,
           exports$paired_effects$n_columns == 4L,
           exports$six_contrasts$n_columns == 6L,
@@ -173,6 +176,9 @@ stopifnot(length(exports) == 2L,
                     exports$six_contrasts$color_breaks),
           identical(exports$paired_effects$caption_review,
                     "PENDING_AUTHOR_AND_SCIENTIFIC_REVIEW"),
+          identical(exports$paired_effects$internal_bottom_legend_gap_mm, 12),
+          identical(exports$six_contrasts$internal_bottom_legend_gap_mm, 12),
+          identical(exports$paired_effects$anchor_legend_alignment, "heatmap_top"),
           identical(exports$six_contrasts$anchor_legend,
                     "GENE_ANCHOR_15_PER_GROUP_SHOWN_LEFT"))
 for (kind in c("paired_effects", "six_contrasts")) {
