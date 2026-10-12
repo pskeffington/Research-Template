@@ -26,6 +26,23 @@ CAPTION_PENDING = "PENDING_AUTHOR_AND_SCIENTIFIC_REVIEW"
 INFERENCE = "POST_SELECTION_DESCRIPTIVE_ONLY"
 SHA = re.compile(r"[0-9a-f]{64}\Z")
 
+EVIDENCE_FILES = (
+    "source_validation.json",
+    "layout_audit.json",
+    "PAM50_paired_effects.pdf",
+    "PAM50_paired_effects.png",
+    "PAM50_paired_effects.caption.txt",
+    "PAM50_paired_effects.metadata.json",
+    "PAM50_six_contrasts.pdf",
+    "PAM50_six_contrasts.png",
+    "PAM50_six_contrasts.caption.txt",
+    "PAM50_six_contrasts.metadata.json",
+    "PAM50_scale_diagnostic.pdf",
+    "PAM50_scale_diagnostic.png",
+    "PAM50_scale_diagnostic.metadata.json",
+    "PAM50_scale_summary.json",
+)
+
 
 class ReviewBlocked(ValueError):
     """A source, geometry, privacy or attestation check failed."""
@@ -55,6 +72,24 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def collect_evidence_hashes(folder: Path) -> dict[str, str]:
+    """Inventory validated output bytes without copying private research data."""
+    return {name: sha256(folder / name) for name in EVIDENCE_FILES}
+
+
+def verify_packet(folder: Path) -> None:
+    """Reject packet changes since assembly. Not a signature or human approval."""
+    expected_packet, expected_worksheet = assemble(folder)
+    saved_packet = read_json(folder / "PAM50_REVIEW_PACKET.json")
+    require(saved_packet == expected_packet,
+            "Review packet differs from verified current source evidence")
+    worksheet = folder / "PAM50_MANUSCRIPT_REVIEW.md"
+    require(worksheet.is_file() and not worksheet.is_symlink(),
+            "Unsigned reviewer worksheet missing or redirected")
+    require(worksheet.read_bytes() == expected_worksheet.encode("utf-8"),
+            "Unsigned reviewer worksheet changed after packet assembly")
 
 
 def check_files(folder: Path, stem: str, meta: dict) -> tuple[str, str]:
@@ -246,34 +281,47 @@ def assemble(folder: Path) -> tuple[dict, str]:
         "Required revisions: ________________________________________",
         "", "**No checkboxes are automatically selected or approvals inferred.**", "",
     ])
+    packet["evidence_sha256"] = collect_evidence_hashes(folder)
+    packet["worksheet_sha256"] = hashlib.sha256(note.encode("utf-8")).hexdigest()
     return packet, note
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("folder", type=Path, help="An existing PRIVATE validated output directory")
+    parser.add_argument(
+        "--verify", action="store_true",
+        help="Reject changes to an existing unsigned packet or its evidence",
+    )
     args = parser.parse_args()
     try:
         require(args.folder.is_dir(), "Private figure directory does not exist")
-        packet, text = assemble(args.folder)
-        markdown = args.folder / "PAM50_MANUSCRIPT_REVIEW.md"
-        data = args.folder / "PAM50_REVIEW_PACKET.json"
-        require(not markdown.exists() and not data.exists(),
-                "Reviewer packet already exists; refusing to overwrite")
-        try:
-            with markdown.open("x", encoding="utf-8") as output:
-                output.write(text)
-            with data.open("x", encoding="utf-8") as output:
-                json.dump(packet, output, indent=2)
-                output.write("\n")
-        except OSError:
-            markdown.unlink(missing_ok=True)
-            data.unlink(missing_ok=True)
-            raise
+        if args.verify:
+            verify_packet(args.folder)
+        else:
+            packet, worksheet = assemble(args.folder)
+            markdown = args.folder / "PAM50_MANUSCRIPT_REVIEW.md"
+            data = args.folder / "PAM50_REVIEW_PACKET.json"
+            require(not markdown.exists() and not data.exists(),
+                    "Reviewer packet already exists; refusing to overwrite")
+            try:
+                with markdown.open("x", encoding="utf-8") as output:
+                    output.write(worksheet)
+                with data.open("x", encoding="utf-8") as output:
+                    json.dump(packet, output, indent=2)
+                    output.write("\n")
+                verify_packet(args.folder)
+            except (OSError, ReviewBlocked):
+                markdown.unlink(missing_ok=True)
+                data.unlink(missing_ok=True)
+                raise
     except (OSError, ReviewBlocked) as error:
         print(f"PRIVATE REVIEW PACKET BLOCKED: {error}", file=sys.stderr)
         return 1
-    print("PRIVATE MANUSCRIPT REVIEW PACKET PREPARED; approvals remain PENDING")
+    if args.verify:
+        print("PRIVATE REVIEW PACKET INTEGRITY VERIFIED; approvals remain PENDING")
+    else:
+        print("PRIVATE MANUSCRIPT REVIEW PACKET PREPARED; approvals remain PENDING")
     return 0
 
 
