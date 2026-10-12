@@ -83,13 +83,64 @@ def _paired_label_to_legend_gap(pdf: Path) -> float:
     return min(titles) - max(counts)
 
 
+def _matrix_to_column_labels_gap(pdf: Path) -> float:
+    """Measure bottom edge of vector heatmap CELLS against subtype label tops.
+
+    Different from the gap between column text and continuous legend.
+    Operates on vector PDF geometry, not OCR or raster color heuristics.
+    """
+    try:
+        import pymupdf
+    except ImportError as error:
+        raise ValueError("PyMuPDF is required for matrix/label overlap QA") from error
+    with pymupdf.open(pdf) as document:
+        if len(document) != 1:
+            raise ValueError("PAM50 PDF must contain one page")
+        page = document[0]
+        candidates = []
+        for drawing in page.get_drawings():
+            rect = drawing["rect"]
+            if (drawing.get("fill") is not None
+                    and 35 <= rect.width <= 120
+                    and 4 <= rect.height <= 24):
+                candidates.append(rect)
+        # Each of 60 frozen genes contributes 4 identical vector cells.
+        from collections import Counter
+        sizes = Counter((round(r.width, 1), round(r.height, 1))
+                        for r in candidates)
+        if not sizes:
+            raise ValueError("Cannot identify heatmap cell rectangles")
+        common_size, _ = sizes.most_common(1)[0]
+        cells = [r for r in candidates
+                 if (round(r.width, 1), round(r.height, 1)) == common_size]
+        if len(cells) != 240:
+            raise ValueError("Paired effects must render exactly 240 vector heatmap cells")
+        left = min(r.x0 for r in cells)
+        right = max(r.x1 for r in cells)
+        bottom = max(r.y1 for r in cells)
+        spans = [
+            span for block in page.get_text("dict")["blocks"]
+            for line in block.get("lines", [])
+            for span in line.get("spans", [])
+            if span.get("text", "").strip() in {"Basal", "Her2", "LumA", "LumB"}
+            and left <= span["bbox"][0] <= right
+            and bottom - 65 <= span["bbox"][1] <= bottom + 65
+        ]
+        if len(spans) != 4:
+            raise ValueError("Cannot identify exactly four subtype column labels below matrix")
+        return min(span["bbox"][1] for span in spans) - bottom
+
+
 def audit_folder(folder: Path, min_margin_pt: float = 12.0,
                  check_labels: bool = False,
-                 min_footer_gap_pt: float = 12.0) -> dict:
+                 min_footer_gap_pt: float = 12.0,
+                 min_matrix_label_gap_pt: float = 12.0) -> dict:
     if not math.isfinite(min_margin_pt) or not (0 < min_margin_pt <= 72):
         raise ValueError("Margin must be between 0 and 72 points")
     if not math.isfinite(min_footer_gap_pt) or not (0 < min_footer_gap_pt <= 72):
         raise ValueError("Footer gap must be between 0 and 72 points")
+    if not math.isfinite(min_matrix_label_gap_pt) or not (0 < min_matrix_label_gap_pt <= 72):
+        raise ValueError("Matrix-to-column-label clearance must be between 0 and 72 points")
     summaries = {}
     metadata = {}
     for kind in KINDS:
@@ -106,6 +157,8 @@ def audit_folder(folder: Path, min_margin_pt: float = 12.0,
             raise ValueError("Unexpected inferential status for post-selection figure")
         if meta.get("sample_level_columns") is not False:
             raise ValueError("Model effect columns must not be labeled as samples")
+        if meta.get("matrix_to_column_names_padding_mm") != 7:
+            raise ValueError("Expected dedicated 7-mm gap between matrix and column names")
         if meta.get("internal_bottom_legend_gap_mm") != 12:
             raise ValueError("Internal legend clearance must be 12 mm")
         if meta.get("anchor_legend_alignment") != "heatmap_top":
@@ -162,7 +215,16 @@ def audit_folder(folder: Path, min_margin_pt: float = 12.0,
                 f"Subtype labels and bottom legend are only "
                 f"{measured_footer_gap:.2f}pt apart; require {min_footer_gap_pt:.1f}pt"
             )
+        matrix_gap = _matrix_to_column_labels_gap(pdf) if kind == "paired_effects" else None
+        if matrix_gap is not None and matrix_gap < min_matrix_label_gap_pt:
+            raise ValueError(
+                f"Bottom heatmap cells overlap/crowd subtype names: {matrix_gap:.2f}pt "
+                f"(minimum {min_matrix_label_gap_pt:.1f}pt)"
+            )
         summaries[kind] = {
+            "matrix_bottom_to_subtype_label_gap_pt": (
+                round(matrix_gap, 2) if matrix_gap is not None else None
+            ),
             "measured_subtype_label_to_legend_gap_pt": (
                 round(measured_footer_gap, 2) if measured_footer_gap is not None else None
             ),
@@ -192,6 +254,7 @@ def audit_folder(folder: Path, min_margin_pt: float = 12.0,
         "scientific_review": "PENDING",
         "min_margin_required_pt": min_margin_pt,
         "min_footer_gap_required_pt": min_footer_gap_pt,
+        "min_matrix_label_gap_required_pt": min_matrix_label_gap_pt,
         "figures": summaries,
     }
 
@@ -202,12 +265,15 @@ def main() -> int:
     parser.add_argument("--min-margin-pt", type=float, default=12.0)
     parser.add_argument("--min-footer-gap-pt", type=float, default=12.0,
                         help="Minimum distance between the paired subtype labels and bottom legend title")
+    parser.add_argument("--min-matrix-label-gap-pt", type=float, default=12.0,
+                        help="Minimum actual PDF-vector cell-to-column-label clearance")
     parser.add_argument("--check-labels", action="store_true",
                         help="Require all 60 gene labels within extracted PDF text")
     args = parser.parse_args()
     try:
         review = audit_folder(args.folder, args.min_margin_pt, args.check_labels,
-                              args.min_footer_gap_pt)
+                              args.min_footer_gap_pt,
+                              args.min_matrix_label_gap_pt)
     except (ValueError, KeyError, TypeError, OSError) as error:
         print(f"MANUSCRIPT LAYOUT BLOCKED: {error}", file=sys.stderr)
         return 1
