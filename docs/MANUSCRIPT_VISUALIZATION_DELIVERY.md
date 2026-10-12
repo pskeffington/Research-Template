@@ -237,3 +237,33 @@ All real-data outputs, sidecars and geometry reports remain in the authorized **
 **Research source-of-truth:** The private HSE research repository's `AI Enabled Research/scripts/113_r19_frozen_exchange.R`, `scripts/76_etl_r18_inputs.py`, `docs/R18A_UNCERTAINTY_METHOD_AUDIT_2026-10-10.md` and frozen ST06/ST07/ST09 tables govern this adapter. The public repository contains only reusable plotting code, schema expectations, and synthetic tests. CI generates no genuine patient or gene-result outputs.
 
 **Legend refinement (2026-10-12).** The frozen PAM50 paired and contrast heatmaps use a centered, 98-mm horizontal continuous legend with a regular-weight 8.5-pt heading and 8-pt numeric ticks. Titles name the paired biological estimand and first-minus-second contrast, rather than showing an unexplained numerical scale. The limits continue to use the *full observed range* across both effect matrices; they are symmetric around zero and neither clipped, quantile-capped nor rescaled. The `scale_policy`, legend geometry, and complete color breaks are retained in the provenance sidecars. Near-neutral cells may look pale when a few effects approach the extremes; changing contrast would require a separately labeled, prospectively documented visualization sensitivity panel rather than silently changing the manuscript's main color encoding.
+
+
+### Supplementary heatmap scale-distribution review
+
+The principal 60×4 and 60×6 heatmaps retain the **shared full-range symmetric zero-centered** color scale. Extreme values may make many smaller effects look pale; the manuscript must not hide that with unannounced quantile clipping or ad hoc per-panel recoloring.
+
+Use `R/research_pam50_scale_diagnostic.R` to generate a **separate supplementary descriptive distribution** for the two model-effect matrices. The diagnostic uses identical x-axis limits to the primary heatmaps, reports the signed minima, maxima, medians and 5th/95th percentiles, and marks the central portion of the *color scale* (default ±20% of the full absolute limit). These dashed markers are **display-scale references**, **not** clinical thresholds, FDR cutoffs or confidence intervals.
+
+~~~r
+source("R/research_pam50_scale_diagnostic.R")
+source("R/manuscript_delivery.R")
+scale_review <- rt_pam50_scale_diagnostic(bundle, neutral_fraction = 0.20)
+print(scale_review$summary) # 240 paired effect cells and 360 contrast cells
+rt_manuscript_export(
+  scale_review$plot,
+  "artifacts/private_pam50_manuscript/PAM50_scale_diagnostic",
+  figure_id = "PAM50_Scale_Diagnostic",
+  legend = "Distribution of the 240 subtype-effect and 360 planned-contrast cells; not patients.",
+  study = "Frozen PAM50 discovery research",
+  data_status = "PRIVATE",
+  analysis_unit = "archived effect/contrast cell, not a patient",
+  source = "Hash-matched R11 ST06/ST07/ST09 frozen estimates",
+  n_analyzed = 600L, n_missing = 0L,
+  inference = "DESCRIPTIVE_ONLY",
+  width = 8, height = 7, dpi = 300L
+)
+rt_figure_audit("artifacts/private_pam50_manuscript/PAM50_scale_diagnostic")
+~~~
+
+**Reading the diagnostic:** Each bar counts fitted gene-by-subtype or gene-by-contrast *cells*; gene effects and contrasts are correlated and are not independent experimental replicates. Neither a sample-size distribution nor an uncertainty estimate is implied. The two facet counts differ by design (240 versus 360); do not compare bar heights as empirical patient frequencies. The printed `summary` provides the numerical fraction falling in the default near-neutral display band and must be retained in **private** research provenance. Source hashes and author approval remain separate.
