@@ -393,3 +393,6 @@ The research export uses a 7 mm bottom/top and 6 mm left/right **ComplexHeatmap 
 ### Heatmap figure legend and publication-accessibility checkpoint
 
 `rt_pam50_manuscript_caption(bundle, kind = "paired_effects" | "six_contrasts")` produces the separate journal-caption text; `rt_export_pam50_research(...)` now writes matching `.caption.txt` files, stores them in the provenance manifest and renders an explicit `Gene anchor (15 each)` categorical legend to the **left**, with the continuous zero-centered scale beneath the panel. A PDF admission pass confirms the categorical key is present and the private caption bytes agree with the metadata text after whitespace normalization. Author sign-off is still required for accessibility, interpretation and final journal word limits.
+
+
+**Figure geometry CI:** `python3 -m unittest discover -s scripts/tests -p 'test_pam50_geometry.py' -v` exercises synthetic valid/overlapped/missing-cell/missing-label PDFs for both 60×4 and 60×6 panels. The auditor checks that paired subtype names and rotated first-minus-second contrast labels are each at least 12 pt below their vector heatmap cells. This specifically guards against recurring matrix-to-text overlap, separate from page margins and the text-to-color-legend gap.
