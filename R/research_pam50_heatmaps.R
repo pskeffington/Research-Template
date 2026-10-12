@@ -154,12 +154,12 @@ rt_pam50_research_heatmaps <- function(signature, contrasts,
       label <- paste0(profile$subtype_order,
                       "\nn=", unname(profile$n_pairs), " pairs")
       heading <- "Frozen PAM50 paired effects"
-      legend_title <- "Tumor - adjacent normal\nlog2 fold change"
+      legend_title <- "Paired tumor - adjacent normal\nlog2 fold change"
       subtitle <- "Subtype effect (not individual samples)"
     } else {
       label <- gsub("_vs_", " - ", colnames(matrix), fixed = TRUE)
       heading <- "Six planned contrasts of paired effects"
-      legend_title <- "First - second subtype\npaired effect (log2)"
+      legend_title <- "Difference in paired subtype effects\nlog2 fold change"
       subtitle <- "Effect differences; descriptive view of frozen tests"
     }
     right <- ComplexHeatmap::Heatmap(
@@ -185,9 +185,13 @@ rt_pam50_research_heatmaps <- function(signature, contrasts,
       na_col = "#BFC6CD",
       show_heatmap_legend = TRUE,
       heatmap_legend_param = list(
-        title = legend_title, at = breaks,
-        labels = sprintf("%.1f", breaks),
-        legend_width = grid::unit(53, "mm"),
+        title = legend_title,
+        at = breaks,
+        labels = format(signif(breaks, 3L), trim = TRUE, scientific = FALSE),
+        title_gp = grid::gpar(fontsize = 8.5, fontface = "plain"),
+        labels_gp = grid::gpar(fontsize = 8),
+        title_position = "topcenter",
+        legend_width = grid::unit(98, "mm"),
         direction = "horizontal")
     )
     # Anchor track is genuinely gene-level; subtype columns are model summaries.
@@ -195,7 +199,12 @@ rt_pam50_research_heatmaps <- function(signature, contrasts,
       heatmap = anchor_color + right,
       color_breaks = breaks,
       heading = heading, kind = kind, scale_caption = subtitle,
-      gene_count = 60L, column_count = ncol(matrix)
+      gene_count = 60L, column_count = ncol(matrix),
+      legend_title = legend_title,
+      legend_width_mm = 98,
+      legend_title_font_pt = 8.5,
+      legend_tick_font_pt = 8,
+      scale_policy = "FULL_OBSERVED_RANGE_NO_CLIPPING"
     )
   }
   structure(list(
@@ -294,6 +303,11 @@ rt_export_pam50_research <- function(bundle, output_dir,
       contrast_order = if (kind == "six_contrasts") profile$contrasts else NULL,
       subtype_order = profile$subtype_order,
       color_center = 0, color_breaks = element$color_breaks,
+      legend_title = element$legend_title,
+      legend_width_mm = element$legend_width_mm,
+      legend_title_font_pt = element$legend_title_font_pt,
+      legend_tick_font_pt = element$legend_tick_font_pt,
+      scale_policy = element$scale_policy,
       shared_color_scale = bundle$shared_scale,
       transformation = "archived paired log2FC; no plotting transformation",
       n_missing_cells = 0L, width_in = width, height_in = height,
