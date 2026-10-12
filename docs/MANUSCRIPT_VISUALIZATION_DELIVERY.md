@@ -320,3 +320,35 @@ python3 scripts/build_pam50_review_packet.py --verify /path/to/private/pam50-pri
 ~~~
 
 The verification command reconstructs the expected packet, checks each source/output hash and pending human-review state, and compares the worksheet byte-for-byte. Missing/altered files, checked-off worksheet boxes and forged release states fail closed. This is tamper detection against an independently retained reference, **not a cryptographic signature or independent certification**. If an attacker can replace the entire packet and all evidence, these internal checks alone cannot establish provenance; independently retain the GitHub Actions run, pinned commit SHAs and artifact digest. The verification command is read-only and does not sign, merge or distribute figures.
+
+### Revision-aware human decisions and journal policy preflight
+
+The private packet may be supplemented with a **blank, immutable review template**, an unselected editorial profile and a pending-only preflight report:
+
+~~~bash
+python3 scripts/pam50_review_governance.py --prepare /path/to/private/pam50-private-manuscript
+python3 scripts/pam50_review_governance.py --verify /path/to/private/pam50-private-manuscript
+~~~
+
+The preparation adds `PAM50_REVIEW_DECISIONS.template.json`, `PAM50_JOURNAL_PROFILE.template.json` and `PAM50_JOURNAL_PREFLIGHT.json`. The first anchors all five decisions to the exact packet SHA-256 and initializes them as `PENDING`; the second requires a **human-supplied, source-checked journal policy**; the third deliberately reports `JOURNAL_PROFILE_PENDING`. Templates are never auto-approved and refuse overwrite. Do not edit the immutable templates in the CI artifact. Make a protected copy **outside** the generated CI packet if making actual reviewer decisions.
+
+For author-managed records, each decision supports `PENDING`, `ACCEPTED`, `REVISIONS_REQUIRED`, and `REJECTED`. Nonpending decisions require reviewer identity, a UTC datetime and rationale. Subsequent revisions must include a SHA-256 link to an independently retained preceding record:
+
+~~~bash
+python3 scripts/pam50_review_governance.py PRIVATE_DIR \
+  --validate-decisions /protected/review-revision-1.json
+python3 scripts/pam50_review_governance.py PRIVATE_DIR \
+  --validate-decisions /protected/review-revision-2.json \
+  --previous-decisions /protected/review-revision-1.json
+~~~
+
+This validates **format and continuity only**, not signatures or reviewer identity. Even if all five decisions are structurally accepted, `merge_authorization` remains `NOT_GRANTED` and `public_release` remains `BLOCKED`. A separately authenticated human approval and study-specific disclosure review are still necessary.
+
+Journal-specific technical checks require an actual target journal and dated source instructions. Copy and complete `PAM50_JOURNAL_PROFILE.template.json` outside the CI artifact, then run:
+
+~~~bash
+python3 scripts/pam50_review_governance.py PRIVATE_DIR \
+  --check-profile /protected/editorially-confirmed-journal-profile.json
+~~~
+
+The check compares the **declared and integrity-verified figure metadata** to supplied maximum height/width, minimum PNG DPI, and accepted PDF/PNG formats. It rejects missing editorial details and dimensions that do not fit; it never silently rescales the 9×13-inch research figures, changes the frozen scale, edits labels, or claims to validate a publisher's latest rules. Physical legibility, native PNG pixel data, color-space requirements, actual journal acceptance and distribution permission remain separate human or later technical checks. The code does not contact an editorial site, and no journal policy is presumed.
