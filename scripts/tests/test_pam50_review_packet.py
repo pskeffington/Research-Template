@@ -103,13 +103,11 @@ def fixture(folder: Path) -> None:
 
 
 class PendingReviewPacketTests(unittest.TestCase):
-    def setUp(self) -> None:
+    def setup_fixture(self) -> None:
         self.working = tempfile.TemporaryDirectory()
+        self.addCleanup(self.working.cleanup)
         self.folder = Path(self.working.name)
         fixture(self.folder)
-
-    def tearDown(self) -> None:
-        self.working.cleanup()
 
     def mutate(self, name: str, field: str, value: object) -> None:
         path = self.folder / name
@@ -122,6 +120,7 @@ class PendingReviewPacketTests(unittest.TestCase):
             assemble(self.folder)
 
     def test_clean_synthetic_packet_is_still_pending(self) -> None:
+        self.setup_fixture()
         result, checklist = assemble(self.folder)
         self.assertEqual(result["status"], "REVIEW_REQUIRED_NOT_APPROVED")
         self.assertEqual(result["public_release"], "BLOCKED")
@@ -132,23 +131,28 @@ class PendingReviewPacketTests(unittest.TestCase):
         self.assertNotIn("- [x]", checklist.lower())
 
     def test_corrupted_pdf_checksum_rejected(self) -> None:
+        self.setup_fixture()
         with (self.folder / "PAM50_paired_effects.pdf").open("ab") as file:
             file.write(b"tamper")
         self.assert_blocked()
 
     def test_missing_caption_rejected(self) -> None:
+        self.setup_fixture()
         (self.folder / "PAM50_six_contrasts.caption.txt").unlink()
         self.assert_blocked()
 
     def test_fake_scientific_approval_rejected(self) -> None:
+        self.setup_fixture()
         self.mutate("source_validation.json", "scientific_review", "APPROVED")
         self.assert_blocked()
 
     def test_public_release_flag_rejected(self) -> None:
+        self.setup_fixture()
         self.mutate("source_validation.json", "public_release", "AUTHORIZED")
         self.assert_blocked()
 
     def test_rotated_label_overlap_rejected(self) -> None:
+        self.setup_fixture()
         path = self.folder / "layout_audit.json"
         doc = json.loads(path.read_text())
         doc["figures"]["six_contrasts"]["matrix_bottom_to_column_label_gap_pt"] = 7
@@ -156,6 +160,7 @@ class PendingReviewPacketTests(unittest.TestCase):
         self.assert_blocked()
 
     def test_gene_order_disagreement_rejected(self) -> None:
+        self.setup_fixture()
         path = self.folder / "PAM50_six_contrasts.metadata.json"
         doc = json.loads(path.read_text())
         doc["gene_order"].reverse()
@@ -163,10 +168,12 @@ class PendingReviewPacketTests(unittest.TestCase):
         self.assert_blocked()
 
     def test_supplement_cannot_count_independent_patients(self) -> None:
+        self.setup_fixture()
         self.mutate("PAM50_scale_summary.json", "independence", "INDEPENDENT_PATIENTS")
         self.assert_blocked()
 
     def test_missing_source_pin_rejected(self) -> None:
+        self.setup_fixture()
         self.mutate("source_validation.json", "input_hashes", {"ST06": "b" * 64})
         self.assert_blocked()
 
