@@ -165,3 +165,60 @@ The first synthetic reference export passed file-integrity checks, but rendered 
 The CI gate also runs `R/tests/test_figure_audit_negative.R`: it requires rejection of absent PDF/PNG/metadata files, checksum mismatches or omissions, unreadable bytes, wrong PNG resolution, wholly white figures, wrong PDF page size, unembedded PDF fonts, heatmap sample-count inconsistency, restricted data marked public, and forged visual review status. Every synthetic comparison is isolated to temporary copied artifacts; production figures are not modified.
 
 The audit requires both SHA-256 hashes and uses `digest` to verify them; exporters still permit missing optional digest, but such outputs are **not audit-admissible** until the approved environment includes it. CI success establishes the documented structural gates only. The image still requires a separate human review at its final print dimensions.
+
+
+## TCGA-BRCA PAM50 frozen-research heatmaps (aligned adapter)
+
+Use `R/research_pam50_heatmaps.R` when the columns are **subtype-level fitted effects**, not individual specimens. Do not route this matrix through the generic sample-condition heatmap: the four columns are four **model summaries** derived from 106 matched patients, not four patients or four raw RNA measurements. Frozen R11/R18/R19 research defines the research-specific contract:
+
+| Figure | Strict orientation | Display order | Interpretation |
+| --- | --- | --- | --- |
+| PAM50 paired-effect signature | 60 frozen genes x 4 subtype effects (240 finite cells) | Basal, Her2, LumA, LumB | Tumor-minus-adjacent-normal log2 fold change within recorded tumor subtype |
+| PAM50 planned contrasts | 60 frozen genes x 6 first-minus-second subtype effect contrasts (360 finite cells) | Basal_vs_LumA, Her2_vs_LumA, LumB_vs_LumA, Basal_vs_Her2, Basal_vs_LumB, Her2_vs_LumB | Difference of the two paired effects; not a raw tumor comparison |
+
+The frozen source identifiers, anchors and ranks determine **all rows**. There are exactly 15 genes under each of Basal, Her2, LumA and LumB. Neither clustering nor new gene selection reorders them. Symbols are shown as entered; missing symbols fall back to gene IDs, and collisions receive identifying suffixes. The paired sample counts 16/9/59/22 (total 106 matched pairs) are annotated on the four-column figure. The separate primary discovery model contains 109 matched pairs; those 109 must **not** be attached to the formal subtype panels. The PAM50 *Normal* tumor classification is never displayed as a fifth normal-tissue subtype.
+
+Color zero means no effect or no difference of effects. Blue means lower tumor expression relative to patient-matched adjacent normal (or a more negative first-minus-second effect). Red means the reverse. Both figures can share one symmetric color range, with separate unambiguous legend titles. The frozen gene anchors denote the largest paired effect, **not** which group has highest absolute tumor expression.
+
+### Explicit approved-local-input workflow
+
+The reusable template never reads private data implicitly. Run this from an authorized private research checkout containing the frozen R11 ST07/ST09 tables, with the template R modules made available explicitly:
+
+~~~r
+source("R/research_tidy.R")
+source("R/research_plots.R")
+source("R/research_pam50_heatmaps.R")
+source("R/research_figure_audit.R")
+
+# Resolve these local paths relative to the PRIVATE analysis checkout.
+signature_path <- "results/2026-09-30/R11_FROZEN/tables/ST09_Frozen_60_gene_signature.csv"
+contrasts_path <- "results/2026-09-30/R11_FROZEN/tables/ST07_Six_planned_pairwise_tests.csv"
+signature <- readr::read_csv(signature_path, show_col_types = FALSE)
+full_contrasts <- readr::read_csv(contrasts_path, show_col_types = FALSE)
+selected_contrasts <- full_contrasts |>
+  dplyr::filter(.data$gene_id %in% signature$gene_id)
+
+bundle <- rt_pam50_research_heatmaps(signature, selected_contrasts)
+stopifnot(identical(bundle$prepared$gene_id,
+                    signature$gene_id[order(
+                      match(signature$anchor_subtype,
+                            c("Basal", "Her2", "LumA", "LumB")),
+                      signature$anchor_rank)]))
+metadata <- rt_export_pam50_research(
+  bundle, "artifacts/private_pam50_manuscript",
+  source = "Frozen R11 ST07/ST09; local source hashes reviewed separately",
+  data_status = "PRIVATE", width = 9, height = 13, dpi = 300
+)
+audit_effect <- rt_figure_audit(
+  "artifacts/private_pam50_manuscript/PAM50_paired_effects")
+audit_contrast <- rt_figure_audit(
+  "artifacts/private_pam50_manuscript/PAM50_six_contrasts")
+~~~
+
+For real data, verify ST06/ST07/ST09 against the private repository's sealed SHA-256 manifests and frozen exchange validation **before** running this plotting-only adapter. The adapter rechecks 360 first-minus-second contrasts against the same 240 frozen effect cells within 1e-8, without recomputing FDR, changing the selected signature or refitting models. It does not verify source chain-of-custody independently.
+
+**Inferential boundary:** The R18 uncertainty/CI release gate remains blocked. These figures display historical point estimates, not confidence intervals, standard errors, patient distributions, or new inferential claims. The 60 genes are selected from this discovery cohort, so observed patterns are post-selection and not external validation. These are private manuscript derivatives until the source-specific release approval is complete.
+
+**Export layout:** A 9 x 13 inch tall figure gives 60 gene labels, anchor blocks and category legends room to render. The PDF is vector; the PNG is 300 dpi by default. The figure metadata includes the actual gene order, anchor counts, color center/range, source, research interpretation status and source-side denominators. This provenance sidecar is private by default and must not be uploaded to public hosting without separate clearance.
+
+**Research source-of-truth:** The private HSE research repository's `AI Enabled Research/scripts/113_r19_frozen_exchange.R`, `scripts/76_etl_r18_inputs.py`, `docs/R18A_UNCERTAINTY_METHOD_AUDIT_2026-10-10.md` and frozen ST06/ST07/ST09 tables govern this adapter. The public repository contains only reusable plotting code, schema expectations, and synthetic tests. CI generates no genuine patient or gene-result outputs.
