@@ -75,6 +75,24 @@ def audit_folder(folder: Path, min_margin_pt: float = 12.0,
             raise ValueError("Unexpected inferential status for post-selection figure")
         if meta.get("sample_level_columns") is not False:
             raise ValueError("Model effect columns must not be labeled as samples")
+        if meta.get("anchor_legend") != "GENE_ANCHOR_15_PER_GROUP_SHOWN_LEFT":
+            raise ValueError("On-page gene-anchor key is not declared")
+        if meta.get("caption_review") != "PENDING_AUTHOR_AND_SCIENTIFIC_REVIEW":
+            raise ValueError("Caption review state cannot be automatically approved")
+        caption_path = stem.with_suffix(".caption.txt")
+        if not caption_path.is_file():
+            raise ValueError("Missing separate manuscript caption")
+        caption = " ".join(caption_path.read_text(encoding="utf-8").split())
+        if caption != " ".join(str(meta.get("manuscript_caption", "")).split()):
+            raise ValueError("Manuscript caption and provenance sidecar disagree")
+        required_caption = (
+            "106 matched", "15-gene subtype-anchor", "post-selection",
+            "Color does not encode significance or uncertainty"
+        )
+        if not all(fragment.lower() in caption.lower() for fragment in required_caption):
+            raise ValueError("Caption does not explain the fixed cohort, anchors and limitations")
+        if Path(str(meta.get("caption_file", ""))).name != caption_path.name:
+            raise ValueError("Caption path reference does not match exported figure")
         if meta.get("n_features") != 60 or meta.get("n_columns") != (4 if kind == "paired_effects" else 6):
             raise ValueError("Incorrect PAM50 figure matrix dimensions")
         if len(meta.get("gene_labels", [])) != 60 or len(set(meta["gene_labels"])) != 60:
@@ -96,6 +114,8 @@ def audit_folder(folder: Path, min_margin_pt: float = 12.0,
             )
         if check_labels:
             page_text = _poppler(pdf, "-layout")
+            if "Gene anchor" not in page_text:
+                raise ValueError("On-page categorical anchor legend is missing")
             for label in meta["gene_labels"]:
                 if label not in page_text:
                     raise ValueError("A declared gene label was lost during PDF export")
