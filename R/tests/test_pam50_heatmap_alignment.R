@@ -2,6 +2,8 @@
 source("R/research_tidy.R")
 source("R/research_plots.R")
 source("R/research_pam50_heatmaps.R")
+source("R/research_pam50_scale_diagnostic.R")
+source("R/manuscript_delivery.R")
 source("R/research_figure_audit.R")
 
 profile <- rt_pam50_profile()
@@ -109,6 +111,28 @@ stopifnot(inherits(bundle, "rt_pam50_research_bundle"),
           identical(bundle$six_contrasts$legend_tick_font_pt, 8),
           identical(bundle$paired_effects$scale_policy,
                     "FULL_OBSERVED_RANGE_NO_CLIPPING"))
+scale_review <- rt_pam50_scale_diagnostic(bundle, neutral_fraction = 0.2)
+stopifnot(inherits(scale_review$plot, "ggplot"),
+          identical(scale_review$effect_cells, 600L),
+          identical(scale_review$scientific_scope,
+                    "POST_SELECTION_DESCRIPTIVE_ONLY"),
+          identical(scale_review$full_scale_breaks,
+                    bundle$paired_effects$color_breaks),
+          identical(as.integer(scale_review$summary$effect_cells), c(240L, 360L)),
+          all(scale_review$summary$within_neutral_count >= 0),
+          all(scale_review$summary$within_neutral_fraction >= 0 &
+              scale_review$summary$within_neutral_fraction <= 1))
+all_values <- c(bundle$prepared$effects, bundle$prepared$contrasts)
+stopifnot(abs(max(abs(all_values)) -
+              scale_review$full_scale_breaks[3L]) < 1e-12)
+bad_review <- try(rt_pam50_scale_diagnostic(
+  bundle, neutral_fraction = 1), silent = TRUE)
+stopifnot(inherits(bad_review, "try-error"))
+bad_bundle <- bundle
+bad_bundle$paired_effects$color_breaks <- c(-1, 0, 1)
+stopifnot(inherits(try(rt_pam50_scale_diagnostic(bad_bundle),
+                       silent = TRUE), "try-error"))
+
 folder <- "artifacts/ci_figure_review/pam50_research"
 exports <- rt_export_pam50_research(
   bundle, output_dir = folder,
@@ -149,4 +173,22 @@ for (kind in c("paired_effects", "six_contrasts")) {
   stopifnot(any(grepl("Basal", rendered_text, fixed = TRUE)),
             any(grepl("LumB", rendered_text, fixed = TRUE)))
 }
-cat("PAM50 research heatmaps PASS: 60x4, 60x6, frozen rank, directional tests, 2 PDF/PNG artifacts\n")
+diagnostic_stem <- file.path(folder, "PAM50_scale_diagnostic")
+supplement <- rt_manuscript_export(
+  scale_review$plot, diagnostic_stem,
+  figure_id = "PAM50_Scale_Diagnostic",
+  legend = paste("Descriptive distribution of 240 paired-effect",
+                 "and 360 first-minus-second effect cells across frozen genes;",
+                 "not patient observations or confidence intervals."),
+  study = "Frozen PAM50 schematic synthetic validation",
+  data_status = "SYNTHETIC",
+  analysis_unit = "archived effect/contrast cell, not a patient",
+  source = "Fully synthetic frozen-PAM50 fixture, seed 711",
+  n_analyzed = 600L, n_missing = 0L,
+  inference = "DESCRIPTIVE_ONLY", width = 8, height = 7, dpi = 300L
+)
+stopifnot(identical(supplement$n_analyzed, 600L),
+          file.exists(paste0(diagnostic_stem, ".pdf")),
+          file.exists(paste0(diagnostic_stem, ".png")),
+          identical(rt_figure_audit(diagnostic_stem)$automated_checks, "PASS"))
+cat("PAM50 research heatmaps and scale diagnostic PASS: 60x4, 60x6 and 600 effect cells\n")
