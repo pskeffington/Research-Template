@@ -193,12 +193,12 @@ rt_export_complex_heatmap <- function(bundle, output_stem, figure_id, legend,
     grDevices::pdf(files[1], width = width, height = height,
                    useDingbats = FALSE)
   }
-  tryCatch(ComplexHeatmap::draw(bundle$heatmap, heatmap_legend_side = "right",
+  tryCatch(ComplexHeatmap::draw(bundle$heatmap, heatmap_legend_side = "bottom",
                                 annotation_legend_side = "right"),
            finally = grDevices::dev.off())
   grDevices::png(files[2], width = width, height = height, units = "in",
                  res = dpi, type = if (capabilities("cairo")) "cairo" else "Xlib")
-  tryCatch(ComplexHeatmap::draw(bundle$heatmap, heatmap_legend_side = "right",
+  tryCatch(ComplexHeatmap::draw(bundle$heatmap, heatmap_legend_side = "bottom",
                                 annotation_legend_side = "right"),
            finally = grDevices::dev.off())
   p <- bundle$prepared
