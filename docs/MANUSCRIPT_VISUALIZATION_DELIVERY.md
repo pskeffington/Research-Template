@@ -41,3 +41,25 @@ The exporter writes a PDF, PNG, RDS sidecar and (when jsonlite is available) JSO
 ## Optional packages
 
 `plotly`/ `htmlwidgets` for an interactive *separate* deliverable; `ComplexHeatmap` and `circlize` for large genomic heatmaps; `ggdist` for uncertainty; `patchwork` for assembled panels; `ragg` for device consistency; `svglite` for editable vectors; `jsonlite` and `digest` for machine-readable sidecars and checksums. Declare exact installed versions in the analysis environment. Do not auto-install these packages.
+
+## Interactive and condition-sorted examples
+
+```r
+source("R/research_interactive.R")
+mat <- matrix(c(2, 1, 4, 3, 6, 5), nrow = 2)
+p <- rt_heatmap_by_condition(
+  mat, row_labels = c("Gene A", "Gene B"),
+  col_labels = c("Sample A", "Sample B", "Sample C"),
+  condition = c("Tumor", "Normal", "Tumor"),
+  name = "Synthetic signed deviation", unit = "unitless",
+  condition_levels = c("Normal", "Tumor"),
+  mode = "diverging", center = 0
+)
+# Requires approved optional plotly and htmlwidgets packages.
+interactive <- rt_interactive(p) # Defaults to no hover text.
+rt_save_interactive(interactive, "artifacts/web/synthetic_heatmap.html",
+                    data_status = "SYNTHETIC",
+                    public_release_approved = FALSE)
+```
+
+This helper sorts samples by declared condition order and preserves original sample order within each condition unless `within_condition` is supplied. It does not perform clustering, differential testing or normalization. Plotly tooltip exposure is disabled by default; review hover content separately before any public release. HTML output includes a companion asset directory and is not a journal-ready static figure.
