@@ -63,3 +63,9 @@ rt_save_interactive(interactive, "artifacts/web/synthetic_heatmap.html",
 ```
 
 This helper sorts samples by declared condition order and preserves original sample order within each condition unless `within_condition` is supplied. It does not perform clustering, differential testing or normalization. Plotly tooltip exposure is disabled by default; review hover content separately before any public release. HTML output includes a companion asset directory and is not a journal-ready static figure.
+
+## Forest and volcano plot gates
+
+Source `R/research_inference_plots.R` after the tidy and plots modules. `rt_verified_forest()` requires unique model terms, finite effect estimates, enclosing lower/upper interval bounds, interval level, units, model description, and reference group. Its zero-reference line assumes an additive or log-scale contrast; do not pass raw hazard ratios without an appropriate transformation. `rt_verified_volcano()` requires verified log2 effects and adjusted p values (not descriptive effects), a named contrast, modeling method, and multiple-testing adjustment. It displays adjusted p values of zero at a finite numerical floor.
+
+Neither routine estimates missing inferential quantities. Release requires a separate provenance review of the fitting pipeline, effective sample size, estimand, confidence-interval method, comparison family, and threshold choices. Synthetic tests are at `R/tests/test_inference_plots.R`.
