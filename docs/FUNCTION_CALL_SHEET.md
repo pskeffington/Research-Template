@@ -396,3 +396,8 @@ The research export uses a 7 mm bottom/top and 6 mm left/right **ComplexHeatmap 
 
 
 **Figure geometry CI:** `python3 -m unittest discover -s scripts/tests -p 'test_pam50_geometry.py' -v` exercises synthetic valid/overlapped/missing-cell/missing-label PDFs for both 60×4 and 60×6 panels. The auditor checks that paired subtype names and rotated first-minus-second contrast labels are each at least 12 pt below their vector heatmap cells. This specifically guards against recurring matrix-to-text overlap, separate from page margins and the text-to-color-legend gap.
+
+
+### Private human-review handoff — no automated approval
+
+Run `python3 scripts/build_pam50_review_packet.py <PRIVATE_figure_output_directory>` after the frozen-input and PDF geometry passes. The script checks private provenance, both PDF/PNG checksums, matching frozen gene order, all six contrast directions, journal caption text and two-panel clearance results. It writes an **unsigned** `PAM50_MANUSCRIPT_REVIEW.md` checklist and `PAM50_REVIEW_PACKET.json` with all reviewer decisions `PENDING`, public distribution `BLOCKED` and merge authorization `NOT_GRANTED`. The synthetic rejection suite is `python3 -m unittest discover -s scripts/tests -p 'test_pam50_review_packet.py' -v`. It must not be used to auto-sign a manuscript.
