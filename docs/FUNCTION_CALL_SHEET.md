@@ -383,3 +383,8 @@ For input file examples, frozen subtype-specific interpretations and strict priv
 | `python3 scripts/audit_pam50_layout.py <local_output_dir> --min-margin-pt 12 --check-labels` | Locally generated two manuscript PDF + JSON sidecar pairs, Poppler | Rejects text too close to PDF perimeter, missing declared gene labels, inconsistent gene order, subtype denominators, scale, contrast sequence or inferential status |
 
 The research export uses a 7 mm bottom/top and 6 mm left/right **ComplexHeatmap plot padding**. A structural audit cannot verify biological interpretation, accessibility, patient identity, or that an operator-supplied SHA-256 source pin represents authorized study evidence.
+
+
+### Scale-interpretation supplementary figure
+
+`rt_pam50_scale_diagnostic(bundle, neutral_fraction = 0.2, histogram_bins = 40L)` returns an explicitly **supplementary** ggplot histogram (two panels: 240 paired effect cells and 360 contrast cells) plus a table of extremes, quantiles and within-central-scale fraction. It refuses non-shared color limits and never caps/recalculates the fitted values. The ±20% markers describe the color encoding, not statistical or clinical cutoffs. Export with the existing `rt_manuscript_export()` call while specifying `analysis_unit = "archived effect/contrast cell, not a patient"`. Keep figures and summary tables private pending scientific review.
