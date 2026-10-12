@@ -67,7 +67,7 @@ def check_files(folder: Path, stem: str, meta: dict) -> tuple[str, str]:
     require(isinstance(hashes, list) and len(hashes) == 2
             and all(isinstance(x, str) and SHA.fullmatch(x) for x in hashes),
             f"{stem}: two SHA-256 digests required")
-    for name, digest in zip(expected, hashes):
+    for name, digest in zip(expected, hashes, strict=True):
         require(sha256(folder / name) == digest,
                 f"{stem}: figure checksum mismatch")
     return hashes[0], hashes[1]
