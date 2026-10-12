@@ -83,16 +83,28 @@ def _paired_label_to_legend_gap(pdf: Path) -> float:
     return min(titles) - max(counts)
 
 
-def _matrix_to_column_labels_gap(pdf: Path) -> float:
-    """Measure bottom edge of vector heatmap CELLS against subtype label tops.
+def _matrix_to_column_labels_gap(pdf: Path, kind: str) -> float:
+    """Measure true vector-cell-to-column-text clearance for BOTH layouts.
 
-    Different from the gap between column text and continuous legend.
-    Operates on vector PDF geometry, not OCR or raster color heuristics.
+    Heatmap rows are 60 frozen genes. The paired panel has 240 vector cells
+    and four horizontal subtype labels; the contrast panel has 360 vector
+    cells and six rotated comparison labels. All displayed labels must match
+    the declared figure type; distant annotation-legend labels do not count.
     """
     try:
         import pymupdf
     except ImportError as error:
         raise ValueError("PyMuPDF is required for matrix/label overlap QA") from error
+    display_labels = {
+        "paired_effects": ("Basal", "Her2", "LumA", "LumB"),
+        "six_contrasts": (
+            "Basal - LumA", "Her2 - LumA", "LumB - LumA",
+            "Basal - Her2", "Basal - LumB", "Her2 - LumB",
+        ),
+    }
+    if kind not in display_labels:
+        raise ValueError("Unknown PAM50 heatmap kind")
+    expected_count = 60 * len(display_labels[kind])
     with pymupdf.open(pdf) as document:
         if len(document) != 1:
             raise ValueError("PAM50 PDF must contain one page")
@@ -104,7 +116,6 @@ def _matrix_to_column_labels_gap(pdf: Path) -> float:
                     and 35 <= rect.width <= 120
                     and 4 <= rect.height <= 24):
                 candidates.append(rect)
-        # Each of 60 frozen genes contributes 4 identical vector cells.
         from collections import Counter
         sizes = Counter((round(r.width, 1), round(r.height, 1))
                         for r in candidates)
@@ -113,23 +124,37 @@ def _matrix_to_column_labels_gap(pdf: Path) -> float:
         common_size, _ = sizes.most_common(1)[0]
         cells = [r for r in candidates
                  if (round(r.width, 1), round(r.height, 1)) == common_size]
-        if len(cells) != 240:
-            raise ValueError("Paired effects must render exactly 240 vector heatmap cells")
+        if len(cells) != expected_count:
+            raise ValueError(
+                f"{kind}: expected {expected_count} vector cells, got {len(cells)}"
+            )
         left = min(r.x0 for r in cells)
         right = max(r.x1 for r in cells)
         bottom = max(r.y1 for r in cells)
-        spans = [
-            span for block in page.get_text("dict")["blocks"]
-            for line in block.get("lines", [])
-            for span in line.get("spans", [])
-            if span.get("text", "").strip() in {"Basal", "Her2", "LumA", "LumB"}
-            and left <= span["bbox"][0] <= right
-            and bottom - 65 <= span["bbox"][1] <= bottom + 65
-        ]
-        if len(spans) != 4:
-            raise ValueError("Cannot identify exactly four subtype column labels below matrix")
-        return min(span["bbox"][1] for span in spans) - bottom
-
+        matches = {name: [] for name in display_labels[kind]}
+        for block in page.get_text("dict")["blocks"]:
+            for line in block.get("lines", []):
+                for span in line.get("spans", []):
+                    name = span.get("text", "").strip()
+                    if name not in matches:
+                        continue
+                    box = span["bbox"]
+                    # Paired labels are horizontal below cells; contrast
+                    # labels are rotated and can project left of the matrix.
+                    in_band = bottom - 65 <= box[1] <= bottom + 90
+                    if kind == "paired_effects":
+                        in_band = in_band and left <= box[0] <= right
+                    else:
+                        in_band = in_band and box[2] >= left - 80 and box[0] <= right + 80
+                        direction = line.get("dir", (1.0, 0.0))
+                        in_band = in_band and abs(direction[1]) >= 0.2
+                    if in_band:
+                        matches[name].append(box)
+        if any(len(boxes) != 1 for boxes in matches.values()):
+            raise ValueError(
+                f"{kind}: must identify each of {len(matches)} matrix column labels once"
+            )
+        return min(boxes[0][1] for boxes in matches.values()) - bottom
 
 def audit_folder(folder: Path, min_margin_pt: float = 12.0,
                  check_labels: bool = False,
@@ -215,15 +240,16 @@ def audit_folder(folder: Path, min_margin_pt: float = 12.0,
                 f"Subtype labels and bottom legend are only "
                 f"{measured_footer_gap:.2f}pt apart; require {min_footer_gap_pt:.1f}pt"
             )
-        matrix_gap = _matrix_to_column_labels_gap(pdf) if kind == "paired_effects" else None
-        if matrix_gap is not None and matrix_gap < min_matrix_label_gap_pt:
+        matrix_gap = _matrix_to_column_labels_gap(pdf, kind)
+        if matrix_gap < min_matrix_label_gap_pt:
             raise ValueError(
-                f"Bottom heatmap cells overlap/crowd subtype names: {matrix_gap:.2f}pt "
-                f"(minimum {min_matrix_label_gap_pt:.1f}pt)"
+                f"{kind}: bottom heatmap cells overlap/crowd column names: "
+                f"{matrix_gap:.2f}pt (minimum {min_matrix_label_gap_pt:.1f}pt)"
             )
         summaries[kind] = {
+            "matrix_bottom_to_column_label_gap_pt": round(matrix_gap, 2),
             "matrix_bottom_to_subtype_label_gap_pt": (
-                round(matrix_gap, 2) if matrix_gap is not None else None
+                round(matrix_gap, 2) if kind == "paired_effects" else None
             ),
             "measured_subtype_label_to_legend_gap_pt": (
                 round(measured_footer_gap, 2) if measured_footer_gap is not None else None
