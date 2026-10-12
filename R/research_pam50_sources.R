@@ -6,7 +6,11 @@ rt_read_pam50_locked <- function(st06_file, st07_file, st09_file,
   if (!requireNamespace("readr", quietly = TRUE) ||
       !requireNamespace("digest", quietly = TRUE))
     stop("Approved readr and digest dependencies are required.")
-  paths <- c(ST06 = st06_file, ST07 = st07_file, ST09 = st09_file)
+  if (any(lengths(list(st06_file, st07_file, st09_file)) != 1L))
+    stop("Each frozen source path must be a single file.")
+  paths <- stats::setNames(
+    c(unname(st06_file), unname(st07_file), unname(st09_file)),
+    c("ST06", "ST07", "ST09"))
   if (!is.character(paths) || anyNA(paths) ||
       any(!nzchar(trimws(paths))) || any(!file.exists(paths)) ||
       any(dir.exists(paths)))
