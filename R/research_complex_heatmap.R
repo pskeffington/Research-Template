@@ -147,8 +147,9 @@ rt_complex_heatmap <- function(values, sample_metadata, condition_levels,
     column_names_rot = 90,
     row_names_gp = grid::gpar(fontsize = 7),
     column_names_gp = grid::gpar(fontsize = 7),
-    column_title = paste0(measurement, " | ", value_transform),
-    heatmap_legend_param = list(title = legend_title),
+    column_title = measurement,
+    heatmap_legend_param = list(
+      title = paste(strwrap(legend_title, width = 21L), collapse = "\n")),
     use_raster = rasterize
   )
   structure(list(heatmap = ht, prepared = prep,
