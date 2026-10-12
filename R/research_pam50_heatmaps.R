@@ -143,7 +143,13 @@ rt_pam50_research_heatmaps <- function(signature, contrasts,
   anchor_color <- ComplexHeatmap::rowAnnotation(
     "Frozen anchor" = prepared$anchor,
     col = list("Frozen anchor" = colors),
-    show_annotation_name = FALSE, show_legend = FALSE,
+    show_annotation_name = FALSE, show_legend = TRUE,
+    annotation_legend_param = list(
+      "Frozen anchor" = list(
+        title = "Gene anchor (15 each)",
+        title_gp = grid::gpar(fontsize = 8),
+        labels_gp = grid::gpar(fontsize = 8),
+        ncol = 1L)),
     simple_anno_size = grid::unit(3, "mm"))
   create <- function(matrix, kind) {
     bound <- if (shared_scale) lim else max(abs(matrix))
@@ -204,7 +210,8 @@ rt_pam50_research_heatmaps <- function(signature, contrasts,
       legend_width_mm = 98,
       legend_title_font_pt = 8.5,
       legend_tick_font_pt = 8,
-      scale_policy = "FULL_OBSERVED_RANGE_NO_CLIPPING"
+      scale_policy = "FULL_OBSERVED_RANGE_NO_CLIPPING",
+      anchor_legend = "GENE_ANCHOR_15_PER_GROUP_SHOWN_LEFT"
     )
   }
   structure(list(
@@ -213,6 +220,52 @@ rt_pam50_research_heatmaps <- function(signature, contrasts,
     prepared = prepared, shared_scale = shared_scale,
     assessment = "POST_SELECTION_DESCRIPTIVE_ONLY"
   ), class = "rt_pam50_research_bundle")
+}
+
+# Captions are separate from the vector PDF: no overlays onto dense gene labels.
+# They document the actual estimand, denominator and noninferential scope.
+rt_pam50_manuscript_caption <- function(bundle, kind) {
+  if (!inherits(bundle, "rt_pam50_research_bundle") ||
+      !kind %in% c("paired_effects", "six_contrasts"))
+    stop("A frozen PAM50 bundle and an approved figure kind are required.")
+  profile <- bundle$prepared$profile
+  if (!identical(sum(as.integer(profile$n_pairs)), 106L) ||
+      !identical(profile$genes_per_anchor, 15L))
+    stop("Figure caption denominators and anchor sizes do not match the frozen cohort.")
+  cohort <- paste0("106 matched tumor/adjacent-normal patient pairs ",
+    "(Basal n=16, Her2 n=9, LumA n=59, LumB n=22).")
+  common <- paste(
+    "Rows show 60 discovery-selected genes arranged in four immutable",
+    "15-gene subtype-anchor blocks (Basal, Her2, LumA, LumB);",
+    "genes follow frozen anchor rank, not expression clustering.",
+    cohort,
+    "Blue indicates a negative paired log2 effect or effect difference;",
+    "red indicates a positive value; white is zero.",
+    "Both panels use the same full-range symmetric zero-centered scale.",
+    "Color does not encode significance or uncertainty.",
+    "Post-selection descriptive visualization only;",
+    "no confidence intervals, external replication, or clinical prediction."
+  )
+  if (kind == "paired_effects") {
+    paste(
+      "PAM50-stratified frozen 60-gene paired-effect heatmap.",
+      "Each of the four columns is a modeled within-patient",
+      "tumor-minus-adjacent-normal log2 fold-change estimate for one subtype,",
+      "not an individual patient or unpaired tumor expression measurement.",
+      common
+    )
+  } else {
+    paste(
+      "Six planned pairwise contrasts of the frozen PAM50-stratified",
+      "60-gene paired-effect signature.",
+      "Each column gives the first named subtype's paired log2 effect",
+      "minus the second's, in this fixed order:",
+      paste(profile$contrasts, collapse = ", "), ".",
+      "These are differences between modeled paired effects,",
+      "not independent patient measurements or standalone p-values.",
+      common
+    )
+  }
 }
 
 rt_export_pam50_research <- function(bundle, output_dir,
@@ -242,7 +295,7 @@ rt_export_pam50_research <- function(bundle, output_dir,
   all_files <- unlist(lapply(kinds, function(kind)
     file.path(output_dir,
               paste0("PAM50_", kind,
-                     c(".pdf", ".png", ".metadata.rds", ".metadata.json")))),
+                     c(".pdf", ".png", ".metadata.rds", ".metadata.json", ".caption.txt")))),
     use.names = FALSE)
   if (any(file.exists(all_files)))
     stop("Refusing to overwrite existing manuscript figures.")
@@ -254,7 +307,7 @@ rt_export_pam50_research <- function(bundle, output_dir,
   for (kind in kinds) {
     element <- bundle[[kind]]
     stem <- file.path(output_dir, paste0("PAM50_", kind))
-    paths <- paste0(stem, c(".pdf", ".png", ".metadata.rds", ".metadata.json"))
+    paths <- paste0(stem, c(".pdf", ".png", ".metadata.rds", ".metadata.json", ".caption.txt"))
     if (capabilities("cairo")) {
       grDevices::cairo_pdf(paths[1], width = width, height = height)
     } else {
@@ -264,7 +317,7 @@ rt_export_pam50_research <- function(bundle, output_dir,
     created <- c(created, paths[1])
     tryCatch(ComplexHeatmap::draw(
       element$heatmap, heatmap_legend_side = "bottom",
-      annotation_legend_side = "right", merge_legends = FALSE,
+      annotation_legend_side = "left", merge_legends = FALSE,
       padding = grid::unit(c(7, 6, 7, 6), "mm")),
       finally = grDevices::dev.off())
     grDevices::png(paths[2], width = width, height = height,
@@ -273,7 +326,7 @@ rt_export_pam50_research <- function(bundle, output_dir,
     created <- c(created, paths[2])
     tryCatch(ComplexHeatmap::draw(
       element$heatmap, heatmap_legend_side = "bottom",
-      annotation_legend_side = "right", merge_legends = FALSE,
+      annotation_legend_side = "left", merge_legends = FALSE,
       padding = grid::unit(c(7, 6, 7, 6), "mm")),
       finally = grDevices::dev.off())
     note <- paste0("Frozen 60 genes (15 per anchor), ",
@@ -282,9 +335,13 @@ rt_export_pam50_research <- function(bundle, output_dir,
                    "Post-selection descriptive only; no new intervals or tests.")
     if (kind == "six_contrasts")
       note <- paste0(note, " Contrast values are first-minus-second effects.")
+    caption <- rt_pam50_manuscript_caption(bundle, kind)
     meta <- list(
       figure_id = paste0("PAM50_", kind),
       legend = note, source = source, data_status = data_status,
+      manuscript_caption = caption,
+      caption_review = "PENDING_AUTHOR_AND_SCIENTIFIC_REVIEW",
+      caption_file = paths[5],
       figure_review = "PENDING_VISUAL_AND_SCIENTIFIC_REVIEW",
       public_release_requested = FALSE,
       inferential_status = "POST_SELECTION_DESCRIPTIVE_ONLY",
@@ -308,6 +365,7 @@ rt_export_pam50_research <- function(bundle, output_dir,
       legend_title_font_pt = element$legend_title_font_pt,
       legend_tick_font_pt = element$legend_tick_font_pt,
       scale_policy = element$scale_policy,
+      anchor_legend = element$anchor_legend,
       shared_color_scale = bundle$shared_scale,
       transformation = "archived paired log2FC; no plotting transformation",
       n_missing_cells = 0L, width_in = width, height_in = height,
@@ -320,6 +378,9 @@ rt_export_pam50_research <- function(bundle, output_dir,
     created <- c(created, paths[3])
     jsonlite::write_json(meta, paths[4], auto_unbox = TRUE, pretty = TRUE)
     created <- c(created, paths[4])
+    writeLines(strwrap(caption, width = 105L),
+               con = paths[5], useBytes = TRUE)
+    created <- c(created, paths[5])
     manifests[[kind]] <- meta
   }
   completed <- TRUE
