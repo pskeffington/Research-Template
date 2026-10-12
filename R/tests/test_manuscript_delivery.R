@@ -20,7 +20,8 @@ if (requireNamespace("ggplot2", quietly = TRUE) &&
   stem <- tempfile("figure_")
   result <- rt_manuscript_export(
     p, stem, "Figure_01", "Synthetic distribution", "Study",
-    "SYNTHETIC", "person", "synthetic seed 711", 90L, 0L)
+    "SYNTHETIC", "person", "synthetic seed 711",
+    sum(!is.na(x$measurement_mg_dl)), sum(is.na(x$measurement_mg_dl)))
   stopifnot(all(file.exists(result$files)),
             file.exists(paste0(stem, ".metadata.rds")),
             identical(result$figure_review,
