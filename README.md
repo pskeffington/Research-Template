@@ -88,3 +88,6 @@ Use the [R manuscript delivery guide](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md)
 ### Research-aligned PAM50 heatmap delivery
 
 The [manuscript visualization guide](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md#tcga-brca-pam50-frozen-research-heatmaps-aligned-adapter) includes a reusable R adapter for the frozen TCGA-BRCA discovery signature: **60 genes × 4 subtype paired effects** and **60 genes × 6 planned effect contrasts**. It validates exact frozen gene IDs and ranks, 15 genes per anchor, complete first-minus-second contrast directions and scientific interpretation boundaries. The code never imports protected research inputs unless explicitly called from an authorized private checkout; CI uses synthetic data only. See `R/research_pam50_heatmaps.R` and `R/tests/test_pam50_heatmap_alignment.R`.
+
+
+**Manuscript preflight:** The research-aligned PAM50 adapter now has a separate hash-pinned full-source loader (`R/research_pam50_sources.R`) and automated PDF geometry check (`scripts/audit_pam50_layout.py`). Both must pass before source-specific review of private R11 research figures. The template does not embed frozen source hashes or research data; the operator must supply independently approved ST06/ST07/ST09 hashes. See [manuscript visualization delivery](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md).
