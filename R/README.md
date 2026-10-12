@@ -109,3 +109,10 @@ For professional figure delivery, source the specific optional modules after `re
 | Verified differential results | `rt_verified_volcano()` | `R/research_inference_plots.R` | externally verified adjusted p-values |
 
 All publication-facing functions require the operator to review input data provenance, sampling units, transformations, typography and privacy. An output file is not inferential or release authorization.
+
+
+## Research-aligned PAM50 heatmap figures
+
+Load `R/research_pam50_heatmaps.R` after `R/research_tidy.R` and `R/research_plots.R`. The explicit calls are `rt_pam50_profile()`, `rt_prepare_pam50_research(signature, contrasts)`, `rt_pam50_research_heatmaps(signature, contrasts)`, and `rt_export_pam50_research(bundle, output_dir, source)`.
+
+Unlike a typical sample-by-feature heatmap, **PAM50 subtype columns here are modeled paired effects**, not biological samples. The adapter follows the research project's R11/R19 ST09/ST07 frozen contract: 60 gene rows (15 per anchor), four subtype effects and six contrasts, with case-preserving names, Ensembl fallback labels and one-to-one gene/contrast reconciliation. Shared zero-centered color scales and patient-pair denominators are documented; no new FDR, confidence interval, sample selection, model training or publication approval is implied. Read the [full input and output workflow](../docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md#tcga-brca-pam50-frozen-research-heatmaps-aligned-adapter) before use.
