@@ -110,7 +110,11 @@ stopifnot(inherits(bundle, "rt_pam50_research_bundle"),
           identical(bundle$paired_effects$legend_title_font_pt, 8.5),
           identical(bundle$six_contrasts$legend_tick_font_pt, 8),
           identical(bundle$paired_effects$scale_policy,
-                    "FULL_OBSERVED_RANGE_NO_CLIPPING"))
+                    "FULL_OBSERVED_RANGE_NO_CLIPPING"),
+          identical(bundle$paired_effects$anchor_legend,
+                    "GENE_ANCHOR_15_PER_GROUP_SHOWN_LEFT"),
+          identical(bundle$six_contrasts$anchor_legend,
+                    "GENE_ANCHOR_15_PER_GROUP_SHOWN_LEFT"))
 scale_review <- rt_pam50_scale_diagnostic(bundle, neutral_fraction = 0.2)
 stopifnot(inherits(scale_review$plot, "ggplot"),
           identical(scale_review$effect_cells, 600L),
@@ -133,6 +137,17 @@ bad_bundle$paired_effects$color_breaks <- c(-1, 0, 1)
 stopifnot(inherits(try(rt_pam50_scale_diagnostic(bad_bundle),
                        silent = TRUE), "try-error"))
 
+caption_a <- rt_pam50_manuscript_caption(bundle, "paired_effects")
+caption_b <- rt_pam50_manuscript_caption(bundle, "six_contrasts")
+stopifnot(grepl("106 matched", caption_a, fixed = TRUE),
+          grepl("15-gene subtype-anchor", caption_b, fixed = TRUE),
+          grepl("not an individual patient", caption_a, fixed = TRUE),
+          grepl("first named subtype", caption_b, fixed = TRUE),
+          grepl("Color does not encode significance or uncertainty", caption_a,
+                fixed = TRUE))
+stopifnot(inherits(try(rt_pam50_manuscript_caption(bundle, "unsupported"),
+                       silent = TRUE), "try-error"))
+
 folder <- "artifacts/ci_figure_review/pam50_research"
 exports <- rt_export_pam50_research(
   bundle, output_dir = folder,
@@ -152,11 +167,22 @@ stopifnot(length(exports) == 2L,
           identical(exports$paired_effects$scale_policy,
                     "FULL_OBSERVED_RANGE_NO_CLIPPING"),
           identical(exports$paired_effects$color_breaks,
-                    exports$six_contrasts$color_breaks))
+                    exports$six_contrasts$color_breaks),
+          identical(exports$paired_effects$caption_review,
+                    "PENDING_AUTHOR_AND_SCIENTIFIC_REVIEW"),
+          identical(exports$six_contrasts$anchor_legend,
+                    "GENE_ANCHOR_15_PER_GROUP_SHOWN_LEFT"))
 for (kind in c("paired_effects", "six_contrasts")) {
   stem <- file.path(folder, paste0("PAM50_", kind))
   stopifnot(all(file.exists(paste0(stem,
-             c(".pdf", ".png", ".metadata.rds", ".metadata.json")))))
+             c(".pdf", ".png", ".metadata.rds", ".metadata.json",
+               ".caption.txt")))))
+  caption_path <- paste0(stem, ".caption.txt")
+  caption_text <- paste(readLines(caption_path, warn = FALSE), collapse = " ")
+  stopifnot(grepl("106 matched", caption_text, fixed = TRUE),
+            grepl("post-selection", tolower(caption_text), fixed = TRUE),
+            identical(basename(exports[[kind]]$caption_file),
+                      basename(caption_path)))
   audited <- rt_figure_audit(stem)
   stopifnot(identical(audited$automated_checks, "PASS"))
   if (!nzchar(Sys.which("pdftotext")))
@@ -171,7 +197,8 @@ for (kind in c("paired_effects", "six_contrasts")) {
                      "([^[:alnum:]_]|$)"), rendered_text,
               perl = TRUE)), logical(1))))
   stopifnot(any(grepl("Basal", rendered_text, fixed = TRUE)),
-            any(grepl("LumB", rendered_text, fixed = TRUE)))
+            any(grepl("LumB", rendered_text, fixed = TRUE)),
+            any(grepl("Gene anchor", rendered_text, fixed = TRUE)))
 }
 diagnostic_stem <- file.path(folder, "PAM50_scale_diagnostic")
 supplement <- rt_manuscript_export(
