@@ -83,8 +83,9 @@ rt_verified_volcano <- function(data, feature, log2_effect, adjusted_p,
                                 name = "Meets declared thresholds") +
     ggplot2::labs(
       title = paste("Volcano:", contrast),
-      subtitle = sprintf("%s; %s adjustment; %d tested features; %d meet thresholds",
-                         method, adjustment, nrow(clean), sum(clean$passes)),
+      subtitle = rt_wrap_label(sprintf("%s; %s adjustment; %d tested features; %d meet thresholds",
+                                     method, adjustment, nrow(clean), sum(clean$passes)),
+                               width = 59L),
       x = "Verified log2 effect (log2 units)",
       y = "−log10(adjusted p value)",
       caption = "Values supplied by validated inferential pipeline; zero p displayed at numerical floor."
