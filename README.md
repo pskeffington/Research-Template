@@ -78,3 +78,8 @@ To create an independent repository from this starter, the repository owner must
 - [Literature matrix](references/LITERATURE_MATRIX.csv): authoritative external methodological and tool documentation, with implementation mapping.
 
 **Scope:** reusable template and pedagogical executable examples; not a claim of independent external validation. This template's implementation is original and does not import private datasets or protected teaching materials.
+
+
+## Manuscript and professional visualization outputs
+
+Use the [R manuscript delivery guide](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md) and [R function atlas](R/README.md) for condition-ordered annotated ComplexHeatmap figures, confidence-interval forest plots, statistically gated volcano displays, separate Plotly exploratory widgets, and static manuscript PDF/PNG exports. Modules are sourced on demand; public release remains a separate scientific and privacy-review gate.
