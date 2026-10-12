@@ -140,6 +140,9 @@ stopifnot(inherits(try(rt_pam50_scale_diagnostic(bad_bundle),
 caption_a <- rt_pam50_manuscript_caption(bundle, "paired_effects")
 caption_b <- rt_pam50_manuscript_caption(bundle, "six_contrasts")
 stopifnot(grepl("106 matched", caption_a, fixed = TRUE),
+          grepl("formal subtype analysis includes 106", caption_a, fixed = TRUE),
+          !grepl("LumB .", caption_b, fixed = TRUE),
+          grepl("LumB.", caption_b, fixed = TRUE),
           grepl("15-gene subtype-anchor", caption_b, fixed = TRUE),
           grepl("not an individual patient", caption_a, fixed = TRUE),
           grepl("first named subtype", caption_b, fixed = TRUE),
