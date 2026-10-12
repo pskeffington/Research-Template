@@ -102,7 +102,13 @@ stopifnot(inherits(bundle, "rt_pam50_research_bundle"),
           identical(bundle$assessment, "POST_SELECTION_DESCRIPTIVE_ONLY"),
           inherits(bundle$paired_effects$heatmap, "HeatmapList"),
           identical(bundle$paired_effects$color_breaks,
-                    bundle$six_contrasts$color_breaks))
+                    bundle$six_contrasts$color_breaks),
+          identical(bundle$paired_effects$legend_width_mm, 98),
+          identical(bundle$six_contrasts$legend_width_mm, 98),
+          identical(bundle$paired_effects$legend_title_font_pt, 8.5),
+          identical(bundle$six_contrasts$legend_tick_font_pt, 8),
+          identical(bundle$paired_effects$scale_policy,
+                    "FULL_OBSERVED_RANGE_NO_CLIPPING"))
 folder <- "artifacts/ci_figure_review/pam50_research"
 exports <- rt_export_pam50_research(
   bundle, output_dir = folder,
@@ -116,7 +122,13 @@ stopifnot(length(exports) == 2L,
           exports$paired_effects$n_formal_subtype_pairs == 106L,
           identical(exports$paired_effects$sample_level_columns, FALSE),
           identical(exports$six_contrasts$inferential_status,
-                    "POST_SELECTION_DESCRIPTIVE_ONLY"))
+                    "POST_SELECTION_DESCRIPTIVE_ONLY"),
+          identical(exports$paired_effects$legend_width_mm, 98),
+          identical(exports$six_contrasts$legend_width_mm, 98),
+          identical(exports$paired_effects$scale_policy,
+                    "FULL_OBSERVED_RANGE_NO_CLIPPING"),
+          identical(exports$paired_effects$color_breaks,
+                    exports$six_contrasts$color_breaks))
 for (kind in c("paired_effects", "six_contrasts")) {
   stem <- file.path(folder, paste0("PAM50_", kind))
   stopifnot(all(file.exists(paste0(stem,
