@@ -48,13 +48,14 @@ def fixture(folder: Path, *, dpi: int = 300, embedded: bool = True) -> None:
 
 
 class PhysicalExportsTest(unittest.TestCase):
-    def setUp(self) -> None:
+    def setup_fixture(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.folder = Path(self.temp.name)
         fixture(self.folder)
 
     def test_clean_three_panel_audit_keeps_review_pending(self) -> None:
+        self.setup_fixture()
         result = audit(self.folder)
         self.assertEqual(result["status"], "PHYSICAL_EXPORTS_VERIFIED_MANUAL_REVIEW_PENDING")
         self.assertEqual(result["public_release"], "BLOCKED")
@@ -63,12 +64,14 @@ class PhysicalExportsTest(unittest.TestCase):
         self.assertTrue(result["figures"][0]["fonts"][0]["embedded"])
 
     def test_tampered_png_rejected(self) -> None:
+        self.setup_fixture()
         with (self.folder / "PAM50_six_contrasts.png").open("ab") as handle:
             handle.write(b"changed")
         with self.assertRaises(PhysicalAuditBlocked):
             audit(self.folder)
 
     def test_actual_raster_resolution_not_declared_dpi_controls_gate(self) -> None:
+        self.setup_fixture()
         second = tempfile.TemporaryDirectory()
         self.addCleanup(second.cleanup)
         folder = Path(second.name)
@@ -77,6 +80,7 @@ class PhysicalExportsTest(unittest.TestCase):
             audit(folder)
 
     def test_unembedded_pdf_font_rejected(self) -> None:
+        self.setup_fixture()
         second = tempfile.TemporaryDirectory()
         self.addCleanup(second.cleanup)
         folder = Path(second.name)
@@ -85,6 +89,7 @@ class PhysicalExportsTest(unittest.TestCase):
             audit(folder)
 
     def test_false_pdf_dimensions_rejected(self) -> None:
+        self.setup_fixture()
         path = self.folder / "PAM50_paired_effects.metadata.json"
         record = json.loads(path.read_text())
         record["width_in"] = 3
@@ -93,6 +98,7 @@ class PhysicalExportsTest(unittest.TestCase):
             audit(self.folder)
 
     def test_rejected_automatic_scientific_approval(self) -> None:
+        self.setup_fixture()
         path = self.folder / "PAM50_scale_diagnostic.metadata.json"
         record = json.loads(path.read_text())
         record["figure_review"] = "APPROVED"
@@ -101,6 +107,7 @@ class PhysicalExportsTest(unittest.TestCase):
             audit(self.folder)
 
     def test_journal_comparison_never_confers_distribution(self) -> None:
+        self.setup_fixture()
         physical = audit(self.folder)
         csv_file = self.folder / "journal.csv"
         csv_file.write_text(
@@ -117,6 +124,7 @@ class PhysicalExportsTest(unittest.TestCase):
         self.assertTrue(any("width" in n for n in result["notices"]))
 
     def test_missing_selected_journal_blocked(self) -> None:
+        self.setup_fixture()
         with self.assertRaisesRegex(PhysicalAuditBlocked, "matrix"):
             audit(self.folder, journal_id="J03")
 
