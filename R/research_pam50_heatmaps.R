@@ -137,9 +137,8 @@ rt_pam50_research_heatmaps <- function(signature, contrasts,
   anchor_color <- ComplexHeatmap::rowAnnotation(
     "Frozen anchor" = prepared$anchor,
     col = list("Frozen anchor" = colors),
-    show_annotation_name = TRUE,
-    annotation_name_gp = grid::gpar(fontsize = 8),
-    annotation_legend_param = list("Frozen anchor" = list(nrow = 4)))
+    show_annotation_name = FALSE, show_legend = FALSE,
+    simple_anno_size = grid::unit(3, "mm"))
   create <- function(matrix, kind) {
     bound <- if (shared_scale) lim else max(abs(matrix))
     if (bound <= 0) bound <- 1
@@ -163,7 +162,8 @@ rt_pam50_research_heatmaps <- function(signature, contrasts,
       cluster_rows = FALSE, cluster_row_slices = FALSE,
       cluster_columns = FALSE, cluster_column_slices = FALSE,
       row_labels = prepared$gene_labels,
-      row_names_side = "left",
+      row_names_side = "right",
+      row_names_max_width = grid::unit(46, "mm"),
       show_row_names = TRUE,
       row_names_gp = grid::gpar(fontsize = 7.5),
       column_labels = label,
@@ -172,13 +172,17 @@ rt_pam50_research_heatmaps <- function(signature, contrasts,
       column_title = heading,
       column_title_gp = grid::gpar(fontsize = 11, fontface = "bold"),
       row_title_gp = grid::gpar(fontsize = 9, fontface = "bold"),
+      row_title_rot = 0,
+      width = grid::unit(111, "mm"),
       rect_gp = grid::gpar(col = "#FFFFFF", lwd = 0.25),
       row_gap = grid::unit(2.5, "mm"),
       na_col = "#BFC6CD",
       show_heatmap_legend = TRUE,
-      heatmap_legend_param = list(title = legend_title,
-                                  at = breaks,
-                                  direction = "horizontal")
+      heatmap_legend_param = list(
+        title = legend_title, at = breaks,
+        labels = sprintf("%.1f", breaks),
+        legend_width = grid::unit(53, "mm"),
+        direction = "horizontal")
     )
     # Anchor track is genuinely gene-level; subtype columns are model summaries.
     list(
