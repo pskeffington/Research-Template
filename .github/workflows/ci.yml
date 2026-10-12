@@ -53,6 +53,8 @@ jobs:
             r-base-core r-cran-ggplot2 r-cran-dplyr r-cran-tidyr r-cran-tibble r-cran-readr r-bioc-complexheatmap r-cran-circlize r-cran-png r-cran-digest r-cran-jsonlite r-cran-plotly r-cran-htmlwidgets poppler-utils
       - name: Install PDF vector geometry inspector
         run: python3 -m pip install --disable-pip-version-check --no-cache-dir "PyMuPDF==1.26.7"
+      - name: Reject deliberately overlapped or incomplete PDF geometry
+        run: python3 -m unittest discover -s scripts/tests -p 'test_pam50_geometry.py' -v
       - name: Check all R modules
         run: Rscript --vanilla R/tests/test_style_contract.R
       - name: Validate documented R examples
