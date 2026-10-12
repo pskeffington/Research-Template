@@ -27,8 +27,6 @@ jobs:
           python-version: "3.12"
       - name: Install declared tools
         run: python -m pip install -e '.[all]'
-      - name: Inspect test import formatting
-        run: ruff check --select I --diff scripts/tests/test_pam50_geometry.py || true
       - name: Lint
         run: ruff check .
       - name: Test
