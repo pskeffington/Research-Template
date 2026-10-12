@@ -352,3 +352,18 @@ python3 scripts/pam50_review_governance.py PRIVATE_DIR \
 ~~~
 
 The check compares the **declared and integrity-verified figure metadata** to supplied maximum height/width, minimum PNG DPI, and accepted PDF/PNG formats. It rejects missing editorial details and dimensions that do not fit; it never silently rescales the 9×13-inch research figures, changes the frozen scale, edits labels, or claims to validate a publisher's latest rules. Physical legibility, native PNG pixel data, color-space requirements, actual journal acceptance and distribution permission remain separate human or later technical checks. The code does not contact an editorial site, and no journal policy is presumed.
+
+### Literature matrix for journal-specific manuscript delivery (12 October 2026)
+
+The reusable template has two public, data-free literature/source tables:
+
+- `references/JOURNAL_FIGURE_REQUIREMENTS_MATRIX_2026-10-12.csv`: Nature Communications, Scientific Reports, PLOS ONE, PLOS Biology, Bioinformatics, Briefings in Bioinformatics, Genomics Proteomics & Bioinformatics, Cancer Research (AACR common policy), and BMC Cancer (Springer Nature generic service policy **only**).
+- `references/JOURNAL_REPORTING_FRAMEWORKS_2026-10-12.csv`: STROBE, STREGA, REMARK, TRIPOD+AI and Nature Communications computational reproducibility guidelines.
+
+Each journal row separates official journal instructions from publisher-wide general information, review-stage versus final-artwork requirements, formats, raster/line-art DPI, explicitly stated column or maximum dimensions, legends, relevant disclosure/code provisions, source URL, review date, and known gaps for the 9 × 13-inch master PDFs. Absent numeric fields mean **not established** by the captured source, not zero or unconstrained. For Nature Communications the 1,200-dpi line-art recommendation is a **nonvector fallback**, not a demand to rasterize already valid vector PDFs. For PLOS journals the current PDF/PNG 9 × 13-inch masters are not production-compliant exports; retain the frozen originals and create explicit TIFF/EPS derivatives only after target journal selection and scientific/disclosure clearance.
+
+**Reporting framework applicability is conditional.** STROBE concerns observational designs; STREGA targets genetic association reporting (not arbitrary expression heatmaps); REMARK addresses prognostic tumor-marker research (not any subtype comparison); TRIPOD+AI applies to clinical prediction-model work. Do not assert that any of these checklists is mandatory solely because a figure includes genes or model estimates.
+
+**Scope and evidence controls:** Briefings in Bioinformatics expressly does not accept pure original research; its review/protocol/case-study formats must not be confused with original discovery reports. Cancer Research's current matrix row is based on AACR-shared guidelines and remains pending journal-specific confirmation. The BMC Cancer row records Springer Nature *author-services* guidance, not verified BMC Cancer submission requirements. Recheck all live author instructions before submission, and record the source/date/version of whichever requirements the author personally accepts. No matrix row grants copyright rights, data permission, manuscript approval or merge authorization.
+
+Synthetic CI contract: `python3 -m unittest discover -s scripts/tests -p 'test_journal_policy_matrix.py' -v` requires dated HTTPS sources, unique IDs, honest authority labels, sensible numeric fields and conditional reporting guidance. These machine checks do not validate external websites and must not be described as journal certification.
