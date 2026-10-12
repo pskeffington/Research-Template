@@ -121,8 +121,8 @@ Primary documentation: [Gu et al. 2016](https://doi.org/10.1093/bioinformatics/b
 
 ## Synthetic figure-review gate and CI evidence
 
-The automated QA routine lives in \`R/research_figure_audit.R\`; call
-\`rt_figure_audit("artifacts/manuscript/figure_01")\` after a manuscript export.
+The automated QA routine lives in `R/research_figure_audit.R`; call
+`rt_figure_audit("artifacts/manuscript/figure_01")` after a manuscript export.
 It validates a nonempty single-page PDF, the exact figure size in points, PNG
 width and height computed from inches and declared dpi, visible nonwhite
 content, provenance and checksums, and embedded fonts where available. It
@@ -130,14 +130,14 @@ refuses blank, mismatched, unembedded-font or provenance-inconsistent outputs.
 
 For reproducible **synthetic-only** regression examples, run:
 
-\`\`\`bash
+```bash
 Rscript --vanilla R/tests/generate_manuscript_review.R
 Rscript --vanilla R/tests/test_plotly_export.R
-\`\`\`
+```
 
 The fixture suite exercises an internal-box violin, an inference-gated volcano
 and a condition-grouped ComplexHeatmap. GitHub Actions tests these on a clean
-runner and attaches a 14-day \`synthetic-manuscript-review\` artifact containing
+runner and attaches a 14-day `synthetic-manuscript-review` artifact containing
 PDF/PNG pairs, machine-readable provenance, audit results and a separate
 non-self-contained Plotly HTML widget with its assets. Those reference
 outputs are **not** patient data, and must not be confused with benchmark
@@ -149,10 +149,10 @@ They cannot establish annotation readability at journal column width,
 color-vision accessibility, semantic interpretability, justified statistical
 uncertainty, corrected multiple testing, or legal permission to publish.
 Review every resulting figure visually, at final output size, before release.
-All outputs remain \`PENDING_VISUAL_AND_SCIENTIFIC_REVIEW\`.
+All outputs remain `PENDING_VISUAL_AND_SCIENTIFIC_REVIEW`.
 
-The audit uses the R \`png\` and \`digest\` packages plus Poppler
-\`pdfinfo\`/\`pdffonts\`; all are explicitly installed in the figure CI job.
-Optional Plotly requires both \`plotly\` and \`htmlwidgets\`, and the web
+The audit uses the R `png` and `digest` packages plus Poppler
+`pdfinfo`/`pdffonts`; all are explicitly installed in the figure CI job.
+Optional Plotly requires both `plotly` and `htmlwidgets`, and the web
 deliverable needs separate hover-field and disclosure review. No package
 installation or I/O is performed when sourcing the reusable modules.
