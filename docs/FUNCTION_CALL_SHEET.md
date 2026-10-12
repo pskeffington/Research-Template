@@ -388,3 +388,8 @@ The research export uses a 7 mm bottom/top and 6 mm left/right **ComplexHeatmap 
 ### Scale-interpretation supplementary figure
 
 `rt_pam50_scale_diagnostic(bundle, neutral_fraction = 0.2, histogram_bins = 40L)` returns an explicitly **supplementary** ggplot histogram (two panels: 240 paired effect cells and 360 contrast cells) plus a table of extremes, quantiles and within-central-scale fraction. It refuses non-shared color limits and never caps/recalculates the fitted values. The ±20% markers describe the color encoding, not statistical or clinical cutoffs. Export with the existing `rt_manuscript_export()` call while specifying `analysis_unit = "archived effect/contrast cell, not a patient"`. Keep figures and summary tables private pending scientific review.
+
+
+### Heatmap figure legend and publication-accessibility checkpoint
+
+`rt_pam50_manuscript_caption(bundle, kind = "paired_effects" | "six_contrasts")` produces the separate journal-caption text; `rt_export_pam50_research(...)` now writes matching `.caption.txt` files, stores them in the provenance manifest and renders an explicit `Gene anchor (15 each)` categorical legend to the **left**, with the continuous zero-centered scale beneath the panel. A PDF admission pass confirms the categorical key is present and the private caption bytes agree with the metadata text after whitespace normalization. Author sign-off is still required for accessibility, interpretation and final journal word limits.
