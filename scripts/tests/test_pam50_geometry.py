@@ -4,15 +4,13 @@ No patient data, frozen signatures, or historical private PDFs are embedded.
 """
 from __future__ import annotations
 
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 import pymupdf
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from audit_pam50_layout import _matrix_to_column_labels_gap
+from scripts.audit_pam50_layout import _matrix_to_column_labels_gap
 
 
 LABELS = {
