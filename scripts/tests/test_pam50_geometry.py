@@ -45,7 +45,9 @@ def create_fixture(path: Path, kind: str, separation: str = "valid",
     for col, label in enumerate(names):
         if missing_label and col == count - 1:
             continue
-        left = 130 + col * width
+        # Keep the horizontal subtype label inside its corresponding cell.
+        # Rotated contrast labels intentionally extend left of their column.
+        left = 134 + col * width + (width * 0.2 if kind == "paired_effects" else -4)
         baseline = bottom + (65 if kind == "six_contrasts" else 32)
         if separation == "overlap":
             baseline = bottom + (32 if kind == "six_contrasts" else 1)
