@@ -116,5 +116,18 @@ for (kind in c("paired_effects", "six_contrasts")) {
              c(".pdf", ".png", ".metadata.rds", ".metadata.json")))))
   audited <- rt_figure_audit(stem)
   stopifnot(identical(audited$automated_checks, "PASS"))
+  if (!nzchar(Sys.which("pdftotext")))
+    stop("Install Poppler pdftotext to confirm visible manuscript gene labels.")
+  rendered_text <- suppressWarnings(system2(
+    "pdftotext", args = c("-layout",
+      shQuote(paste0(stem, ".pdf")), "-"), stdout = TRUE, stderr = TRUE))
+  stopifnot(is.null(attr(rendered_text, "status")))
+  expected_labels <- paste0("Synthetic_", seq_len(60L))
+  stopifnot(all(vapply(expected_labels, function(gene)
+    any(grepl(paste0("(^|[^[:alnum:]_])", gene,
+                     "([^[:alnum:]_]|$)"), rendered_text,
+              perl = TRUE)), logical(1))))
+  stopifnot(any(grepl("Basal", rendered_text, fixed = TRUE)),
+            any(grepl("LumB", rendered_text, fixed = TRUE)))
 }
 cat("PAM50 research heatmaps PASS: 60x4, 60x6, frozen rank, directional tests, 2 PDF/PNG artifacts\n")
