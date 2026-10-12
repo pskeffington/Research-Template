@@ -75,7 +75,7 @@ jobs:
         run: Rscript --vanilla R/tests/test_pam50_heatmap_alignment.R
       - name: Verify PDF text margins, 60 labels and cross-panel manuscript geometry
         run: |
-          python3 scripts/audit_pam50_layout.py artifacts/ci_figure_review/pam50_research --min-margin-pt 12 --check-labels > artifacts/ci_figure_review/pam50_research/layout_audit.json
+          python3 scripts/audit_pam50_layout.py artifacts/ci_figure_review/pam50_research --min-margin-pt 12 --min-footer-gap-pt 12 --check-labels > artifacts/ci_figure_review/pam50_research/layout_audit.json
           if python3 scripts/audit_pam50_layout.py artifacts/ci_figure_review/pam50_research --min-margin-pt 72 --check-labels >/dev/null 2>&1; then
             echo "Oversized margin contract unexpectedly passed"
             exit 1
