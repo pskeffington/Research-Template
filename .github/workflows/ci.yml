@@ -50,7 +50,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends \
-            r-base-core r-cran-ggplot2 r-cran-dplyr r-cran-tidyr r-cran-tibble r-cran-readr r-bioc-complexheatmap r-cran-circlize
+            r-base-core r-cran-ggplot2 r-cran-dplyr r-cran-tidyr r-cran-tibble r-cran-readr r-bioc-complexheatmap r-cran-circlize r-cran-png r-cran-digest r-cran-jsonlite r-cran-plotly r-cran-htmlwidgets poppler-utils
       - name: Check all R modules
         run: Rscript --vanilla R/tests/test_style_contract.R
       - name: Validate documented R examples
@@ -67,5 +67,17 @@ jobs:
         run: Rscript --vanilla R/tests/test_inference_plots.R
       - name: Test ComplexHeatmap rendering and sample alignment
         run: Rscript --vanilla R/tests/test_complex_heatmap.R
+      - name: Generate and structurally audit synthetic manuscript references
+        run: Rscript --vanilla R/tests/generate_manuscript_review.R
+      - name: Test actual Plotly HTML creation and release guards
+        run: Rscript --vanilla R/tests/test_plotly_export.R
+      - name: Upload synthetic figure-review examples (not release-approved)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: synthetic-manuscript-review
+          path: artifacts/ci_figure_review/
+          retention-days: 14
+          if-no-files-found: warn
       - name: Confirm R exports ignored
         run: git check-ignore artifacts/r_ci/test_plot.pdf
