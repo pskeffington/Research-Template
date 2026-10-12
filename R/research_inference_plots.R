@@ -62,14 +62,16 @@ rt_verified_volcano <- function(data, feature, log2_effect, adjusted_p,
       !is.numeric(threshold_log2) || length(threshold_log2) != 1L ||
       !is.finite(threshold_log2) || threshold_log2 < 0)
     stop("Declare valid FDR and magnitude thresholds.")
-  # Zero adjusted p-values are numerical underflow, not infinite evidence.
+  # Freeze source vectors before tibble evaluation; avoid column-name shadowing.
+  effect_values <- data[[log2_effect]]
+  adjusted_values <- data[[adjusted_p]]
   floor_p <- .Machine$double.xmin
   clean <- tibble::tibble(
-    feature = data[[feature]], log2_effect = data[[log2_effect]],
-    adjusted_p = data[[adjusted_p]],
-    neg_log10 = -log10(pmax(data[[adjusted_p]], floor_p)),
-    passes = data[[adjusted_p]] <= alpha &
-             abs(data[[log2_effect]]) >= threshold_log2
+    feature = data[[feature]], log2_effect = effect_values,
+    adjusted_p = adjusted_values,
+    neg_log10 = -log10(pmax(adjusted_values, floor_p)),
+    passes = adjusted_values <= alpha &
+             abs(effect_values) >= threshold_log2
   )
   ggplot2::ggplot(clean, ggplot2::aes(x = .data$log2_effect, y = .data$neg_log10)) +
     ggplot2::geom_point(ggplot2::aes(color = .data$passes), alpha = 0.7, size = 1.5) +
