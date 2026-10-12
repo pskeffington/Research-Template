@@ -180,42 +180,55 @@ The frozen source identifiers, anchors and ranks determine **all rows**. There a
 
 Color zero means no effect or no difference of effects. Blue means lower tumor expression relative to patient-matched adjacent normal (or a more negative first-minus-second effect). Red means the reverse. Both figures can share one symmetric color range, with separate unambiguous legend titles. The frozen gene anchors denote the largest paired effect, **not** which group has highest absolute tumor expression.
 
-### Explicit approved-local-input workflow
+### Hash-pinned approved-local-input workflow
 
-The reusable template never reads private data implicitly. Run this from an authorized private research checkout containing the frozen R11 ST07/ST09 tables, with the template R modules made available explicitly:
+The reusable template never reads private data implicitly. The **three full R11 source tables** must match independently reviewed SHA-256 pins supplied by the operator. The loader will not silently downsample ST07 to 360 rows before checking that the complete 128,592-test contrast universe and its selected 360 rows align with ST06/ST09. A matching checksum is evidence of *identity against the supplied pin*, not independent proof of source authenticity.
 
 ~~~r
 source("R/research_tidy.R")
 source("R/research_plots.R")
 source("R/research_pam50_heatmaps.R")
+source("R/research_pam50_sources.R")
 source("R/research_figure_audit.R")
 
-# Resolve these local paths relative to the PRIVATE analysis checkout.
-signature_path <- "results/2026-09-30/R11_FROZEN/tables/ST09_Frozen_60_gene_signature.csv"
-contrasts_path <- "results/2026-09-30/R11_FROZEN/tables/ST07_Six_planned_pairwise_tests.csv"
-signature <- readr::read_csv(signature_path, show_col_types = FALSE)
-full_contrasts <- readr::read_csv(contrasts_path, show_col_types = FALSE)
-selected_contrasts <- full_contrasts |>
-  dplyr::filter(.data$gene_id %in% signature$gene_id)
-
-bundle <- rt_pam50_research_heatmaps(signature, selected_contrasts)
-stopifnot(identical(bundle$prepared$gene_id,
-                    signature$gene_id[order(
-                      match(signature$anchor_subtype,
-                            c("Basal", "Her2", "LumA", "LumB")),
-                      signature$anchor_rank)]))
-metadata <- rt_export_pam50_research(
+# All three CSV files remain in the authorized private checkout.
+files <- c(
+  ST06 = "results/2026-09-30/R11_FROZEN/tables/ST06_PAM50_paired_effects.csv",
+  ST07 = "results/2026-09-30/R11_FROZEN/tables/ST07_Six_planned_pairwise_tests.csv",
+  ST09 = "results/2026-09-30/R11_FROZEN/tables/ST09_Frozen_60_gene_signature.csv"
+)
+# Replace these placeholders ONLY with source hashes reviewed in the
+# private research repository; missing or invalid pins block execution.
+approved_pins <- c(
+  ST06 = "REPLACE_WITH_REVIEWED_ST06_SHA256",
+  ST07 = "REPLACE_WITH_REVIEWED_ST07_SHA256",
+  ST09 = "REPLACE_WITH_REVIEWED_ST09_SHA256"
+)
+locked <- rt_read_pam50_locked(
+  files[["ST06"]], files[["ST07"]], files[["ST09"]],
+  expected_sha256 = approved_pins
+)
+bundle <- rt_pam50_research_heatmaps(
+  locked$signature, locked$selected_contrasts
+)
+rt_export_pam50_research(
   bundle, "artifacts/private_pam50_manuscript",
-  source = "Frozen R11 ST07/ST09; local source hashes reviewed separately",
+  source = "Private R11 ST06/ST07/ST09, hash matched to reviewed pins",
   data_status = "PRIVATE", width = 9, height = 13, dpi = 300
 )
-audit_effect <- rt_figure_audit(
-  "artifacts/private_pam50_manuscript/PAM50_paired_effects")
-audit_contrast <- rt_figure_audit(
-  "artifacts/private_pam50_manuscript/PAM50_six_contrasts")
+rt_figure_audit("artifacts/private_pam50_manuscript/PAM50_paired_effects")
+rt_figure_audit("artifacts/private_pam50_manuscript/PAM50_six_contrasts")
 ~~~
 
-For real data, verify ST06/ST07/ST09 against the private repository's sealed SHA-256 manifests and frozen exchange validation **before** running this plotting-only adapter. The adapter rechecks 360 first-minus-second contrasts against the same 240 frozen effect cells within 1e-8, without recomputing FDR, changing the selected signature or refitting models. It does not verify source chain-of-custody independently.
+After export, run the **on-device geometry review** (requires Poppler `pdftotext` and Python 3):
+
+~~~bash
+python3 scripts/audit_pam50_layout.py   artifacts/private_pam50_manuscript   --min-margin-pt 12 --check-labels
+~~~
+
+The geometry gate extracts actual vector PDF text bounding boxes, enforces a 12-point minimum perimeter clearance, confirms all 60 declared gene labels are present, checks both panels use identical frozen gene ordering and verified subtype denominators, and rejects mismatched color scales or contrast order. The research renderer applies 7 mm top/bottom and 6 mm left/right padding in the order `bottom, left, top, right`, consistent with ComplexHeatmap's documented plot padding convention. A geometry pass does not establish color accessibility, scientific validity, or final release permission. It cannot detect invisible semantic errors that an upstream source gate missed.
+
+All real-data outputs, sidecars and geometry reports remain in the authorized **private** analysis environment. GitHub CI runs only synthetic 60-row and full 21,432-row input fixtures; it never ingests protected research datasets.
 
 **Inferential boundary:** The R18 uncertainty/CI release gate remains blocked. These figures display historical point estimates, not confidence intervals, standard errors, patient distributions, or new inferential claims. The 60 genes are selected from this discovery cohort, so observed patterns are post-selection and not external validation. These are private manuscript derivatives until the source-specific release approval is complete.
 
