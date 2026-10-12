@@ -270,6 +270,31 @@ rt_pam50_manuscript_caption <- function(bundle, kind) {
   }
 }
 
+# Reserve space specifically between bottom column labels and color legend.
+# ComplexHeatmap's draw(padding=...) controls the OUTER canvas only; it does
+# not add an internal gap between column labels and the bottom legend.
+# This scoped option is restored on exit, including when rendering fails.
+rt_draw_pam50_with_legend_gap <- function(heatmap,
+                                           legend_gap_mm = 12) {
+  if (!inherits(heatmap, "HeatmapList"))
+    stop("Expected a frozen PAM50 HeatmapList.")
+  if (!is.numeric(legend_gap_mm) || length(legend_gap_mm) != 1L ||
+      is.na(legend_gap_mm) || !is.finite(legend_gap_mm) ||
+      legend_gap_mm < 8 || legend_gap_mm > 25)
+    stop("Bottom legend separation must be 8-25 mm.")
+  previous <- ComplexHeatmap::ht_opt("HEATMAP_LEGEND_PADDING")
+  on.exit(ComplexHeatmap::ht_opt(
+    HEATMAP_LEGEND_PADDING = previous), add = TRUE)
+  ComplexHeatmap::ht_opt(
+    HEATMAP_LEGEND_PADDING = grid::unit(legend_gap_mm, "mm"))
+  ComplexHeatmap::draw(
+    heatmap, heatmap_legend_side = "bottom",
+    annotation_legend_side = "left",
+    align_annotation_legend = "heatmap_top",
+    merge_legends = FALSE,
+    padding = grid::unit(c(7, 6, 7, 6), "mm"))
+}
+
 rt_export_pam50_research <- function(bundle, output_dir,
                                      source, data_status = "PRIVATE",
                                      width = 9, height = 13,
@@ -317,19 +342,15 @@ rt_export_pam50_research <- function(bundle, output_dir,
                      useDingbats = FALSE)
     }
     created <- c(created, paths[1])
-    tryCatch(ComplexHeatmap::draw(
-      element$heatmap, heatmap_legend_side = "bottom",
-      annotation_legend_side = "left", merge_legends = FALSE,
-      padding = grid::unit(c(7, 6, 7, 6), "mm")),
+    tryCatch(rt_draw_pam50_with_legend_gap(
+      element$heatmap, legend_gap_mm = 12),
       finally = grDevices::dev.off())
     grDevices::png(paths[2], width = width, height = height,
                    units = "in", res = dpi,
                    type = if (capabilities("cairo")) "cairo" else "Xlib")
     created <- c(created, paths[2])
-    tryCatch(ComplexHeatmap::draw(
-      element$heatmap, heatmap_legend_side = "bottom",
-      annotation_legend_side = "left", merge_legends = FALSE,
-      padding = grid::unit(c(7, 6, 7, 6), "mm")),
+    tryCatch(rt_draw_pam50_with_legend_gap(
+      element$heatmap, legend_gap_mm = 12),
       finally = grDevices::dev.off())
     note <- paste0("Frozen 60 genes (15 per anchor), ",
                    profile$subtype_pairs, " matched pairs. ",
@@ -372,6 +393,8 @@ rt_export_pam50_research <- function(bundle, output_dir,
       transformation = "archived paired log2FC; no plotting transformation",
       n_missing_cells = 0L, width_in = width, height_in = height,
       outer_padding_mm = c(bottom = 7, left = 6, top = 7, right = 6),
+      internal_bottom_legend_gap_mm = 12,
+      anchor_legend_alignment = "heatmap_top",
       dpi = dpi, files = paths[1:2]
     )
     meta$sha256 <- vapply(paths[1:2], digest::digest,
