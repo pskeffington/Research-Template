@@ -249,7 +249,8 @@ rt_export_pam50_research <- function(bundle, output_dir,
     created <- c(created, paths[1])
     tryCatch(ComplexHeatmap::draw(
       element$heatmap, heatmap_legend_side = "bottom",
-      annotation_legend_side = "right", merge_legends = FALSE),
+      annotation_legend_side = "right", merge_legends = FALSE,
+      padding = grid::unit(c(7, 6, 7, 6), "mm")),
       finally = grDevices::dev.off())
     grDevices::png(paths[2], width = width, height = height,
                    units = "in", res = dpi,
@@ -257,7 +258,8 @@ rt_export_pam50_research <- function(bundle, output_dir,
     created <- c(created, paths[2])
     tryCatch(ComplexHeatmap::draw(
       element$heatmap, heatmap_legend_side = "bottom",
-      annotation_legend_side = "right", merge_legends = FALSE),
+      annotation_legend_side = "right", merge_legends = FALSE,
+      padding = grid::unit(c(7, 6, 7, 6), "mm")),
       finally = grDevices::dev.off())
     note <- paste0("Frozen 60 genes (15 per anchor), ",
                    profile$subtype_pairs, " matched pairs. ",
@@ -289,6 +291,7 @@ rt_export_pam50_research <- function(bundle, output_dir,
       shared_color_scale = bundle$shared_scale,
       transformation = "archived paired log2FC; no plotting transformation",
       n_missing_cells = 0L, width_in = width, height_in = height,
+      outer_padding_mm = c(bottom = 7, left = 6, top = 7, right = 6),
       dpi = dpi, files = paths[1:2]
     )
     meta$sha256 <- vapply(paths[1:2], digest::digest,
