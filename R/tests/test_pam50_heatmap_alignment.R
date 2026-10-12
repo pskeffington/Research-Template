@@ -81,8 +81,10 @@ expect_failure(rt_prepare_pam50_research(signature, bad))
 bad <- signature
 bad$SYMBOL[c(1L, 2L)] <- "DuplicateLabel"
 dedup <- rt_prepare_pam50_research(bad, contrasts)
-stopifnot(!anyDuplicated(dedup$gene_labels),
-          all(grepl("DuplicateLabel", dedup$gene_labels[1:2], fixed = TRUE)))
+symbol_rows <- match(bad$gene_id[c(1L, 2L)], dedup$gene_id)
+stopifnot(!anyDuplicated(dedup$gene_labels), !anyNA(symbol_rows),
+          all(grepl("DuplicateLabel",
+                    dedup$gene_labels[symbol_rows], fixed = TRUE)))
 
 stopifnot(requireNamespace("ComplexHeatmap", quietly = TRUE),
           requireNamespace("circlize", quietly = TRUE),
