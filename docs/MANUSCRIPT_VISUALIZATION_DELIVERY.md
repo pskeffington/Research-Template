@@ -294,3 +294,18 @@ The `scripts/audit_pam50_layout.py` PDF validator now measures the true lower ed
 The negative-control suite `scripts/tests/test_pam50_geometry.py` constructs **entirely synthetic vector PDFs** and demonstrates that deliberately overlapped layouts, missing labels, and missing heatmap cells are rejected, while properly spaced labels are accepted. No actual gene identifiers, frozen research bytes or private figures are included in those fixtures. Both panel checks are run in CI; an outer-page-margin pass is not sufficient to approve figure layout.
 
 The corrected renderer retains a scoped 7-mm `DIMNAME_PADDING` to separate the heatmap body from column labels and 12-mm `HEATMAP_LEGEND_PADDING` to separate column labels from the bottom legend; the two settings address different gaps.
+
+
+### Private manuscript review packet — explicit author decisions (October 2026)
+
+After **both** real-data heatmaps, the descriptive scale supplement, the SHA-256 source admission and the PDF/vector geometry report have passed, run the standalone standard-library packet builder on the private artifact directory:
+
+~~~bash
+python3 scripts/build_pam50_review_packet.py /path/to/private/pam50-private-manuscript
+~~~
+
+It produces two **nonapproval** outputs: `PAM50_MANUSCRIPT_REVIEW.md` and `PAM50_REVIEW_PACKET.json`. The reviewer worksheet references the two caption files and vector PDFs, lists the measured subtype/contrast label clearances, and leaves the figure legibility, scientific interpretation, caption accuracy, privacy/distribution and journal-numbering checks **unchecked**. The JSON records `status = REVIEW_REQUIRED_NOT_APPROVED`, `merge_authorization = NOT_GRANTED`, and `public_release = BLOCKED`.
+
+Admission is fail-closed: full ST06/ST07/ST09 source pins must be present in the **private validation result**; both panel SHA-256 digests must still match the locally exported PDF/PNG bytes; the 60-gene order, four anchored blocks, six first-minus-second contrasts, 106 formal paired patients, 109 primary-discovery pairs, unlabeled vs patient-level semantics, source scope, full symmetric scale and geometry pass must all remain consistent. The builder refuses missing captions, forged scientific/visual approval states, missing supplement evidence, modified figures or a preexisting packet. It does **not** independently retrieve clinical data or authenticate the original pin authority.
+
+GitHub Actions' private figure job may generate this packet as a seven-day private review artifact. **Automated assembly must never check boxes, record approval, authorize publication or merge a PR.** Reviewer decisions belong to the human manuscript/research governance process; storing a completed worksheet is a separate controlled act. CI tests use fabricated miniature files and metadata, never protected genes, patient observations or genuine figures. External paired-cohort replication and uncertainty gates remain blocked.
