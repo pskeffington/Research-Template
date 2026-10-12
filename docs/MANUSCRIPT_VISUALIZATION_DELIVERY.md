@@ -69,3 +69,51 @@ This helper sorts samples by declared condition order and preserves original sam
 Source `R/research_inference_plots.R` after the tidy and plots modules. `rt_verified_forest()` requires unique model terms, finite effect estimates, enclosing lower/upper interval bounds, interval level, units, model description, and reference group. Its zero-reference line assumes an additive or log-scale contrast; do not pass raw hazard ratios without an appropriate transformation. `rt_verified_volcano()` requires verified log2 effects and adjusted p values (not descriptive effects), a named contrast, modeling method, and multiple-testing adjustment. It displays adjusted p values of zero at a finite numerical floor.
 
 Neither routine estimates missing inferential quantities. Release requires a separate provenance review of the fitting pipeline, effective sample size, estimand, confidence-interval method, comparison family, and threshold choices. Synthetic tests are at `R/tests/test_inference_plots.R`.
+
+
+## Large-matrix ComplexHeatmap: grouped conditions and sample annotations
+
+For gene-expression, assay, or biomarker matrices that need multi-track sample annotation and stable condition grouping, use `R/research_complex_heatmap.R`. This is **not a ggplot object**: it returns a ComplexHeatmap bundle rendered separately. Install the optional `ComplexHeatmap` and `circlize` packages in the approved R environment; the CI suite runs a small synthetic rendering test.
+
+```r
+source("R/research_tidy.R")
+source("R/research_plots.R")
+source("R/research_complex_heatmap.R")
+
+# Rows are measured features; columns are precisely labeled samples.
+mat <- matrix(c(-1, 2, NA, 4, 3, -3), nrow = 2,
+              dimnames = list(c("Gene_A", "Gene_B"), c("T1", "N1", "T2")))
+# The metadata rows may arrive in any order; IDs, not row position, govern joins.
+samples <- data.frame(
+  sample_id = c("T2", "T1", "N1"),
+  condition = c("Tumor", "Tumor", "Normal"),
+  subtype = c("LumA", "Basal", NA_character_)
+)
+bundle <- rt_complex_heatmap(
+  mat, samples, condition_levels = c("Normal", "Tumor"),
+  measurement = "Synthetic signed effect", unit = "log2 units",
+  value_transform = "No additional transformation",
+  mode = "diverging", center = 0,
+  annotations = c("subtype"), rasterize = FALSE
+)
+stopifnot(identical(bundle$prepared$sample_order, c("N1", "T1", "T2")))
+rt_export_complex_heatmap(
+  bundle, "artifacts/manuscript/synthetic_heatmap",
+  figure_id = "SyntheticHeatmap_01",
+  legend = "Synthetic signed values; explicit condition and subtype tracks.",
+  source = "Synthetic matrix; no patient records",
+  data_status = "SYNTHETIC", width = 9, height = 7, dpi = 600
+)
+```
+
+**Input/data contract:** Matrix dimensions, nonblank unique sample IDs and feature IDs, one-to-one sample metadata, complete condition labels, a caller-chosen full condition order, and finite numbers or explicit NA cells. Mismatched joins, duplicates, infinite values, undeclared condition levels, and undeclared / excessive annotation categories are rejected. Additional annotation tracks accept categorical values (up to eight categories per track), with missing values represented in gray. Condition levels, sample ordering, missing cells and annotations are recorded in the local provenance sidecar.
+
+**Ordering:** Conditions are kept in the declared order without clustering column slices. Within each condition, the incoming matrix order is preserved, or sort explicitly by a metadata column through `within_condition = "timepoint"`. Rows and columns are *not clustered* by default; a manuscript seeking biological clustering needs a separately documented distance metric, normalization and stability/sensitivity study.
+
+**Normalization:** No row z-scores, batch correction or model fitting are performed by the plotting wrapper. The `value_transform` field must explain upstream transformation; a signed quantity requires an explicit scientifically justified center. Sequential continuous values use a light-to-dark blue palette; signed deviations use blue–neutral–red; missingness is gray. Report row-wise versus global normalization in Methods, not just the caption.
+
+**Scale and export:** The helper hides crowded row labels beyond 65 features and column labels beyond 45 samples unless explicitly overridden. The complete identifier/order metadata is kept in a local RDS sidecar that may itself be sensitive. Default `rasterize = FALSE` preserves vector heatmap cells in the manuscript PDF. Setting it to TRUE can make large exports manageable but **rasterizes the heatmap body** in PDF and must be disclosed. A 600-dpi PNG preview is also emitted. Neither output is automatically reviewed or deployed.
+
+**Release gate:** Review annotation legends, grouping, missingness, all sample identifiers, panel clipping, publication-scale text, palette accessibility, data classification, PDF embedded fonts, output checksums and manuscript legend. If the sidecar contains sample IDs or subtype annotations, treat it with the same privacy controls as the underlying figure. An exported file is not permission to publish.
+
+Primary documentation: [Gu et al. 2016](https://doi.org/10.1093/bioinformatics/btw313); [Gu 2022](https://doi.org/10.1002/imt2.43); [ComplexHeatmap Heatmap API](https://jokergoo.github.io/ComplexHeatmap/reference/Heatmap.html); [ComplexHeatmap split-order behavior](https://jokergoo.github.io/ComplexHeatmap-reference/book/a-single-heatmap.html#order-of-slices).
