@@ -117,3 +117,42 @@ rt_export_complex_heatmap(
 **Release gate:** Review annotation legends, grouping, missingness, all sample identifiers, panel clipping, publication-scale text, palette accessibility, data classification, PDF embedded fonts, output checksums and manuscript legend. If the sidecar contains sample IDs or subtype annotations, treat it with the same privacy controls as the underlying figure. An exported file is not permission to publish.
 
 Primary documentation: [Gu et al. 2016](https://doi.org/10.1093/bioinformatics/btw313); [Gu 2022](https://doi.org/10.1002/imt2.43); [ComplexHeatmap Heatmap API](https://jokergoo.github.io/ComplexHeatmap/reference/Heatmap.html); [ComplexHeatmap split-order behavior](https://jokergoo.github.io/ComplexHeatmap-reference/book/a-single-heatmap.html#order-of-slices).
+
+
+## Synthetic figure-review gate and CI evidence
+
+The automated QA routine lives in \`R/research_figure_audit.R\`; call
+\`rt_figure_audit("artifacts/manuscript/figure_01")\` after a manuscript export.
+It validates a nonempty single-page PDF, the exact figure size in points, PNG
+width and height computed from inches and declared dpi, visible nonwhite
+content, provenance and checksums, and embedded fonts where available. It
+refuses blank, mismatched, unembedded-font or provenance-inconsistent outputs.
+
+For reproducible **synthetic-only** regression examples, run:
+
+\`\`\`bash
+Rscript --vanilla R/tests/generate_manuscript_review.R
+Rscript --vanilla R/tests/test_plotly_export.R
+\`\`\`
+
+The fixture suite exercises an internal-box violin, an inference-gated volcano
+and a condition-grouped ComplexHeatmap. GitHub Actions tests these on a clean
+runner and attaches a 14-day \`synthetic-manuscript-review\` artifact containing
+PDF/PNG pairs, machine-readable provenance, audit results and a separate
+non-self-contained Plotly HTML widget with its assets. Those reference
+outputs are **not** patient data, and must not be confused with benchmark
+clinical validity or scientific significance.
+
+**Hard limitations:** Automated checks can detect a blank image, incorrect
+page/pixel size, a missing or unembedded font, or a provenance mismatch.
+They cannot establish annotation readability at journal column width,
+color-vision accessibility, semantic interpretability, justified statistical
+uncertainty, corrected multiple testing, or legal permission to publish.
+Review every resulting figure visually, at final output size, before release.
+All outputs remain \`PENDING_VISUAL_AND_SCIENTIFIC_REVIEW\`.
+
+The audit uses the R \`png\` and \`digest\` packages plus Poppler
+\`pdfinfo\`/\`pdffonts\`; all are explicitly installed in the figure CI job.
+Optional Plotly requires both \`plotly\` and \`htmlwidgets\`, and the web
+deliverable needs separate hover-field and disclosure review. No package
+installation or I/O is performed when sourcing the reusable modules.
