@@ -70,6 +70,13 @@ expect_failure(rt_prepare_pam50_research(bad, contrasts))
 bad <- signature
 bad$selected_signature[1L] <- FALSE
 expect_failure(rt_prepare_pam50_research(bad, contrasts))
+# Swapping two rank-1 anchors preserves all 15-per-anchor counts and ranks,
+# so only the highest-effect anchor semantic gate can reject it.
+bad <- signature
+a <- which(bad$anchor_subtype == "Basal" & bad$anchor_rank == 1L)
+b <- which(bad$anchor_subtype == "Her2" & bad$anchor_rank == 1L)
+bad$anchor_subtype[c(a, b)] <- bad$anchor_subtype[c(b, a)]
+expect_failure(rt_prepare_pam50_research(bad, contrasts))
 bad <- contrasts[-1, ]
 expect_failure(rt_prepare_pam50_research(signature, bad))
 bad <- contrasts
