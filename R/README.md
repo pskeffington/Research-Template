@@ -91,3 +91,21 @@ Only use approved files. For example, after confirming the file exists and units
 ~~~
 
 The example never reads real records or implies clinical validity.
+
+
+## Manuscript delivery, interactive exploration, inferential figures, and large heatmaps
+
+For professional figure delivery, source the specific optional modules after `research_tidy.R` and `research_plots.R`. The [manuscript implementation guide](../docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md) provides runnable synthetic examples, review gates and literature provenance.
+
+| Purpose | Function | Module | Requirements |
+| --- | --- | --- | --- |
+| Vector PDF plus high-resolution PNG + metadata | `rt_manuscript_export()` | `R/manuscript_delivery.R` | ggplot2 |
+| Interactive rendering from ggplot | `rt_interactive()` | `R/research_interactive.R` | optional plotly |
+| Private/local HTML widget output | `rt_save_interactive()` | `R/research_interactive.R` | optional htmlwidgets |
+| Condition-sorted ggplot heatmap | `rt_heatmap_by_condition()` | `R/research_interactive.R` | ggplot2/tidyverse |
+| Annotated large gene-expression matrix | `rt_complex_heatmap()` | `R/research_complex_heatmap.R` | optional ComplexHeatmap/circlize |
+| PDF/PNG and sample-order provenance for large heatmap | `rt_export_complex_heatmap()` | `R/research_complex_heatmap.R` | ComplexHeatmap |
+| Verified effect interval plot | `rt_verified_forest()` | `R/research_inference_plots.R` | externally verified estimates/intervals |
+| Verified differential results | `rt_verified_volcano()` | `R/research_inference_plots.R` | externally verified adjusted p-values |
+
+All publication-facing functions require the operator to review input data provenance, sampling units, transformations, typography and privacy. An output file is not inferential or release authorization.
