@@ -360,3 +360,16 @@ Load `R/research_tidy.R`, `R/research_plots.R`, and the relevant module. The ful
 | `rt_verified_volcano(data, feature, log2_effect, adjusted_p, contrast, method)` | Differential-effect and FDR display | Requires adjusted p-values from validated model |
 
 Preserve exact user-provided variable casing and source identifier labels.
+
+
+## Frozen PAM50 research heatmaps — professional manuscript delivery
+
+| Call | Input contract | Output |
+| --- | --- | --- |
+| `rt_pam50_profile()` | Research-specific frozen subtype order/counts/contrast order | Schema profile, not fitted results |
+| `rt_prepare_pam50_research(st09, st07_selected)` | Original selected ST09 (60 rows) and 360 selected ST07 contrast rows | Validated 60×4 and 60×6 matrices; gene and anchor order |
+| `rt_pam50_research_heatmaps(st09, st07_selected)` | Same frozen signature/contrast tables | Two ComplexHeatmap objects with shared centered scale and anchored gene blocks |
+| `rt_export_pam50_research(bundle, output_dir, source, data_status = "PRIVATE")` | Verified prepared bundle, explicit local path and provenance | Two manuscript PDF/PNG pairs plus RDS/JSON manifests; never automatically public |
+| `rt_figure_audit(file_stem)` | One generated manuscript file stem | Structural, font, hash, pixel-size and nonblank QA, **not** scientific approval |
+
+For input file examples, frozen subtype-specific interpretations and strict privacy, see the [manuscript heatmap adapter section](MANUSCRIPT_VISUALIZATION_DELIVERY.md#tcga-brca-pam50-frozen-research-heatmaps-aligned-adapter). Do not confuse the formal 106-pair subtype model with the primary 109-pair discovery analysis, and do not infer clinical biomarker validity from discovery-selected genes.
