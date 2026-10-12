@@ -71,6 +71,8 @@ jobs:
         run: Rscript --vanilla R/tests/generate_manuscript_review.R
       - name: Test actual Plotly HTML creation and release guards
         run: Rscript --vanilla R/tests/test_plotly_export.R
+      - name: Reject corrupted or scientifically unapproved figure artifacts
+        run: Rscript --vanilla R/tests/test_figure_audit_negative.R
       - name: Upload synthetic figure-review examples (not release-approved)
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
