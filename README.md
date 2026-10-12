@@ -83,3 +83,8 @@ To create an independent repository from this starter, the repository owner must
 ## Manuscript and professional visualization outputs
 
 Use the [R manuscript delivery guide](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md) and [R function atlas](R/README.md) for condition-ordered annotated ComplexHeatmap figures, confidence-interval forest plots, statistically gated volcano displays, separate Plotly exploratory widgets, and static manuscript PDF/PNG exports. Modules are sourced on demand; public release remains a separate scientific and privacy-review gate.
+
+
+### Research-aligned PAM50 heatmap delivery
+
+The [manuscript visualization guide](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md#tcga-brca-pam50-frozen-research-heatmaps-aligned-adapter) includes a reusable R adapter for the frozen TCGA-BRCA discovery signature: **60 genes × 4 subtype paired effects** and **60 genes × 6 planned effect contrasts**. It validates exact frozen gene IDs and ranks, 15 genes per anchor, complete first-minus-second contrast directions and scientific interpretation boundaries. The code never imports protected research inputs unless explicitly called from an authorized private checkout; CI uses synthetic data only. See `R/research_pam50_heatmaps.R` and `R/tests/test_pam50_heatmap_alignment.R`.
