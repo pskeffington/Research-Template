@@ -69,8 +69,17 @@ jobs:
         run: Rscript --vanilla R/tests/test_complex_heatmap.R
       - name: Generate and structurally audit synthetic manuscript references
         run: Rscript --vanilla R/tests/generate_manuscript_review.R
+      - name: Verify hash-pinned full PAM50 source universe and reject mismatches
+        run: Rscript --vanilla R/tests/test_pam50_locked_sources.R
       - name: Validate manuscript PAM50 frozen 60-gene effect and contrast alignment
         run: Rscript --vanilla R/tests/test_pam50_heatmap_alignment.R
+      - name: Verify PDF text margins, 60 labels and cross-panel manuscript geometry
+        run: |
+          python3 scripts/audit_pam50_layout.py artifacts/ci_figure_review/pam50_research --min-margin-pt 12 --check-labels > artifacts/ci_figure_review/pam50_research/layout_audit.json
+          if python3 scripts/audit_pam50_layout.py artifacts/ci_figure_review/pam50_research --min-margin-pt 72 --check-labels >/dev/null 2>&1; then
+            echo "Oversized margin contract unexpectedly passed"
+            exit 1
+          fi
       - name: Test actual Plotly HTML creation and release guards
         run: Rscript --vanilla R/tests/test_plotly_export.R
       - name: Reject corrupted or scientifically unapproved figure artifacts
