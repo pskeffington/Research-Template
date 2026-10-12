@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from scripts.build_pam50_review_packet import ReviewBlocked, assemble
+from scripts.build_pam50_review_packet import ReviewBlocked, assemble, verify_packet
 
 SUBTYPES = ("Basal", "Her2", "LumA", "LumB")
 PAIRS = {"Basal": 16, "Her2": 9, "LumA": 59, "LumB": 22}
@@ -129,6 +129,51 @@ class PendingReviewPacketTests(unittest.TestCase):
         self.assertNotIn("SYNTHETIC_G000", json.dumps(result))
         self.assertIn("- [ ]", checklist)
         self.assertNotIn("- [x]", checklist.lower())
+
+    def create_packet(self) -> None:
+        packet, worksheet = assemble(self.folder)
+        save(self.folder, "PAM50_REVIEW_PACKET.json", packet)
+        (self.folder / "PAM50_MANUSCRIPT_REVIEW.md").write_text(
+            worksheet, encoding="utf-8"
+        )
+
+    def test_packet_inventory_rechecks_every_evidence_file(self) -> None:
+        self.setup_fixture()
+        self.create_packet()
+        verify_packet(self.folder)
+        packet = json.loads((self.folder / "PAM50_REVIEW_PACKET.json").read_text())
+        self.assertEqual(len(packet["evidence_sha256"]), 14)
+        self.assertEqual(len(packet["worksheet_sha256"]), 64)
+
+    def test_post_packet_caption_tamper_rejected(self) -> None:
+        self.setup_fixture()
+        self.create_packet()
+        path = self.folder / "PAM50_paired_effects.caption.txt"
+        path.write_text(path.read_text() + " altered", encoding="utf-8")
+        with self.assertRaises(ReviewBlocked):
+            verify_packet(self.folder)
+
+    def test_post_packet_audit_tamper_rejected(self) -> None:
+        self.setup_fixture()
+        self.create_packet()
+        self.mutate("layout_audit.json", "human_visual_review", "COMPLETE")
+        with self.assertRaises(ReviewBlocked):
+            verify_packet(self.folder)
+
+    def test_post_packet_worksheet_tamper_rejected(self) -> None:
+        self.setup_fixture()
+        self.create_packet()
+        path = self.folder / "PAM50_MANUSCRIPT_REVIEW.md"
+        path.write_text(path.read_text().replace("- [ ]", "- [x]", 1))
+        with self.assertRaises(ReviewBlocked):
+            verify_packet(self.folder)
+
+    def test_post_packet_inventory_tamper_rejected(self) -> None:
+        self.setup_fixture()
+        self.create_packet()
+        self.mutate("PAM50_REVIEW_PACKET.json", "public_release", "APPROVED")
+        with self.assertRaises(ReviewBlocked):
+            verify_packet(self.folder)
 
     def test_corrupted_pdf_checksum_rejected(self) -> None:
         self.setup_fixture()
