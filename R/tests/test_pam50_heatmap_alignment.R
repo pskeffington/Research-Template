@@ -20,7 +20,7 @@ signature <- data.frame(
 values <- matrix(stats::rnorm(240L), nrow = 60L, ncol = 4L)
 for (s in seq_along(subtypes))
   values[anchors == subtypes[s], s] <-
-    values[anchors == subtypes[s], s] + 3.0
+    values[anchors == subtypes[s], s] + 8.0
 for (s in seq_along(subtypes))
   signature[[paste0("logFC_", subtypes[s])]] <- values[, s]
 pairs <- strsplit(profile$contrasts, "_vs_", fixed = TRUE)
