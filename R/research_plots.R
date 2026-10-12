@@ -8,6 +8,13 @@ rt_palette <- function() {
     "#E69F00", "#56B4E9", "#000000", "#F0E442")
 }
 
+rt_wrap_label <- function(text, width = 62L) {
+  if (!is.character(text) || length(text) != 1L || is.na(text) ||
+      !is.numeric(width) || length(width) != 1L || width < 12L)
+    stop("Provide scalar text and a positive wrap width.")
+  paste(strwrap(text, width = width), collapse = "\n")
+}
+
 rt_axis_label <- function(name, unit) {
   if (length(name) != 1L || !is.character(name) || is.na(name) ||
       !nzchar(trimws(name)) || length(unit) != 1L ||
@@ -139,7 +146,7 @@ rt_group_plot <- function(data, group, value, y_name, y_unit,
     subtitle = paste(paste(names(counts), as.integer(counts), sep = " n="), collapse = "; "),
     x = paste(group, "(category)"), y = rt_axis_label(y_name, y_unit),
     caption = if (violin)
-      "Violin density with internal median/IQR box; whiskers are not confidence intervals; density depends on sample size." else
+      rt_wrap_label("Violin density with internal median/IQR box; whiskers are not confidence intervals; density depends on sample size.", width = 60L) else
       "Median/quartile boxes; whiskers are not confidence intervals."
   ) + rt_theme()
 }
