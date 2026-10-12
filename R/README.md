@@ -125,3 +125,6 @@ Unlike a typical sample-by-feature heatmap, **PAM50 subtype columns here are mod
 
 
 **Caption and accessibility gate:** The PAM50 export includes a visibly labeled categorical `Gene anchor (15 each)` key on each panel and a separate `.caption.txt` companion for journal submission. `rt_pam50_manuscript_caption(bundle, "paired_effects")` / `(..., "six_contrasts")` generates explicit paired-estimand, anchor, contrast-direction, negative/positive color and descriptive-only text; no claim of statistical or clinical validation is added. Keep the caption and its identical metadata alongside private PDF/PNG until author and scientific review. The PDF geometry gate now fails if these are missing or inconsistent.
+
+
+**Legend overlap repair:** `rt_draw_pam50_with_legend_gap()` sets the ComplexHeatmap *internal* bottom-legend clearance to 12 mm for both exports, restores the prior `ht_opt` value after each draw, and aligns the categorical anchor key beside the heatmap top. The separate Poppler PDF gate verifies at least 12 pt of *observed* clearance below `n=16/9/59/22 pairs`. Adjusting whole-page margins alone is not a valid substitute.
