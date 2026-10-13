@@ -25,6 +25,9 @@ research-template = "research_template.cli:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+research_template = ["packs/*.json"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
