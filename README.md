@@ -4,6 +4,20 @@
 
 A reusable, independently written starter repository for biomedical data science, reproducible research, scientific figures, baseline machine learning, and auditable delivery. Everything in the demonstration is **synthetic**. It does not represent patient records, clinical evidence, regulatory qualification, or production-grade diagnostic software.
 
+## Publicly documented cancer research sectors
+
+The optional catalog maps the **four Dartmouth Cancer Center research programs** to independent public dataset reference plans. It is an external thematic index, not a Dartmouth-created package, collaboration, affiliation or institutional endorsement. No institutional data, private research records or copyrighted code are included.
+
+```bash
+research-template sectors list
+research-template sectors list --program SGN
+research-template sectors plan --id TEC-01
+```
+
+The [program alignment matrix](references/DARTMOUTH_CANCER_PROGRAM_MATRIX_2026-10-13.csv), [14-deployable literature matrix](references/DARTMOUTH_CANCER_DEPLOYABLE_LITERATURE_MATRIX_2026-10-13.csv), and [methods/reporting bibliography](references/DARTMOUTH_CANCER_METHODS_MATRIX_2026-10-13.csv) are preloaded. **All 14 candidates are metadata-only** pending independent schema, licensing, methods, and scientific validation. The already separate NHANES Study Pack remains the only implemented CSV structure-validation pilot.
+
+Read [cancer sector deployment guide](docs/CANCER_RESEARCH_SECTOR_CATALOG.md) for source provenance, design gates, and staged implementation order.
+
 ## Study Packs — connect published data dictionaries to your own files
 
 The generic core now supports **opt-in, source-qualified Study Packs**.
