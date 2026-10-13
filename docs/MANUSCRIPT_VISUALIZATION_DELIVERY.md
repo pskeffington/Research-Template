@@ -428,3 +428,21 @@ The next gate introduces `R/research_pam50_journal_layouts.R`. It does **not** c
 `R/tests/test_pam50_journal_layouts.R` uses **synthetic metadata only**, proving page-block completeness and rejecting changed gene order, duplicated IDs, flipped contrasts, altered common scale, wrong cohort counts, false figure approvals and patient-level interpretations. The production-readiness command `Rscript --vanilla plot-template/R/tests/verify_pam50_journal_layouts.R PRIVATE_DIR` reads the already-validated sidecars of the two real frozen heatmaps and writes an additional private **`PAM50_JOURNAL_R_LAYOUT_PLANS.json`** report for author review. It contains page positions, anchor names, source gene-order SHA-256, expected font sizes and the unchanged color-scale metadata; it does not publish effect values, recompute estimates, or generate TIFF/EPS/PDF/PNG outputs.
 
 **Not yet authorized:** automatic pagination of a real ComplexHeatmap object, print-size legibility acceptance, true accessible-color review, changed labels/captions, journal selection, scientific approval, merging or public distribution. These require dedicated rendered-derivative tests and review, rather than assuming a hypothetical layout will print perfectly.
+
+### Synthetic 30-gene ComplexHeatmap page proofs and independent physical QA
+
+The next manuscript gate is implemented by `R/research_pam50_journal_render.R`, `R/tests/test_pam50_journal_render.R` and `scripts/audit_pam50_journal_proofs.py`. The test renderer is **synthetic-only by a strict `SYN_G001` to `SYN_G060` ID admission rule**. It renders a J03/PLOS-style 7.5 × 8.75-inch four-page proof set (two paired-effect pages, two contrast pages), each showing 30 source-order genes in two complete 15-gene anchor blocks. Separate fully synthetic PDF/PNG pairs retain all four subtype or six effect-contrast columns, identical global full-observed-range zero-centered breaks, and the existing blue/white/red palette. Gene labels are set to 9 pt, column labels to 9 pt, legends to at least 8.5 pt. **Textual anchor titles and explicitly worded negative/zero/positive signs** provide noncolor interpretation; palette hue by itself is never claimed to establish accessibility.
+
+An independent PyMuPDF audit checks that each actual PDF has one vector page, 30 unique gene-label text spans in the exact expected order, embedded fonts, publication-sized dimensions, nonoverlapping row-label boxes, visible signed legend and anchor names, vector heatmap cells, and a measured legend gap of at least 12 pt. Corresponding PNG dimensions must provide approximately 300 effective DPI. All proof pairs are SHA-256 bound to their synthetic-only sidecars and retain `public_release=BLOCKED`. The CI test suite also intentionally corrupts PDF bytes, gene order, labels and review states to verify rejection.
+
+Run these only in the public repository's synthetic CI after installing R/ComplexHeatmap/circlize/digest/jsonlite, Poppler and PyMuPDF:
+
+~~~bash
+Rscript --vanilla R/tests/test_pam50_journal_render.R
+python3 scripts/audit_pam50_journal_proofs.py \
+  artifacts/ci_figure_review/pam50_journal/J03
+python3 -m unittest discover -s scripts/tests \
+  -p 'test_pam50_journal_render_audit.py' -v
+~~~
+
+These proof PDFs are **not** real research figures or editorial-approved derivatives. The private research workflow remains master-only with read-only journal comparison and layout plans; a separate approval gate would be required before rendering any protected-data pages. A passing PDF/font/contrast check cannot establish full color-vision-deficiency accessibility or final print readability; both remain human review requirements.
