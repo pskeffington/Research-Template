@@ -5,7 +5,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import pymupdf
 
 from scripts.compare_journal_requirements import (
     ProofBlocked,
