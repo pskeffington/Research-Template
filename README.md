@@ -6,7 +6,7 @@ A reusable, independently written starter repository for biomedical data science
 
 ## R/tidyverse coding standard — preferred for biomedical studies
 
-The R research workflow follows the [whole-repository coding contract](docs/CODING_CONVENTIONS.md), [independent biomedical coding conventions](https://github.com/pskeffington/Dartmouth.HSE.Public/blob/main/06_RESOURCES/Literature/BIOMEDICAL_CODING_STANDARDS.md), the [R style contract](R/STYLE_GUIDE.md), and the [complete R function sheet](R/README.md). It preserves original source names, uses snake_case analysis fields, explicit native `|>` with `dplyr` and `tidyr`, audited join cardinality, clear missing-value denominators, and layered `ggplot2` grammar.
+The R research workflow follows the [whole-repository coding contract](docs/CODING_CONVENTIONS.md), [local coding conventions](docs/CODING_CONVENTIONS.md), the [R style contract](R/STYLE_GUIDE.md), and the [complete R function sheet](R/README.md). It preserves original source names, uses snake_case analysis fields, explicit native `|>` with `dplyr` and `tidyr`, audited join cardinality, clear missing-value denominators, and layered `ggplot2` grammar.
 
 ```r
 source("R/research_tidy.R")
@@ -74,7 +74,34 @@ To create an independent repository from this starter, the repository owner must
 ## Reference architecture
 
 - [Best Practices Git](https://github.com/pskeffington/Best-Practices-Git): research-to-release lifecycle and audit gates.
-- [Paul's Notes — public research coding guides](https://github.com/pskeffington/Dartmouth.HSE.Public/tree/main/06_RESOURCES): independent tutorials, visualization interpretation and scientific coding references.
+- [Research literature references](references/LITERATURE_MATRIX.csv): external methods, visualization standards, and reproducibility sources.
 - [Literature matrix](references/LITERATURE_MATRIX.csv): authoritative external methodological and tool documentation, with implementation mapping.
 
 **Scope:** reusable template and pedagogical executable examples; not a claim of independent external validation. This template's implementation is original and does not import private datasets or protected teaching materials.
+
+
+## Manuscript and professional visualization outputs
+
+Use the [R manuscript delivery guide](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md) and [R function atlas](R/README.md) for condition-ordered annotated ComplexHeatmap figures, confidence-interval forest plots, statistically gated volcano displays, separate Plotly exploratory widgets, and static manuscript PDF/PNG exports. Modules are sourced on demand; public release remains a separate scientific and privacy-review gate.
+
+
+### Publication and journal delivery
+
+This template is **not tied to any dataset, gene panel, cohort, disease, or journal**. Start with your own question, permitted data, codebook, and research protocol. Configure categorical levels, IDs, statistical units, transforms, effect scales, and source licenses for your specific study.
+
+- [Manuscript and figure delivery](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md) documents generic PDF/PNG exports, metadata, typography, visual review, supplementary diagnostics, and optional interactive graphics.
+- [Journal figure requirements](references/JOURNAL_FIGURE_REQUIREMENTS_MATRIX_2026-10-12.csv) and [reporting frameworks](references/JOURNAL_REPORTING_FRAMEWORKS_2026-10-12.csv) are **dated reference matrices**, not preset requirements or acceptance guarantees. Verify your own target journal's current instructions.
+- [R figure modules](R/README.md) cover ggplot2, condition-ordered annotated ComplexHeatmap, forest and volcano plots, and Plotly widgets. These are reusable functions with no required clinical study.
+- [Function-call sheet](docs/FUNCTION_CALL_SHEET.md) contains working Python and R calls and preconditions.
+- [Research release gates](docs/RELEASE_GATES.md) separate code quality, scientific validity, data rights, and approval to share outputs.
+
+### Use this repository as your own research project
+
+1. Choose **Use this template** on GitHub (once the repository owner enables the *Template repository* setting), or clone the repository.
+2. Run the synthetic Python and R examples and baseline tests before substituting your own inputs.
+3. Record your study's analysis unit, data dictionary, authorized sources, inclusion/exclusion rules, versioned methods, and assumptions in the project documents.
+4. Keep identifiable or licensed data outside a public fork; place outputs in the ignored `artifacts/` directory, and configure explicit validation tests for **your dataset**.
+5. Decide whether exploratory plots or hypothesis tests are warranted; report missingness, effect units and uncertainty explicitly. Run human review before any external distribution.
+
+Generic functions are intended to be extended, not to enforce another researcher's study design.
+

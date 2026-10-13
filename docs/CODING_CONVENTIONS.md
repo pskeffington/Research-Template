@@ -9,7 +9,7 @@ transliterating tidyverse syntax into Python.
 ## R: tidyverse and layered ggplot2
 
 The [R style contract](../R/STYLE_GUIDE.md) is grounded in the public
-[biomedical coding conventions](https://github.com/pskeffington/Dartmouth.HSE.Public/blob/main/06_RESOURCES/Literature/BIOMEDICAL_CODING_STANDARDS.md).
+[local R style guide](../R/STYLE_GUIDE.md).
 Use snake_case for newly authored functions and internal columns,
 native `|>` pipelines, explicit `dplyr::`, `tidyr::`, `tibble::`
 and `ggplot2::` namespaces, and `.data[[column]]` for dynamic

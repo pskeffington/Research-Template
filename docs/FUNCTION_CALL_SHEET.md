@@ -341,3 +341,29 @@ These methods are **not built into FigureKit**, and a runnable example is not in
 | Signed expression z-score / centered deviation? | `FigureKit.matrix_heatmap(..., mode="diverging", center=0, study=study)` |
 
 Real biomedical work requires documented units, denominators, dependence, sampling methods and human interpretation. A plot with full labels can still be scientifically wrong if the design is wrong.
+
+
+## Manuscript figure delivery and large heatmap calls
+
+Load `R/research_tidy.R`, `R/research_plots.R`, and the relevant module. The full [manuscript visualization guide](MANUSCRIPT_VISUALIZATION_DELIVERY.md) contains complete runnable examples, provenance rules, and literature. Optional packages are not auto-installed.
+
+| Call | Role | Boundary |
+| --- | --- | --- |
+| `rt_manuscript_export(plot, output_stem, figure_id, legend, study, data_status, analysis_unit, source, n_analyzed, n_missing)` | 600 dpi PNG, vector PDF, metadata | Never substitutes for typography/privacy review |
+| `rt_interactive(ggplot_object)` | Interactive Plotly widget; default no hover | Optional plotly; do not publish unreviewed hover content |
+| `rt_save_interactive(widget, path, data_status)` | Local HTML with asset folder | Optional htmlwidgets, no production auto-deploy |
+| `rt_heatmap_by_condition(x, row_labels, col_labels, condition, name, unit, condition_levels, mode, center)` | Lightweight ordered ggplot matrix | No implicit clustering or normalization |
+| `rt_prepare_complex_heatmap(values, sample_metadata, condition_levels = ...)` | Validate one-to-one sample ID alignment | Reject duplicated/mismatched matrix IDs |
+| `rt_complex_heatmap(values, sample_metadata, condition_levels, measurement, unit, value_transform, mode, center)` | ComplexHeatmap with condition/subtype annotation | Optional Bioconductor; no automatic testing of differential signal |
+| `rt_export_complex_heatmap(bundle, output_stem, figure_id, legend, source, data_status)` | PDF/PNG plus ordered sample metadata | Metadata itself may be sensitive |
+| `rt_verified_forest(data, term, estimate, lower, upper, estimate_unit, model_label, reference_label)` | Effect-size intervals | Requires externally validated intervals |
+| `rt_verified_volcano(data, feature, log2_effect, adjusted_p, contrast, method)` | Differential-effect and FDR display | Requires adjusted p-values from validated model |
+
+Preserve exact user-provided variable casing and source identifier labels.
+
+
+## Custom study extensions
+
+The public calls above accept general numeric, categorical, longitudinal, sample-by-feature, and externally fitted estimate data. Use them only where the data match the documented input contract. A new study should implement its own local schema validators, scientific estimands, source/version pins, group ordering, figure captions, and release approvals.
+
+For journal artwork, use the [manuscript visualization guide](MANUSCRIPT_VISUALIZATION_DELIVERY.md) and the [dated journal-format matrix](../references/JOURNAL_FIGURE_REQUIREMENTS_MATRIX_2026-10-12.csv). No journal, dataset, molecular signature, statistical inference, or private-input path is built into this template.

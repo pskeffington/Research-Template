@@ -8,6 +8,13 @@ rt_palette <- function() {
     "#E69F00", "#56B4E9", "#000000", "#F0E442")
 }
 
+rt_wrap_label <- function(text, width = 62L) {
+  if (!is.character(text) || length(text) != 1L || is.na(text) ||
+      !is.numeric(width) || length(width) != 1L || width < 12L)
+    stop("Provide scalar text and a positive wrap width.")
+  paste(strwrap(text, width = width), collapse = "\n")
+}
+
 rt_axis_label <- function(name, unit) {
   if (length(name) != 1L || !is.character(name) || is.na(name) ||
       !nzchar(trimws(name)) || length(unit) != 1L ||
@@ -122,8 +129,11 @@ rt_group_plot <- function(data, group, value, y_name, y_unit,
     x = .data[[group]], y = .data[[value]], fill = .data[[group]]
   ))
   if (violin) {
-    p <- p + ggplot2::geom_violin(alpha = 0.65, trim = FALSE) +
-      ggplot2::stat_summary(fun = median, geom = "point", color = "#111827", size = 2)
+    p <- p + ggplot2::geom_violin(alpha = 0.50, trim = FALSE,
+                                    color = "#293548", linewidth = 0.35) +
+      ggplot2::geom_boxplot(width = 0.14, alpha = 0.88, fill = "white",
+                           color = "#111827", outlier.shape = NA,
+                           linewidth = 0.5)
   } else {
     p <- p + ggplot2::geom_boxplot(alpha = 0.76, outlier.shape = NA) +
       ggplot2::geom_jitter(width = 0.12, alpha = 0.42, size = 1.1)
@@ -136,7 +146,7 @@ rt_group_plot <- function(data, group, value, y_name, y_unit,
     subtitle = paste(paste(names(counts), as.integer(counts), sep = " n="), collapse = "; "),
     x = paste(group, "(category)"), y = rt_axis_label(y_name, y_unit),
     caption = if (violin)
-      "Smoothed descriptive distributions; sample size affects shape." else
+      rt_wrap_label("Violin density with internal median/IQR box; whiskers are not confidence intervals; density depends on sample size.", width = 60L) else
       "Median/quartile boxes; whiskers are not confidence intervals."
   ) + rt_theme()
 }
