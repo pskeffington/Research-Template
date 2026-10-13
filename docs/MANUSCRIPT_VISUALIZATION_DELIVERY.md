@@ -446,3 +446,22 @@ python3 -m unittest discover -s scripts/tests \
 ~~~
 
 These proof PDFs are **not** real research figures or editorial-approved derivatives. The private research workflow remains master-only with read-only journal comparison and layout plans; a separate approval gate would be required before rendering any protected-data pages. A passing PDF/font/contrast check cannot establish full color-vision-deficiency accessibility or final print readability; both remain human review requirements.
+
+### Authorization gate before any private journal derivative
+
+The current manuscript package has **author-reported visual inspection**, not authenticated authorization to export protected-data journal derivatives. `scripts/prepare_private_journal_gate.py` is an intentionally **read-only evidence verifier and unsigned-request generator**. It checks the original review packet, unmodified 14-file master evidence inventory, unselected reviewer forms, mechanical PDF/PNG audit, nine-policy literature matrix (bound by SHA-256), journal readiness and all four R page plans. It ensures exact source gene-order/scale consistency across plans and **refuses TIFF/EPS/PDF/PNG review-derivative files** already appearing in the private output tree.
+
+After independently passing the frozen-input workflow:
+
+~~~bash
+python3 plot-template/scripts/prepare_private_journal_gate.py PRIVATE_DIR \
+  --policy-matrix plot-template/references/JOURNAL_FIGURE_REQUIREMENTS_MATRIX_2026-10-12.csv \
+  --template-sha PINNED_40_HEX_GIT_SHA --prepare
+python3 plot-template/scripts/prepare_private_journal_gate.py PRIVATE_DIR \
+  --policy-matrix plot-template/references/JOURNAL_FIGURE_REQUIREMENTS_MATRIX_2026-10-12.csv \
+  --template-sha PINNED_40_HEX_GIT_SHA --verify
+~~~
+
+`PAM50_JOURNAL_DERIVATIVE_REQUEST.json` and `PAM50_JOURNAL_DERIVATIVE_GATE.json` are created once, then checked against all source files on every rerun. Both remain **unselected, unsigned, unauthenticated and explicitly BLOCKED**. They carry no underlying private modeled effects or gene names. The gate includes no `--render` flag and grants no release or publication permission. An author-supplied journal choice, formal scientific and caption sign-off, institutional/privacy distribution approval, and independently enforced GitHub environment protection or equivalent authenticated review would all be required in a **separate** execution pipeline before generating actual private journal-specific figures. Merely editing these unsigned JSON files cannot grant permission.
+
+Synthetic regression tests in `scripts/tests/test_private_journal_gate.py` reject source packet/worksheet changes, fake approval flags, altered journal policy hashes, incomplete comparisons, wrong gene-block boundaries, unapproved TIFF/EPS files, unpinned template revisions and overwrite attempts. The public tests contain no private research data. A passing result only establishes internal file consistency, not cryptographic provenance or editorial certification.
