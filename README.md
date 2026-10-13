@@ -4,6 +4,41 @@
 
 A reusable, independently written starter repository for biomedical data science, reproducible research, scientific figures, baseline machine learning, and auditable delivery. Everything in the demonstration is **synthetic**. It does not represent patient records, clinical evidence, regulatory qualification, or production-grade diagnostic software.
 
+## Research data access and security — read before importing data
+
+> **Public repository — never upload real participant-level or restricted data.**
+> The template contains **synthetic examples only**. Keep patient records,
+> controlled genomics, protected DICOM images, sensitive outputs, credentials,
+> and licensed files in **institutionally approved storage**, not in GitHub,
+> pull requests, Actions artifacts, issues, logs or hosted previews.
+> **Having a data dictionary does not grant access to its dataset.**
+
+**Choose the correct access route for each dataset before you download:**
+
+| Data source | Access restriction | Where to apply or read the rules |
+| --- | --- | --- |
+| **SEER** | Research Data: registration and data-use agreement. Research Plus/NCCR: additional eRA Commons/HHS account requirements; specialized datasets have separate access requests. | [SEER registration and data requests](https://seer.cancer.gov/data/access.html) |
+| **NCI GDC / dbGaP** | Public genomic files may be accessible openly; controlled files need the PI's NIH eRA Commons account and project-level dbGaP approval. | [GDC controlled-data application](https://gdc.cancer.gov/access-data/obtaining-access-controlled-data) |
+| **NHANES / NCHS** | Published public-use files are available; restricted variables require a formal NCHS Research Data Center proposal and controlled output review. | [NHANES codebooks](https://wwwn.cdc.gov/Nchs/Nhanes/continuousnhanes/default.aspx?BeginYear=2017) · [RDC application](https://www.cdc.gov/rdc/application-process/index.html) |
+| **BRFSS / GEO** | Public-release survey or expression data are generally accessible, but obey source-specific use terms, variable restrictions and survey/sample design. | [BRFSS public files](https://www.cdc.gov/brfss/annual_data/annual_2025.html) · [GEO access](https://www.ncbi.nlm.nih.gov/geo/info/geo_paccess.html) |
+| **TCIA imaging** | Many public collections; some require registration, a collection-specific license, and permission from TCIA. | [TCIA collection licenses and restrictions](https://wiki.cancerimagingarchive.net/display/Public/Data+Usage+Policies+and+Restrictions) |
+
+**Before working with real data:** (1) identify the exact data release and use
+terms; (2) obtain any required PI/institutional, data-use, and IRB/privacy
+reviews; (3) wait for recorded access approval; (4) use an approved encrypted
+research environment with least-privilege access, MFA as required, and
+private audit logs; (5) confirm whether exports, model weights, figures and
+manuscripts need disclosure review **before sharing**. Never send restricted
+data to external AI services, APIs or third-party clouds without permission.
+
+**[Read the complete data-access application and security guide](docs/DATA_ACCESS_AND_SECURITY.md)** — step-by-step application instructions, data tiers, official links,
+NIH's updated controlled-data security requirements, a practical handling
+checklist, incident response, and release boundaries. The repository's
+Git-ignored directories are **not** an alternative to approved secure
+storage. When authorization is uncertain, **use synthetic data only**.
+
+---
+
 ## R/tidyverse coding standard — preferred for biomedical studies
 
 The R research workflow follows the [whole-repository coding contract](docs/CODING_CONVENTIONS.md), [local coding conventions](docs/CODING_CONVENTIONS.md), the [R style contract](R/STYLE_GUIDE.md), and the [complete R function sheet](R/README.md). It preserves original source names, uses snake_case analysis fields, explicit native `|>` with `dplyr` and `tidyr`, audited join cardinality, clear missing-value denominators, and layered `ggplot2` grammar.
