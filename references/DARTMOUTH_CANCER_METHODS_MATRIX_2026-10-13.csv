@@ -1,0 +1,9 @@
+method_id,method_or_guideline,publication_year,authors_or_owner,relevant_programs,primary_publication_or_authority_url,limitations_and_fit_guard,reviewed_date
+STROBE,Observational cohort case-control cross-sectional reporting,2007,Von Elm et al.,CPS,https://www.strobe-statement.org/,Reporting checklist; not causal-identification or scientific-quality certification,2026-10-13
+REMARK,Tumor marker prognostic reporting,2005,McShane et al.,SGN;ICI,https://www.nature.com/articles/6602678,Applicable only when a biomarker prognostic study design warrants it,2026-10-13
+DESeq2,RNA-seq count differential expression,2014,Love Huber Anders,SGN,https://doi.org/10.1186/s13059-014-0550-8,Requires integer counts and suitable biological design; not an automatic GEO selection,2026-10-13
+LIMMA,Linear modeling of expression data,2015,Ritchie et al.,SGN,https://doi.org/10.1093/nar/gkv007,For correctly transformed/normalized continuous expression; assess design and covariates,2026-10-13
+TRIPOD+AI,Clinical prediction model reporting,2024,Collins et al.,CPS;TEC,https://www.bmj.com/content/385/bmj-2023-078378,Reporting only for appropriate prediction models; separate external testing and calibration,2026-10-13
+CLAIM_2024,Checklist for AI medical imaging,2024,Tejani et al.,TEC,https://doi.org/10.1148/ryai.240300,Require image/patient split isolation and reference-standard provenance,2026-10-13
+CONSORT-AI,Clinical trials involving AI interventions,2020,Liu et al.,ICI;TEC,https://www.nature.com/articles/s41591-020-1034-x,Only if AI-enabled clinical trial reporting applies; registry records are not efficacy estimates,2026-10-13
+GEO_SOFT,GEO metadata/file specification,current online standard,NCBI GEO,SGN;ICI,https://www.ncbi.nlm.nih.gov/geo/info/soft.html,Documentation standard for GSE/GSM/GPL identity; SOFT remains downloadable; not statistical method,2026-10-13
