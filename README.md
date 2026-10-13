@@ -1,12 +1,26 @@
-# Research Template — Reproducible Biomedical Research Starter
+# Research Template — Reproducible Research Starter
 
 **Author: Paul Skeffington · Prepared with OpenAI**
 
-A reusable, independently written starter repository for biomedical data science, reproducible research, scientific figures, baseline machine learning, and auditable delivery. Everything in the demonstration is **synthetic**. It does not represent patient records, clinical evidence, regulatory qualification, or production-grade diagnostic software.
+A reusable, independently written starter repository for data science, reproducible research, scientific figures, baseline machine learning, and auditable delivery. Biomedical examples are optional applications, not a fixed study design. Everything in the demonstration is **synthetic**. It does not represent patient records, clinical evidence, regulatory qualification, or production-grade diagnostic software.
 
-## R/tidyverse coding standard — preferred for biomedical studies
+## Start a new study in five minutes
 
-The R research workflow follows the [whole-repository coding contract](docs/CODING_CONVENTIONS.md), [local coding conventions](docs/CODING_CONVENTIONS.md), the [R style contract](R/STYLE_GUIDE.md), and the [complete R function sheet](R/README.md). It preserves original source names, uses snake_case analysis fields, explicit native `|>` with `dplyr` and `tidyr`, audited join cardinality, clear missing-value denominators, and layered `ggplot2` grammar.
+Read the [first-project walkthrough](docs/QUICKSTART.md) to install the tool, run a synthetic demonstration, and generate a study-neutral workspace with no clinical or private data.
+
+~~~bash
+python -m pip install -e '.[all]'
+research-template demo --out artifacts/demo --plots --ml
+research-template init-study --out artifacts/studies/my-study \
+  --title "My Research Question" --objective descriptive \
+  --analysis-unit "one observation per sample"
+research-template check-study --root artifacts/studies/my-study
+~~~
+
+The initializer produces a blank protocol, variable dictionary, source register, and explicitly blocked release state. It refuses to overwrite an existing directory; the structural checker cannot authorize scientific conclusions or publication.
+## R/tidyverse coding standard — optional R workflow
+
+The R research workflow follows the [whole-repository coding contract](docs/CODING_CONVENTIONS.md), the [R style contract](R/STYLE_GUIDE.md), and the [complete R function sheet](R/README.md). It preserves original source names, uses snake_case analysis fields, explicit native `|>` with `dplyr` and `tidyr`, audited join cardinality, clear missing-value denominators, and layered `ggplot2` grammar.
 
 ```r
 source("R/research_tidy.R")
@@ -69,7 +83,7 @@ Git history and passing CI establish software traceability, not automatically pu
 
 ## Make your own project
 
-To create an independent repository from this starter, the repository owner must first enable the GitHub **Template repository** setting. Once enabled, use **Use this template → Create a new repository**. Until then, clone it normally. Replace sample study documents, update `pyproject.toml`, adjust schema and CI, and record authorization before reading real data. Do not treat the shared default branch as a staging area.
+To create an independent repository from this starter, the repository owner must first enable the GitHub **Template repository** setting. Once enabled, use **Use this template → Create a new repository**. Until then, clone it normally. Run the new init-study command to create blank study documents, update the package settings for an independent project if needed, and record authorization before reading real data. Do not treat the shared default branch as a staging area.
 
 ## Reference architecture
 
