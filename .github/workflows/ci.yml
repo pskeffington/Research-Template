@@ -38,6 +38,11 @@ jobs:
           research-template pack list
           research-template pack plan --id nhanes-2017-2018
           pytest -q tests/test_study_packs.py
+      - name: Audit sourced oncology sector catalog and ensure no automatic deployments
+        run: |
+          research-template sectors list
+          research-template sectors plan --id SGN-02
+          pytest -q tests/test_sector_catalog.py
       - name: Execute synthetic demonstration
         run: research-template demo --out artifacts/ci --seed 711 --plots --ml
       - name: Confirm scaffold completeness (not clinical approval)
