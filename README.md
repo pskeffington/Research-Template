@@ -4,6 +4,27 @@
 
 A reusable, independently written starter repository for biomedical data science, reproducible research, scientific figures, baseline machine learning, and auditable delivery. Everything in the demonstration is **synthetic**. It does not represent patient records, clinical evidence, regulatory qualification, or production-grade diagnostic software.
 
+## Study Packs — connect published data dictionaries to your own files
+
+The generic core now supports **opt-in, source-qualified Study Packs**.
+The first implementation recognizes three CDC NHANES 2017–2018 files and can
+check your local CSVs against their published variables and coding rules
+without uploading or modifying their records:
+
+~~~bash
+research-template pack list
+research-template pack plan --id nhanes-2017-2018
+research-template pack validate --id nhanes-2017-2018 \
+  --table DEMO_J --csv /approved/local/path/DEMO_J.csv
+~~~
+
+**Structural validation is not survey-weighted analysis or publication approval.**
+The pack documents SEQN joins, eligibility, units, missing-value codes, and
+the need for researcher-reviewed weights, strata and PSU handling. BRFSS,
+OMOP and GDC are documented as possible future packs, not working adapters.
+Read the [Study Pack guide](docs/STUDY_PACKS.md) for source links, limits
+and development gates.
+
 ## R/tidyverse coding standard — preferred for biomedical studies
 
 The R research workflow follows the [whole-repository coding contract](docs/CODING_CONVENTIONS.md), [local coding conventions](docs/CODING_CONVENTIONS.md), the [R style contract](R/STYLE_GUIDE.md), and the [complete R function sheet](R/README.md). It preserves original source names, uses snake_case analysis fields, explicit native `|>` with `dplyr` and `tidyr`, audited join cardinality, clear missing-value denominators, and layered `ggplot2` grammar.
