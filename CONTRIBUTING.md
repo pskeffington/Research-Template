@@ -15,3 +15,7 @@ Follow [R/STYLE_GUIDE.md](R/STYLE_GUIDE.md): snake_case internal names, native `
 ## Complete repository style checks
 
 Before merging run `ruff check .`, `python -m pytest -q`, `Rscript --vanilla R/tests/test_style_contract.R`, `Rscript --vanilla R/tests/test_documentation_examples.R`, `Rscript --vanilla R/tests/test_tidy_workflow.R` and `Rscript --vanilla R/tests/test_research_plots.R`. The [coding conventions](docs/CODING_CONVENTIONS.md) apply to all source files, not just the original examples. Preserve external variable names, identifiers, units and analysis semantics.
+
+## New researcher onboarding
+
+Changes to study initialization or the five-minute guide must retain synthetic-only tests for safe destination handling, case preservation, symlinks, source-register headers and false publication approvals. Verify init-study and check-study in CI before merging. Generated study workspaces under artifacts/ must remain ignored, and installing the Python core cannot depend on R or ML extras.
