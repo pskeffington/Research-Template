@@ -18,3 +18,7 @@ Environment installation is *not* itself data access, scientific review, or perm
 Use [R/STYLE_GUIDE.md](../R/STYLE_GUIDE.md). Keep external source names unchanged; normalize with `rename_source_columns()` only after documenting the mapping. Audit IDs and joins before `dplyr` transformations. Use `tidyr::pivot_longer()` and `pivot_wider()` via row-count and unit-validated wrappers; summarize with `summarize_measurements()` and `summarize_missingness()`. Build figures as editable layered `ggplot2` objects and save only intentionally.
 
 The repository-level [coding conventions](CODING_CONVENTIONS.md) apply to new scripts and guides. R uses tidyverse/ggplot2 grammar; Python uses Python's PEP 8 and Ruff. Neither convention authorizes silent changes to clinical/source data contracts.
+
+## Optional published Study Packs
+
+If your work uses a supported published dataset, consult the [Study Pack registry](STUDY_PACKS.md) before creating a new ingestion pipeline. A pack supplies data dictionary references, source codes, join/weight cautions and read-only local CSV structural checks; it never imports or approves private records by itself. For an unsupported dataset, define a new reviewed study-specific dictionary and preserve original variable names and units. Pilot coverage is restricted to one published NHANES cycle and is not generalizable to future releases without source revision and tests.
