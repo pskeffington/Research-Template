@@ -132,7 +132,7 @@ This template is **not tied to any dataset, gene panel, cohort, disease, or jour
 
 ### Use this repository as your own research project
 
-1. Choose **Use this template** on GitHub (once the repository owner enables the *Template repository* setting), or clone the repository.
+1. Choose **Use this template** on GitHub, or clone the repository.
 2. Run the synthetic Python and R examples and baseline tests before substituting your own inputs.
 3. Record your study's analysis unit, data dictionary, authorized sources, inclusion/exclusion rules, versioned methods, and assumptions in the project documents.
 4. Keep identifiable or licensed data outside a public fork; place outputs in the ignored `artifacts/` directory, and configure explicit validation tests for **your dataset**.
