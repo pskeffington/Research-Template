@@ -1,5 +1,16 @@
 # Set up a new research project
 
+Begin with the [five-minute onboarding walkthrough](QUICKSTART.md), then generate and structurally check an empty study:
+
+~~~bash
+research-template init-study --out artifacts/studies/my-study \
+  --title "My Research Question" --objective descriptive \
+  --analysis-unit "one observation per sample"
+research-template check-study --root artifacts/studies/my-study
+~~~
+
+These commands write no study datasets and do not grant data access, scientific validation or permission to publish.
+
 Use this as a working procedure, not a substitute for a study-specific approved protocol.
 
 1. **Frame the question.** Define population, observation unit, predictor/exposure, outcome, time horizon, purpose and whether the objective is descriptive, inferential or predictive.
