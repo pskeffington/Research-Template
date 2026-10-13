@@ -59,3 +59,51 @@ def test_reusable_r_and_python_modules_remain_available():
         "src/research_template/ml.py",
     ):
         assert (ROOT / name).is_file()
+
+
+def test_data_access_warning_is_prominent_and_source_linked():
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    prefix = readme[:readme.index("## R/tidyverse coding standard")]
+    for phrase in (
+        "## Research data access and security",
+        "Public repository",
+        "data dictionary does not grant access",
+        "SEER",
+        "GDC",
+        "NHANES",
+        "BRFSS",
+        "GEO",
+        "TCIA",
+        "docs/DATA_ACCESS_AND_SECURITY.md",
+        "use synthetic data only",
+    ):
+        assert phrase.lower() in prefix.lower()
+    guide = ROOT / "docs" / "DATA_ACCESS_AND_SECURITY.md"
+    assert guide.is_file()
+    content = guide.read_text(encoding="utf-8")
+    for source in (
+        "seer.cancer.gov/data/access.html",
+        "gdc.cancer.gov/access-data/obtaining-access-controlled-data",
+        "cdc.gov/rdc/application-process/index.html",
+        "cdc.gov/brfss/annual_data/",
+        "ncbi.nlm.nih.gov/geo/",
+        "cancerimagingarchive.net",
+        "grants.nih.gov/",
+    ):
+        assert source in content
+
+
+def test_restricted_data_patterns_are_ignored_by_default():
+    ignore = (ROOT / ".gitignore").read_text(encoding="utf-8").splitlines()
+    for rule in (
+        "/data/",
+        "/restricted/",
+        "/incoming/",
+        "*.xpt",
+        "*.dcm",
+        "*.bam",
+        "*.fastq.gz",
+        "*.vcf.gz",
+        "*.h5ad",
+    ):
+        assert rule in ignore
