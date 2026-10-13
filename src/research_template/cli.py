@@ -5,11 +5,13 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import sys
 from pathlib import Path
 
 from .provenance import create_manifest, save_json
 from .quality import REQUIRED_COLUMNS, validate_cohort
 from .synthetic import make_cohort
+from .study import StudyScaffoldError, create_study, validate_study
 
 
 def demo(out: Path, *, n: int = 120, seed: int = 711,
@@ -98,10 +100,38 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--seed", type=int, default=711)
     run.add_argument("--plots", action="store_true", help="Requires pip install -e '.[plot]'")
     run.add_argument("--ml", action="store_true", help="Requires pip install -e '.[ml]'")
+    create = commands.add_parser(
+        "init-study", help="Create an empty study workspace from researcher input"
+    )
+    create.add_argument("--out", type=Path, required=True)
+    create.add_argument("--title", required=True)
+    create.add_argument(
+        "--objective", choices=("descriptive", "inferential", "predictive"), required=True
+    )
+    create.add_argument("--analysis-unit", required=True)
+    verify = commands.add_parser(
+        "check-study", help="Check a study scaffold, not its scientific validity"
+    )
+    verify.add_argument("--root", type=Path, required=True)
     check = commands.add_parser("audit", help="Check scaffold; scientific release is blocked by default")
     check.add_argument("--root", type=Path, default=Path("."))
     check.add_argument("--require-release", action="store_true", help="Exit nonzero without approved science")
     args = parser.parse_args(argv)
+    if args.command == "init-study":
+        try:
+            project = create_study(
+                args.out, title=args.title, objective=args.objective,
+                analysis_unit=args.analysis_unit,
+            )
+        except (StudyScaffoldError, OSError) as error:
+            print(f"Study initialization blocked: {error}", file=sys.stderr)
+            return 2
+        print(json.dumps({"project_dir": str(project), **validate_study(project)}, indent=2))
+        return 0
+    if args.command == "check-study":
+        report = validate_study(args.root)
+        print(json.dumps(report, indent=2))
+        return 0 if report["scaffold_status"] == "PASS" else 1
     if args.command == "demo":
         demo(args.out, n=args.n, seed=args.seed, plots=args.plots, ml=args.ml)
         return 0
