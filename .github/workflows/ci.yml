@@ -39,6 +39,8 @@ jobs:
         run: python -m unittest discover -s scripts/tests -p 'test_pam50_review_governance.py' -v
       - name: Validate sourced journal policies and reporting-guideline applicability
         run: python -m unittest discover -s scripts/tests -p 'test_journal_policy_matrix.py' -v
+      - name: Reject forged or stale private journal derivative authorization requests
+        run: python -m unittest discover -s scripts/tests -p 'test_private_journal_gate.py' -v
       - name: Execute synthetic demonstration
         run: research-template demo --out artifacts/ci --seed 711 --plots --ml
       - name: Confirm scaffold completeness (not clinical approval)
