@@ -33,6 +33,14 @@ jobs:
         run: pytest -q
       - name: Validate sourced journal policies and reporting-guideline applicability
         run: python -m unittest discover -s scripts/tests -p 'test_journal_policy_matrix.py' -v
+      - name: Verify blank researcher study onboarding in a clean checkout
+        run: |
+          research-template init-study --out artifacts/onboarding \
+            --title "Generic Synthetic Study" \
+            --objective descriptive \
+            --analysis-unit "one observation"
+          research-template check-study --root artifacts/onboarding
+          git check-ignore artifacts/onboarding/study.json
       - name: Execute synthetic demonstration
         run: research-template demo --out artifacts/ci --seed 711 --plots --ml
       - name: Confirm scaffold completeness (not clinical approval)
