@@ -362,42 +362,8 @@ Load `R/research_tidy.R`, `R/research_plots.R`, and the relevant module. The ful
 Preserve exact user-provided variable casing and source identifier labels.
 
 
-## Frozen PAM50 research heatmaps — professional manuscript delivery
+## Custom study extensions
 
-| Call | Input contract | Output |
-| --- | --- | --- |
-| `rt_pam50_profile()` | Research-specific frozen subtype order/counts/contrast order | Schema profile, not fitted results |
-| `rt_prepare_pam50_research(st09, st07_selected)` | Original selected ST09 (60 rows) and 360 selected ST07 contrast rows | Validated 60×4 and 60×6 matrices; gene and anchor order |
-| `rt_pam50_research_heatmaps(st09, st07_selected)` | Same frozen signature/contrast tables | Two ComplexHeatmap objects with shared centered scale and anchored gene blocks |
-| `rt_export_pam50_research(bundle, output_dir, source, data_status = "PRIVATE")` | Verified prepared bundle, explicit local path and provenance | Two manuscript PDF/PNG pairs plus RDS/JSON manifests; never automatically public |
-| `rt_figure_audit(file_stem)` | One generated manuscript file stem | Structural, font, hash, pixel-size and nonblank QA, **not** scientific approval |
+The public calls above accept general numeric, categorical, longitudinal, sample-by-feature, and externally fitted estimate data. Use them only where the data match the documented input contract. A new study should implement its own local schema validators, scientific estimands, source/version pins, group ordering, figure captions, and release approvals.
 
-For input file examples, frozen subtype-specific interpretations and strict privacy, see the [manuscript heatmap adapter section](MANUSCRIPT_VISUALIZATION_DELIVERY.md#tcga-brca-pam50-frozen-research-heatmaps-aligned-adapter). Do not confuse the formal 106-pair subtype model with the primary 109-pair discovery analysis, and do not infer clinical biomarker validity from discovery-selected genes.
-
-
-### Frozen-source and physical-print QA gates
-
-| Call | Inputs | Fail-closed behavior |
-| --- | --- | --- |
-| `rt_read_pam50_locked(st06_file, st07_file, st09_file, expected_sha256)` | Three **local, full** frozen CSVs and explicit named SHA-256 values for ST06/ST07/ST09 | Rejects absent/mismatched hashes, 21,432/128,592/60 row-contract errors, missing genes, 240 selected-effect disagreement, 360 incorrect contrasts, and wrong anchor maxima |
-| `python3 scripts/audit_pam50_layout.py <local_output_dir> --min-margin-pt 12 --check-labels` | Locally generated two manuscript PDF + JSON sidecar pairs, Poppler | Rejects text too close to PDF perimeter, missing declared gene labels, inconsistent gene order, subtype denominators, scale, contrast sequence or inferential status |
-
-The research export uses a 7 mm bottom/top and 6 mm left/right **ComplexHeatmap plot padding**. A structural audit cannot verify biological interpretation, accessibility, patient identity, or that an operator-supplied SHA-256 source pin represents authorized study evidence.
-
-
-### Scale-interpretation supplementary figure
-
-`rt_pam50_scale_diagnostic(bundle, neutral_fraction = 0.2, histogram_bins = 40L)` returns an explicitly **supplementary** ggplot histogram (two panels: 240 paired effect cells and 360 contrast cells) plus a table of extremes, quantiles and within-central-scale fraction. It refuses non-shared color limits and never caps/recalculates the fitted values. The ±20% markers describe the color encoding, not statistical or clinical cutoffs. Export with the existing `rt_manuscript_export()` call while specifying `analysis_unit = "archived effect/contrast cell, not a patient"`. Keep figures and summary tables private pending scientific review.
-
-
-### Heatmap figure legend and publication-accessibility checkpoint
-
-`rt_pam50_manuscript_caption(bundle, kind = "paired_effects" | "six_contrasts")` produces the separate journal-caption text; `rt_export_pam50_research(...)` now writes matching `.caption.txt` files, stores them in the provenance manifest and renders an explicit `Gene anchor (15 each)` categorical legend to the **left**, with the continuous zero-centered scale beneath the panel. A PDF admission pass confirms the categorical key is present and the private caption bytes agree with the metadata text after whitespace normalization. Author sign-off is still required for accessibility, interpretation and final journal word limits.
-
-
-**Figure geometry CI:** `python3 -m unittest discover -s scripts/tests -p 'test_pam50_geometry.py' -v` exercises synthetic valid/overlapped/missing-cell/missing-label PDFs for both 60×4 and 60×6 panels. The auditor checks that paired subtype names and rotated first-minus-second contrast labels are each at least 12 pt below their vector heatmap cells. This specifically guards against recurring matrix-to-text overlap, separate from page margins and the text-to-color-legend gap.
-
-
-### Private human-review handoff — no automated approval
-
-Run `python3 scripts/build_pam50_review_packet.py <PRIVATE_figure_output_directory>` after the frozen-input and PDF geometry passes. The script checks private provenance, both PDF/PNG checksums, matching frozen gene order, all six contrast directions, journal caption text and two-panel clearance results. It writes an **unsigned** `PAM50_MANUSCRIPT_REVIEW.md` checklist and `PAM50_REVIEW_PACKET.json` with all reviewer decisions `PENDING`, public distribution `BLOCKED` and merge authorization `NOT_GRANTED`. The synthetic rejection suite is `python3 -m unittest discover -s scripts/tests -p 'test_pam50_review_packet.py' -v`. It must not be used to auto-sign a manuscript.
+For journal artwork, use the [manuscript visualization guide](MANUSCRIPT_VISUALIZATION_DELIVERY.md) and the [dated journal-format matrix](../references/JOURNAL_FIGURE_REQUIREMENTS_MATRIX_2026-10-12.csv). No journal, dataset, molecular signature, statistical inference, or private-input path is built into this template.

@@ -111,20 +111,10 @@ For professional figure delivery, source the specific optional modules after `re
 All publication-facing functions require the operator to review input data provenance, sampling units, transformations, typography and privacy. An output file is not inferential or release authorization.
 
 
-## Research-aligned PAM50 heatmap figures
+## Adapt the plotting modules to your research
 
-Load `R/research_pam50_heatmaps.R` after `R/research_tidy.R` and `R/research_plots.R`. The explicit calls are `rt_pam50_profile()`, `rt_prepare_pam50_research(signature, contrasts)`, `rt_pam50_research_heatmaps(signature, contrasts)`, and `rt_export_pam50_research(bundle, output_dir, source)`.
+Use the generic `rt_complex_heatmap()` for feature-by-sample matrices when its input contract matches your data. For model-summary matrices, supply an explicitly named model-effect matrix and validate its axes and inferential meaning in **your own study-specific code**; do not label model effects as individual participants.
 
-Unlike a typical sample-by-feature heatmap, **PAM50 subtype columns here are modeled paired effects**, not biological samples. The adapter follows the research project's R11/R19 ST09/ST07 frozen contract: 60 gene rows (15 per anchor), four subtype effects and six contrasts, with case-preserving names, Ensembl fallback labels and one-to-one gene/contrast reconciliation. Shared zero-centered color scales and patient-pair denominators are documented; no new FDR, confidence interval, sample selection, model training or publication approval is implied. Read the [full input and output workflow](../docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md#tcga-brca-pam50-frozen-research-heatmaps-aligned-adapter) before use.
+For any publication-facing graphic, record the analysis unit, original units, transformations, all explicit color-scale decisions, source version and figure review status. Export with `rt_manuscript_export()`, inspect the physical PDF and PNG, and retain the generated metadata alongside the figure.
 
-
-**Source seals and geometric QA.** Use `rt_read_pam50_locked(st06_file, st07_file, st09_file, expected_sha256)` before plotting actual frozen research sources. It matches three externally reviewed source digests; checks 21,432 gene effects, 128,592 six-family contrast rows, the 60-gene selection and high-effect anchor semantics; and returns selected records only when admission passes. Following local PDF export run `python3 scripts/audit_pam50_layout.py ... --min-margin-pt 12 --check-labels` to check full gene-label presence and glyph bounding boxes. These are structural checks, not scientific approval.
-
-
-**Color-scale sensitivity without hidden manipulation.** Source `R/research_pam50_scale_diagnostic.R` after `research_plots.R`, `research_pam50_heatmaps.R`, and supply the validated research bundle to `rt_pam50_scale_diagnostic(bundle, neutral_fraction = 0.2)`. It returns a supplementary 2-panel ggplot and tabulated counts/quantiles (240 subtype-effect cells, 360 contrast cells) using the exact shared unclipped main heatmap scale. Export this figure **separately** with `rt_manuscript_export()` and keep its analysis unit as *modeled effect cell*, never patient. The complete code appears in the [manuscript delivery guide](../docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md).
-
-
-**Caption and accessibility gate:** The PAM50 export includes a visibly labeled categorical `Gene anchor (15 each)` key on each panel and a separate `.caption.txt` companion for journal submission. `rt_pam50_manuscript_caption(bundle, "paired_effects")` / `(..., "six_contrasts")` generates explicit paired-estimand, anchor, contrast-direction, negative/positive color and descriptive-only text; no claim of statistical or clinical validation is added. Keep the caption and its identical metadata alongside private PDF/PNG until author and scientific review. The PDF geometry gate now fails if these are missing or inconsistent.
-
-
-**Legend overlap repair:** `rt_draw_pam50_with_legend_gap()` sets the ComplexHeatmap *internal* bottom-legend clearance to 12 mm for both exports, restores the prior `ht_opt` value after each draw, and aligns the categorical anchor key beside the heatmap top. The separate Poppler PDF gate verifies at least 12 pt of *observed* clearance below `n=16/9/59/22 pairs`. Adjusting whole-page margins alone is not a valid substitute.
+See [the manuscript-delivery guide](../docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md) for study-neutral examples and [the complete call sheet](../docs/FUNCTION_CALL_SHEET.md) for functions and required inputs.

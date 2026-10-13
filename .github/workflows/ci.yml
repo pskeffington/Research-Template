@@ -31,16 +31,8 @@ jobs:
         run: ruff check .
       - name: Test
         run: pytest -q
-      - name: Reject forged private manuscript review approvals (synthetic only)
-        run: python -m unittest discover -s scripts/tests -p 'test_pam50_review_packet.py' -v
-      - name: Test post-assembly evidence inventory and review packet verification
-        run: python -m unittest discover -s scripts/tests -p 'test_pam50_review_packet.py' -v
-      - name: Test revision-linked unsigned human reviews and editorial policy rejection
-        run: python -m unittest discover -s scripts/tests -p 'test_pam50_review_governance.py' -v
       - name: Validate sourced journal policies and reporting-guideline applicability
         run: python -m unittest discover -s scripts/tests -p 'test_journal_policy_matrix.py' -v
-      - name: Reject forged or stale private journal derivative authorization requests
-        run: python -m unittest discover -s scripts/tests -p 'test_private_journal_gate.py' -v
       - name: Execute synthetic demonstration
         run: research-template demo --out artifacts/ci --seed 711 --plots --ml
       - name: Confirm scaffold completeness (not clinical approval)
@@ -63,14 +55,6 @@ jobs:
             r-base-core r-cran-ggplot2 r-cran-dplyr r-cran-tidyr r-cran-tibble r-cran-readr r-bioc-complexheatmap r-cran-circlize r-cran-png r-cran-digest r-cran-jsonlite r-cran-plotly r-cran-htmlwidgets poppler-utils fonts-dejavu-core
       - name: Install PDF vector geometry inspector
         run: python3 -m pip install --disable-pip-version-check --no-cache-dir "PyMuPDF==1.26.7" "Pillow==12.0.0"
-      - name: Reject deliberately overlapped or incomplete PDF geometry
-        run: python3 -m unittest discover -s scripts/tests -p 'test_pam50_geometry.py' -v
-      - name: Reject damaged physical PDF and PNG manuscript exports
-        run: python3 -m unittest discover -s scripts/tests -p 'test_manuscript_physical.py' -v
-      - name: Test synthetic TIFF LZW EPS journal proofs and unsafe-scale gates
-        run: python3 -m unittest discover -s scripts/tests -p 'test_journal_proofs.py' -v
-      - name: Audit cross-journal layout feasibility and authority holds on synthetic inputs
-        run: python3 -m unittest discover -s scripts/tests -p 'test_journal_comparison.py' -v
       - name: Check all R modules
         run: Rscript --vanilla R/tests/test_style_contract.R
       - name: Validate documented R examples
@@ -89,25 +73,6 @@ jobs:
         run: Rscript --vanilla R/tests/test_complex_heatmap.R
       - name: Generate and structurally audit synthetic manuscript references
         run: Rscript --vanilla R/tests/generate_manuscript_review.R
-      - name: Verify hash-pinned full PAM50 source universe and reject mismatches
-        run: Rscript --vanilla R/tests/test_pam50_locked_sources.R
-      - name: Validate manuscript PAM50 frozen 60-gene effect and contrast alignment
-        run: Rscript --vanilla R/tests/test_pam50_heatmap_alignment.R
-      - name: Validate frozen 30-gene R journal page plans and color-scale continuity
-        run: Rscript --vanilla R/tests/test_pam50_journal_layouts.R
-      - name: Render four synthetic 30-gene journal PDF/PNG proofs through ComplexHeatmap
-        run: Rscript --vanilla R/tests/test_pam50_journal_render.R
-      - name: Audit actual synthetic PDF typography, matrix vectors, legend and PNG density
-        run: |
-          python3 scripts/audit_pam50_journal_proofs.py artifacts/ci_figure_review/pam50_journal/J03 > artifacts/ci_figure_review/pam50_journal/J03/audit.json
-          python3 -m unittest discover -s scripts/tests -p 'test_pam50_journal_render_audit.py' -v
-      - name: Verify PDF text margins, 60 labels and cross-panel manuscript geometry
-        run: |
-          python3 scripts/audit_pam50_layout.py artifacts/ci_figure_review/pam50_research --min-margin-pt 12 --min-footer-gap-pt 12 --min-matrix-label-gap-pt 12 --check-labels > artifacts/ci_figure_review/pam50_research/layout_audit.json
-          if python3 scripts/audit_pam50_layout.py artifacts/ci_figure_review/pam50_research --min-margin-pt 72 --check-labels >/dev/null 2>&1; then
-            echo "Oversized margin contract unexpectedly passed"
-            exit 1
-          fi
       - name: Test actual Plotly HTML creation and release guards
         run: Rscript --vanilla R/tests/test_plotly_export.R
       - name: Reject corrupted or scientifically unapproved figure artifacts

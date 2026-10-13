@@ -6,7 +6,7 @@ A reusable, independently written starter repository for biomedical data science
 
 ## R/tidyverse coding standard — preferred for biomedical studies
 
-The R research workflow follows the [whole-repository coding contract](docs/CODING_CONVENTIONS.md), [independent biomedical coding conventions](https://github.com/pskeffington/Dartmouth.HSE.Public/blob/main/06_RESOURCES/Literature/BIOMEDICAL_CODING_STANDARDS.md), the [R style contract](R/STYLE_GUIDE.md), and the [complete R function sheet](R/README.md). It preserves original source names, uses snake_case analysis fields, explicit native `|>` with `dplyr` and `tidyr`, audited join cardinality, clear missing-value denominators, and layered `ggplot2` grammar.
+The R research workflow follows the [whole-repository coding contract](docs/CODING_CONVENTIONS.md), [local coding conventions](docs/CODING_CONVENTIONS.md), the [R style contract](R/STYLE_GUIDE.md), and the [complete R function sheet](R/README.md). It preserves original source names, uses snake_case analysis fields, explicit native `|>` with `dplyr` and `tidyr`, audited join cardinality, clear missing-value denominators, and layered `ggplot2` grammar.
 
 ```r
 source("R/research_tidy.R")
@@ -74,7 +74,7 @@ To create an independent repository from this starter, the repository owner must
 ## Reference architecture
 
 - [Best Practices Git](https://github.com/pskeffington/Best-Practices-Git): research-to-release lifecycle and audit gates.
-- [Paul's Notes — public research coding guides](https://github.com/pskeffington/Dartmouth.HSE.Public/tree/main/06_RESOURCES): independent tutorials, visualization interpretation and scientific coding references.
+- [Research literature references](references/LITERATURE_MATRIX.csv): external methods, visualization standards, and reproducibility sources.
 - [Literature matrix](references/LITERATURE_MATRIX.csv): authoritative external methodological and tool documentation, with implementation mapping.
 
 **Scope:** reusable template and pedagogical executable examples; not a claim of independent external validation. This template's implementation is original and does not import private datasets or protected teaching materials.
@@ -85,32 +85,23 @@ To create an independent repository from this starter, the repository owner must
 Use the [R manuscript delivery guide](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md) and [R function atlas](R/README.md) for condition-ordered annotated ComplexHeatmap figures, confidence-interval forest plots, statistically gated volcano displays, separate Plotly exploratory widgets, and static manuscript PDF/PNG exports. Modules are sourced on demand; public release remains a separate scientific and privacy-review gate.
 
 
-### Research-aligned PAM50 heatmap delivery
+### Publication and journal delivery
 
-The [manuscript visualization guide](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md#tcga-brca-pam50-frozen-research-heatmaps-aligned-adapter) includes a reusable R adapter for the frozen TCGA-BRCA discovery signature: **60 genes × 4 subtype paired effects** and **60 genes × 6 planned effect contrasts**. It validates exact frozen gene IDs and ranks, 15 genes per anchor, complete first-minus-second contrast directions and scientific interpretation boundaries. The code never imports protected research inputs unless explicitly called from an authorized private checkout; CI uses synthetic data only. See `R/research_pam50_heatmaps.R` and `R/tests/test_pam50_heatmap_alignment.R`.
+This template is **not tied to any dataset, gene panel, cohort, disease, or journal**. Start with your own question, permitted data, codebook, and research protocol. Configure categorical levels, IDs, statistical units, transforms, effect scales, and source licenses for your specific study.
 
+- [Manuscript and figure delivery](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md) documents generic PDF/PNG exports, metadata, typography, visual review, supplementary diagnostics, and optional interactive graphics.
+- [Journal figure requirements](references/JOURNAL_FIGURE_REQUIREMENTS_MATRIX_2026-10-12.csv) and [reporting frameworks](references/JOURNAL_REPORTING_FRAMEWORKS_2026-10-12.csv) are **dated reference matrices**, not preset requirements or acceptance guarantees. Verify your own target journal's current instructions.
+- [R figure modules](R/README.md) cover ggplot2, condition-ordered annotated ComplexHeatmap, forest and volcano plots, and Plotly widgets. These are reusable functions with no required clinical study.
+- [Function-call sheet](docs/FUNCTION_CALL_SHEET.md) contains working Python and R calls and preconditions.
+- [Research release gates](docs/RELEASE_GATES.md) separate code quality, scientific validity, data rights, and approval to share outputs.
 
-**Manuscript preflight:** The research-aligned PAM50 adapter now has a separate hash-pinned full-source loader (`R/research_pam50_sources.R`) and automated PDF geometry check (`scripts/audit_pam50_layout.py`). Both must pass before source-specific review of private R11 research figures. The template does not embed frozen source hashes or research data; the operator must supply independently approved ST06/ST07/ST09 hashes. See [manuscript visualization delivery](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md).
+### Use this repository as your own research project
 
-The optional PAM50 **full-range color-scale diagnostic** (`R/research_pam50_scale_diagnostic.R`) explains visually pale/near-zero modeled effects without altering either main heatmap. Its supplementary histogram distinguishes 240 subtype effects from 360 planned contrast values, preserves the same signed scale, and explicitly labels counts as correlated model-output cells rather than patient observations. See the [manuscript guide](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md).
+1. Choose **Use this template** on GitHub (once the repository owner enables the *Template repository* setting), or clone the repository.
+2. Run the synthetic Python and R examples and baseline tests before substituting your own inputs.
+3. Record your study's analysis unit, data dictionary, authorized sources, inclusion/exclusion rules, versioned methods, and assumptions in the project documents.
+4. Keep identifiable or licensed data outside a public fork; place outputs in the ignored `artifacts/` directory, and configure explicit validation tests for **your dataset**.
+5. Decide whether exploratory plots or hypothesis tests are warranted; report missingness, effect units and uncertainty explicitly. Run human review before any external distribution.
 
+Generic functions are intended to be extended, not to enforce another researcher's study design.
 
-**Private PAM50 manuscript handoff:** Following frozen ST06/ST07/ST09 source verification and two-panel PDF geometry acceptance, `scripts/build_pam50_review_packet.py` generates a protected, **unsigned** reviewer worksheet and audit JSON in the private output directory. It checks figure/caption provenance and returns `REVIEW_REQUIRED_NOT_APPROVED`; it never signs off science, authorizes public release or merges repository changes. See the [manuscript visualization release guide](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md).
-
-**Unsigned review governance:** For private manuscript handoff, `scripts/pam50_review_governance.py` adds five revision-linked human decision fields and explicit journal-policy metadata preflight after the verified packet. All decisions default to pending; structural decision validation never grants merge or distribution authorization. See [human review and journal preflight](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md#revision-aware-human-decisions-and-journal-policy-preflight).
-
-### Journal submission and reporting literature matrices (12 October 2026)
-
-The public [journal figure requirements matrix](references/JOURNAL_FIGURE_REQUIREMENTS_MATRIX_2026-10-12.csv) compares nine relevant journals/publisher policies with sourced figure formats, raster resolution, column sizing, legends, reproducibility obligations and compatibility of the existing 9 × 13-in PAM50 heatmap masters. The separate [reporting framework matrix](references/JOURNAL_REPORTING_FRAMEWORKS_2026-10-12.csv) distinguishes STROBE, STREGA, REMARK and TRIPOD+AI by their **actual study design**; their inclusion is not a declaration that all apply. Sources and October 12, 2026 access dates are preserved. BMC Cancer is flagged publisher-general only and requires journal-specific confirmation, as do the finer AACR Cancer Research production limits. These matrices are planning references; new journal-specific derivatives and human permission gates remain required.
-
-**Physical manuscript QA:** In addition to the source/geometry/packet checks, `scripts/audit_manuscript_physical.py` independently opens the two PAM50 PDF/PNG heatmap pairs and supplementary PDF/PNG, checks embedded PDF font data and vector content, measures actual PNG resolution against page inches, and reports detected journal-policy incompatibilities without changing figures. [See the manuscript delivery guide](docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md#independent-physical-pdfpng-export-verification-12-october-2026). Human approval and publication remain separate.
-
-**Journal proof lane:** `scripts/build_journal_proofs.py` supports a read-only figure-size/font feasibility inventory when no target journal has been selected, and explicit proof-only TIFF LZW/EPS derivatives for source-verified journal profiles after human selection. Proportional shrinking below the 8-pt engineering threshold is rejected in favor of an R layout redesign. No derivative is a production-approved or public-release artifact.
-
-**Journal comparison:** `scripts/compare_journal_requirements.py` now compares all dated policy-matrix entries to independently measured font sizes/dimensions for the three master PDFs, flags likely R relayout needs, and keeps publisher-only policies and article-scope mismatches on hold. It is read-only and deliberately selects no publication or exported figure; see the manuscript delivery guide.
-
-**R journal layout planning:** `R/research_pam50_journal_layouts.R` defines read-only two-page, 30-gene planning scenarios for PLOS ONE, PLOS Biology, Nature Communications and Bioinformatics, retaining each 15-gene anchor block and the original shared effect scale. Prospective 9-pt labels and an 8.5-pt legend are layout constraints, not publisher acceptance. The private-only `PAM50_JOURNAL_R_LAYOUT_PLANS.json` records the unsigned plan without emitting modified figures.
-
-**Synthetic publication-size figure QA:** `R/research_pam50_journal_render.R` generates four J03-style 30-gene synthetic ComplexHeatmap PDF/PNG pages for automated typography and footer-clearance inspection. `scripts/audit_pam50_journal_proofs.py` independently validates 30 ordered gene labels per page, embedded fonts, vector cell content, effective DPI, explicit signed legends and SHA-256 provenance. No protected data or public release is involved.
-
-**Protected journal derivative authorization:** `scripts/prepare_private_journal_gate.py` now produces a signed-off-*pending* private request and a SHA-pinned, deliberately blocked execution gate. The new validator cross-checks original figure/provenance audits, nine journal policies, four R page plans, and immutable master files. It cannot render protected-data derivatives or infer scientific/distribution approval from visually reviewed PDFs. See the manuscript delivery guide.
