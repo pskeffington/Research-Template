@@ -33,6 +33,11 @@ jobs:
         run: pytest -q
       - name: Validate sourced journal policies and reporting-guideline applicability
         run: python -m unittest discover -s scripts/tests -p 'test_journal_policy_matrix.py' -v
+      - name: Verify source-qualified Study Pack registry and nonreleasing CSV validation
+        run: |
+          research-template pack list
+          research-template pack plan --id nhanes-2017-2018
+          pytest -q tests/test_study_packs.py
       - name: Execute synthetic demonstration
         run: research-template demo --out artifacts/ci --seed 711 --plots --ml
       - name: Confirm scaffold completeness (not clinical approval)
