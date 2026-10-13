@@ -52,7 +52,7 @@ class JournalRequirementsMatrixTests(unittest.TestCase):
                 })
                 if row["policy_authority"] != "JOURNAL_OFFICIAL":
                     self.assertNotEqual(row["verification_status"], "VERIFIED_JOURNAL_PAGE")
-                self.assertTrue(row["current_9x13_master"].strip())
+                self.assertTrue(row["general_adaptation_notes"].strip())
 
     def test_unknown_numerical_constraints_remain_unknown(self) -> None:
         rows = load_rows(FIGURES)
