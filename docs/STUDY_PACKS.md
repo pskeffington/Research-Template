@@ -100,3 +100,7 @@ forcing their variables into an unrelated published codebook.
 The template remains public and study-agnostic. Data for actual
 research projects belongs in approved storage; Git ignore rules are not
 access controls.
+
+## Cancer-sector research discovery catalog
+
+The optional [Cancer Research Sector Catalog](CANCER_RESEARCH_SECTOR_CATALOG.md) lists 14 source-qualified deployment *candidates* grouped by four publicly documented Dartmouth Cancer Center research themes. View them with `research-template sectors list`, choose one with `sectors plan --id ...`, then obtain and validate the specific source dictionary in a separate approved project. All entries are metadata-only plans. They never download data, assume journal approval, or execute statistical models. The sector matrix is an independent public-source index, not a Dartmouth collaboration or study-specific dataset.
