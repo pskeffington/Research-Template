@@ -2,7 +2,7 @@
 
 **Author: Paul Skeffington · Prepared with OpenAI**
 
-This is the executable convention for all newly authored R scripts, figure helpers, and code examples in this template. It aligns with the independently written [biomedical coding conventions](https://github.com/pskeffington/Dartmouth.HSE.Public/blob/main/06_RESOURCES/Literature/BIOMEDICAL_CODING_STANDARDS.md), and the [official tidyverse style guide](https://style.tidyverse.org/). These are recommended internal conventions, not instructions to overwrite published source schemas.
+This is the executable convention for all newly authored R scripts, figure helpers, and code examples in this template. It aligns with the repository's [whole-project coding conventions](../docs/CODING_CONVENTIONS.md) and the [official tidyverse style guide](https://style.tidyverse.org/). These are recommended internal conventions, not instructions to overwrite published source schemas.
 
 ## Required practices
 
