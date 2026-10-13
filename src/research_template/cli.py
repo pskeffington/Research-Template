@@ -10,8 +10,8 @@ from pathlib import Path
 
 from .provenance import create_manifest, save_json
 from .quality import REQUIRED_COLUMNS, validate_cohort
-from .synthetic import make_cohort
 from .study import StudyScaffoldError, create_study, validate_study
+from .synthetic import make_cohort
 
 
 def demo(out: Path, *, n: int = 120, seed: int = 711,
