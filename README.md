@@ -104,7 +104,7 @@ Git history and passing CI establish software traceability, not automatically pu
 
 ## Make your own project
 
-To create an independent repository from this starter, the repository owner must first enable the GitHub **Template repository** setting. Once enabled, use **Use this template → Create a new repository**. Until then, clone it normally. Replace sample study documents, update `pyproject.toml`, adjust schema and CI, and record authorization before reading real data. Do not treat the shared default branch as a staging area.
+To create an independent repository from this starter, use **Use this template → Create a new repository**.
 
 ## Reference architecture
 
