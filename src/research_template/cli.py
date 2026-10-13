@@ -9,6 +9,7 @@ from pathlib import Path
 
 from .provenance import create_manifest, save_json
 from .quality import REQUIRED_COLUMNS, validate_cohort
+from .sector_catalog import CatalogError, list_sectors, plan_sector
 from .study_packs import PackError, list_packs, load_pack, plan_pack, validate_csv
 from .synthetic import make_cohort
 
@@ -112,10 +113,27 @@ def main(argv: list[str] | None = None) -> int:
     verify.add_argument("--id", required=True)
     verify.add_argument("--table", required=True)
     verify.add_argument("--csv", type=Path, required=True)
+    sectors = commands.add_parser("sectors", help="Browse pre-staged cancer-sector research references")
+    sectors_commands = sectors.add_subparsers(dest="sectors_command", required=True)
+    sectors_list = sectors_commands.add_parser("list", help="List all four programs and deployables")
+    sectors_list.add_argument("--program", choices=("CPS", "SGN", "ICI", "TEC"))
+    sector_plan = sectors_commands.add_parser("plan", help="View a blocked, source-based study plan")
+    sector_plan.add_argument("--id", required=True)
     check = commands.add_parser("audit", help="Check scaffold; scientific release is blocked by default")
     check.add_argument("--root", type=Path, default=Path("."))
     check.add_argument("--require-release", action="store_true", help="Exit nonzero without approved science")
     args = parser.parse_args(argv)
+    if args.command == "sectors":
+        try:
+            result = (
+                list_sectors(args.program)
+                if args.sectors_command == "list" else plan_sector(args.id)
+            )
+        except (CatalogError, OSError, ValueError) as error:
+            print(json.dumps({"status": "BLOCKED", "reason": str(error)}, indent=2))
+            return 2
+        print(json.dumps(result, indent=2))
+        return 0
     if args.command == "pack":
         try:
             if args.pack_command == "list":
