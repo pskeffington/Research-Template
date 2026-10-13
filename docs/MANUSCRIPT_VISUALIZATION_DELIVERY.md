@@ -401,3 +401,20 @@ The reusable `scripts/build_journal_proofs.py` provides **two distinct lanes**:
 When the projected text is at least 8 pt, the optional opt-in proof conversion creates white-background, 8-bit RGB LZW TIFF at the stated raster minimum and EPS via Poppler from a temporary reduced vector PDF. This is an *illustrative engineering threshold*, not a claim that 8 pt alone satisfies a journal. Both TIFF and EPS are labeled `REVIEW_ONLY`, SHA-256 bound to their original PDF source and documented in `PROOF_MANIFEST.json`. The script never overwrites or alters the master figures. Smaller projected type **blocks export and requires a genuine R layout redesign**, rather than silent shrinking. Source scientific estimates, gene ordering and inference remain unchanged.
 
 The current frozen research pipeline deliberately runs **only the no-journal read-only lane** because no target has been selected. It does not generate TIFF/EPS private proofs by default. The eight synthetic regression tests exercise valid TIFF LZW/EPS generation, no implicit journal selection, journal-policy authority, overwrite refusal, unmodified masters, blocked false approvals and insufficient legibility. TIFF/EPS proof integrity is not final publisher approval or permission to distribute research.
+
+### Cross-journal read-only fit and relayout matrix (12 October 2026)
+
+The `scripts/compare_journal_requirements.py` module extends the journal source matrix to **all nine** journal/publisher entries without choosing one. It runs the independent PDF/PNG physical audit, reads the actual smallest embedded PDF text spans and page dimensions, and reports a per-figure engineering scenario for each captured policy. The report captures the SHA-256 of the dated literature matrix and distinguishes (a) a hard maximum artwork width/height, (b) a double-column display-width planning scenario that is **not** a universal maximum, (c) format and raster requirements, (d) missing journal-specific rules, and (e) source-authority and article-type limitations.
+
+Run this within the private research workflow after the evidence packet and physical media checks:
+
+~~~bash
+python3 plot-template/scripts/compare_journal_requirements.py \
+  "$PAM50_OUTPUT_DIR" \
+  --policy-matrix plot-template/references/JOURNAL_FIGURE_REQUIREMENTS_MATRIX_2026-10-12.csv \
+  > "$PAM50_OUTPUT_DIR/PAM50_JOURNAL_COMPARISON.json"
+~~~
+
+The read-only output uses the states `ORIGINAL_R_RELAYOUT_REQUIRED`, `ARTWORK_POLICY_INCOMPLETE`, `UNVERIFIED_POLICY_HOLD`, `ARTICLE_SCOPE_REVIEW_REQUIRED`, and `MECHANICAL_SCENARIO_POSSIBLE_NOT_APPROVED`. The last state means only that the reported physical scaling scenario is not already disqualified by the conservative 8-pt smallest-text engineering threshold. It **does not** evaluate actual journal editorial fit, data rights, final figure file specifications, accessibility, or human print proof legibility. Current publisher-wide AACR/BMC rows remain held as unverified and Briefings in Bioinformatics is flagged for article scope. Neither the new report nor its CI tests exports a proof or grants an author review decision.
+
+Eight synthetic regression tests reject altered masters, duplicated or invalid source-policy values, unsupported inferred requirements, scaling below 8 pt, inappropriate publisher-only authority and improper claims of approval. Keep original R/Circlize/ComplexHeatmap spacing and the frozen source estimates intact until an actual journal is selected and a specific layout rerender is authorized.
