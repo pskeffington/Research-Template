@@ -104,7 +104,7 @@ Git history and passing CI establish software traceability, not automatically pu
 
 ## Make your own project
 
-To create an independent repository from this starter, use **Use this template → Create a new repository**.
+To create an independent repository from this starter, **Use this template → Create a new repository**.
 
 ## Reference architecture
 
