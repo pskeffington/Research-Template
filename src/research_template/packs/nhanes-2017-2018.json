@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "pack_id": "nhanes-2017-2018",
+  "display_name": "CDC NHANES 2017–2018: demographics, urine biomarkers and kidney questionnaire",
+  "version": "1.0.0",
+  "authority": "CDC NCHS",
+  "status": "SCHEMA_VALIDATION_PILOT",
+  "source_cycle": "2017-2018",
+  "source_updated_check": "2026-10-13",
+  "analysis_approval": "NOT_GRANTED",
+  "data_download": "DISABLED",
+  "tables": {
+    "DEMO_J": {
+      "description": "2017–2018 demographics and survey design",
+      "source_url": "https://wwwn.cdc.gov/nchs/data/nhanes/public/2017/datafiles/DEMO_J.htm",
+      "expected_csv": "DEMO_J.csv",
+      "join_key": "SEQN",
+      "columns": {
+        "SEQN": {
+          "type": "integer",
+          "required": true,
+          "nullable": false,
+          "role": "respondent_identifier"
+        },
+        "RIDAGEYR": {
+          "type": "number",
+          "required": true,
+          "nullable": true,
+          "unit": "years",
+          "role": "age_topcoded_at_80"
+        },
+        "RIAGENDR": {
+          "type": "category",
+          "required": true,
+          "nullable": true,
+          "values": [
+            "1",
+            "2"
+          ],
+          "role": "recorded_category"
+        },
+        "SDMVPSU": {
+          "type": "integer",
+          "required": true,
+          "nullable": true,
+          "role": "survey_psu"
+        },
+        "SDMVSTRA": {
+          "type": "integer",
+          "required": true,
+          "nullable": true,
+          "role": "survey_stratum"
+        },
+        "WTINT2YR": {
+          "type": "number",
+          "required": true,
+          "nullable": true,
+          "role": "interview_weight"
+        },
+        "WTMEC2YR": {
+          "type": "number",
+          "required": true,
+          "nullable": true,
+          "role": "examination_weight"
+        }
+      }
+    },
+    "ALB_CR_J": {
+      "description": "2017–2018 urine albumin, creatinine and computed ratio",
+      "source_url": "https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2017/DataFiles/ALB_CR_J.htm",
+      "expected_csv": "ALB_CR_J.csv",
+      "join_key": "SEQN",
+      "columns": {
+        "SEQN": {
+          "type": "integer",
+          "required": true,
+          "nullable": false,
+          "role": "respondent_identifier"
+        },
+        "URXUMA": {
+          "type": "number",
+          "required": true,
+          "nullable": true,
+          "unit": "ug/mL",
+          "role": "urine_albumin"
+        },
+        "URXUCR": {
+          "type": "number",
+          "required": true,
+          "nullable": true,
+          "unit": "mg/dL",
+          "role": "urine_creatinine"
+        },
+        "URDACT": {
+          "type": "number",
+          "required": true,
+          "nullable": true,
+          "unit": "mg/g",
+          "role": "albumin_creatinine_ratio"
+        }
+      },
+      "notes": [
+        "Below-detection-limit measurements can contain laboratory-assigned values. Inspect the source detection-limit indicators; do not blindly interpret all numeric values as observed measurements."
+      ]
+    },
+    "KIQ_U_J": {
+      "description": "2017–2018 kidney conditions questionnaire; eligible age 20+",
+      "source_url": "https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2017/DataFiles/KIQ_U_J.htm",
+      "expected_csv": "KIQ_U_J.csv",
+      "join_key": "SEQN",
+      "columns": {
+        "SEQN": {
+          "type": "integer",
+          "required": true,
+          "nullable": false,
+          "role": "respondent_identifier"
+        },
+        "KIQ022": {
+          "type": "category",
+          "required": true,
+          "nullable": true,
+          "values": [
+            "1",
+            "2",
+            "7",
+            "9"
+          ],
+          "role": "self_reported_weak_or_failing_kidneys",
+          "special_codes": {
+            "7": "Refused",
+            "9": "Don't know"
+          }
+        }
+      }
+    }
+  },
+  "join_plan": {
+    "status": "PLAN_ONLY_NOT_EXECUTED",
+    "base_table": "DEMO_J",
+    "join_key": "SEQN",
+    "strategy": "left_join_after_explicit_row_cardinality_review",
+    "cardinality": "one_to_one_expected",
+    "linked_tables": [
+      "ALB_CR_J",
+      "KIQ_U_J"
+    ],
+    "missingness": "Report eligibility and missing-component records before any complete-case exclusions."
+  },
+  "survey_design": {
+    "required_review": true,
+    "strata": "SDMVSTRA",
+    "psu": "SDMVPSU",
+    "interview_weight": "WTINT2YR",
+    "examination_weight": "WTMEC2YR",
+    "selection_rule": "Choose survey weights based on analysis component and subsample guidance; combining laboratory and questionnaire variables generally requires examination weights, but must be checked against CDC analytic guidance and target population.",
+    "cautions": [
+      "Complex survey design must be incorporated into population inference.",
+      "KIQ_U_J targets respondents age 20+; ALB_CR_J eligibility differs.",
+      "2017-2018 single-cycle rules cannot silently be reused for multi-cycle or 2017-March 2020 data."
+    ]
+  },
+  "permission": "Public documentation pointers only. Researchers supply their own lawfully obtained files.",
+  "publication": "BLOCKED_UNTIL_STUDY_SPECIFIC_REVIEW"
+}
