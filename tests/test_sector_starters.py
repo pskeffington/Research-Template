@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import json
+
 import pytest
 
 from research_template.cli import main
