@@ -284,7 +284,7 @@ def validate_recipe_workspace(path: Path) -> dict:
                             r["role"] for r in approved["variable_roles"]
                         ]:
                             errors.append("Required role order or count changed")
-                        for row, ref in zip(rows, approved["variable_roles"]):
+                        for row, ref in zip(rows, approved["variable_roles"], strict=False):
                             for key in ROLE_COLUMNS:
                                 if key != "source_column" and str(row[key]) != str(ref[key]):
                                     errors.append(f"Fixed reference metadata changed for {row['role']}")
