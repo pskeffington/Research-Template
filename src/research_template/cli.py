@@ -11,6 +11,12 @@ from pathlib import Path
 from .provenance import create_manifest, save_json
 from .quality import REQUIRED_COLUMNS, validate_cohort
 from .sector_catalog import CatalogError, list_sectors, plan_sector
+from .sector_starters import (
+    RecipeError,
+    create_recipe_workspace,
+    list_recipes,
+    validate_recipe_workspace,
+)
 from .study import StudyScaffoldError, create_study, validate_study
 from .study_packs import PackError, list_packs, load_pack, plan_pack, validate_csv
 from .synthetic import make_cohort
@@ -121,6 +127,19 @@ def main(argv: list[str] | None = None) -> int:
     )
     sectors = commands.add_parser("sectors", help="Browse pre-staged cancer-sector research references")
     sectors_commands = sectors.add_subparsers(dest="sectors_command", required=True)
+    sectors_commands.add_parser(
+        "recipes", help="List the four pre-cooked, reference-only sector starter workspaces"
+    )
+    sector_scaffold = sectors_commands.add_parser(
+        "scaffold", help="Generate a draft study workspace from a sector reference recipe"
+    )
+    sector_scaffold.add_argument("--id", required=True)
+    sector_scaffold.add_argument("--out", type=Path, required=True)
+    sector_scaffold.add_argument("--title")
+    sector_check = sectors_commands.add_parser(
+        "check-scaffold", help="Check a pre-cooked study workspace without reading data"
+    )
+    sector_check.add_argument("--root", type=Path, required=True)
     sectors_list = sectors_commands.add_parser("list", help="List all four programs and deployables")
     sectors_list.add_argument("--program", choices=("CPS", "SGN", "ICI", "TEC"))
     sector_plan = sectors_commands.add_parser("plan", help="View a blocked, source-based study plan")
@@ -159,14 +178,28 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if report["scaffold_status"] == "PASS" else 1
     if args.command == "sectors":
         try:
-            result = (
-                list_sectors(args.program)
-                if args.sectors_command == "list" else plan_sector(args.id)
-            )
-        except (CatalogError, OSError, ValueError) as error:
+            if args.sectors_command == "list":
+                result = list_sectors(args.program)
+            elif args.sectors_command == "plan":
+                result = plan_sector(args.id)
+            elif args.sectors_command == "recipes":
+                result = list_recipes()
+            elif args.sectors_command == "scaffold":
+                destination = create_recipe_workspace(
+                    args.id, args.out, title=args.title
+                )
+                result = {
+                    "directory": str(destination),
+                    **validate_recipe_workspace(destination),
+                }
+            else:
+                result = validate_recipe_workspace(args.root)
+        except (CatalogError, RecipeError, StudyScaffoldError, OSError, ValueError) as error:
             print(json.dumps({"status": "BLOCKED", "reason": str(error)}, indent=2))
             return 2
         print(json.dumps(result, indent=2))
+        if args.sectors_command == "check-scaffold":
+            return 0 if result["status"] == "REFERENCE_WORKSPACE_PASS_NO_ANALYSIS" else 1
         return 0
     if args.command == "pack":
         try:

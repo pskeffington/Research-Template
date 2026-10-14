@@ -1,0 +1,405 @@
+{
+  "schema_version": 1,
+  "reviewed_date": "2026-10-13",
+  "metadata_basis": "Official publicly described research themes; independent reusable planning templates",
+  "institutional_endorsement": "NOT_CLAIMED",
+  "data_download": "DISABLED",
+  "researcher_data_ingestion": "DISABLED",
+  "clinical_validation": "NOT_ASSESSED",
+  "public_release": "BLOCKED",
+  "recipes": [
+    {
+      "id": "CPS-02",
+      "program_id": "CPS",
+      "label": "Cancer screening and equity (population survey)",
+      "source_name": "CDC BRFSS annual codebooks",
+      "source_documentation_url": "https://www.cdc.gov/brfss/annual_data/annual_2023.html",
+      "source_access_url": "https://www.cdc.gov/brfss/annual_data/annual_2023.html",
+      "schema_status": "PRECOOKED_REFERENCE_WORKSPACE_ONLY",
+      "default_objective": "descriptive",
+      "analysis_unit": "survey respondent in a documented annual cycle",
+      "analysis_family": "survey",
+      "variable_roles": [
+        {
+          "role": "respondent_id",
+          "type": "text",
+          "purpose": "Respondent identity within chosen BRFSS cycle; no public IDs",
+          "required_for_analysis": true,
+          "source_column_hint": "SEQNO (verify year-specific ID)"
+        },
+        {
+          "role": "survey_weight",
+          "type": "number",
+          "purpose": "Person-level survey weight; verify question and year",
+          "required_for_analysis": true,
+          "source_column_hint": "_LLCPWT (verify applicability)"
+        },
+        {
+          "role": "stratum",
+          "type": "text",
+          "purpose": "Sampling stratum",
+          "required_for_analysis": true,
+          "source_column_hint": "_STSTR (verify annual codebook)"
+        },
+        {
+          "role": "psu",
+          "type": "text",
+          "purpose": "Primary sampling unit",
+          "required_for_analysis": true,
+          "source_column_hint": "_PSU (verify annual codebook)"
+        },
+        {
+          "role": "screening_status",
+          "type": "category",
+          "purpose": "Selected cancer screening measure with year-specific eligibility",
+          "required_for_analysis": true,
+          "source_column_hint": "(choose an applicable screening item)"
+        },
+        {
+          "role": "age",
+          "type": "number",
+          "purpose": "Age at interview; eligibility exclusions and top-coding",
+          "required_for_analysis": true,
+          "source_column_hint": "(year-specific age item)"
+        },
+        {
+          "role": "population_domain",
+          "type": "category",
+          "purpose": "Demographic or rurality grouping used for stratification",
+          "required_for_analysis": false,
+          "source_column_hint": "(user-selected field)"
+        }
+      ],
+      "method_choices": [
+        {
+          "method": "R survey",
+          "preconditions": "Descriptive population inference requires design-specific strata, PSU, weights, domains, standard errors and denominator definitions.",
+          "reference_url": "https://cran.r-project.org/web/packages/survey/index.html",
+          "execution": "DISABLED_PENDING_DESIGN_REVIEW"
+        }
+      ],
+      "figure_recipes": [
+        {
+          "figure": "Weighted screening estimate by group",
+          "uncertainty": "95% design-aware confidence interval; show effective and unweighted denominators",
+          "restriction": "Do not render population prevalence from simple unweighted respondent counts.",
+          "render_status": "PLAN_ONLY"
+        },
+        {
+          "figure": "Missingness/eligibility flow",
+          "uncertainty": "Counts before and after age, item and codebook exclusions",
+          "restriction": "Separate ineligible, refused, not asked and missing.",
+          "render_status": "PLAN_ONLY"
+        }
+      ],
+      "review_gates": [
+        "Pin survey year, source codebook and cancer-screening question wording",
+        "Prespecify weighted population and denominator; confirm PSU/strata/weights",
+        "Review survey nonresponse, subpopulation analysis and suppression policy"
+      ],
+      "access_review": "PENDING",
+      "scientific_review": "PENDING",
+      "data_import": "DISABLED",
+      "auto_statistics": "DISABLED",
+      "public_release": "BLOCKED"
+    },
+    {
+      "id": "SGN-02",
+      "program_id": "SGN",
+      "label": "Tumor transcriptomics and expression comparison",
+      "source_name": "NCBI GEO series/sample/platform metadata",
+      "source_documentation_url": "https://www.ncbi.nlm.nih.gov/geo/info/soft.html",
+      "source_access_url": "https://www.ncbi.nlm.nih.gov/geo/info/geo_paccess.html",
+      "schema_status": "PRECOOKED_REFERENCE_WORKSPACE_ONLY",
+      "default_objective": "inferential",
+      "analysis_unit": "independent biological specimen nested within subject",
+      "analysis_family": "transcriptomics",
+      "variable_roles": [
+        {
+          "role": "series_accession",
+          "type": "text",
+          "purpose": "GSE series identifier and data processing provenance",
+          "required_for_analysis": true,
+          "source_column_hint": "GSE accession from source metadata"
+        },
+        {
+          "role": "sample_accession",
+          "type": "text",
+          "purpose": "GSM/sample unique identifier",
+          "required_for_analysis": true,
+          "source_column_hint": "GSM accession from source metadata"
+        },
+        {
+          "role": "subject_id",
+          "type": "text",
+          "purpose": "Biological subject identity to prevent pseudoreplication",
+          "required_for_analysis": true,
+          "source_column_hint": "(study-specific subject key)"
+        },
+        {
+          "role": "condition",
+          "type": "category",
+          "purpose": "Disease/state/control assignment with biological semantics",
+          "required_for_analysis": true,
+          "source_column_hint": "(validated group metadata)"
+        },
+        {
+          "role": "feature_id",
+          "type": "text",
+          "purpose": "Original probe/gene/Ensembl identifier and annotation version",
+          "required_for_analysis": true,
+          "source_column_hint": "(actual feature identifier)"
+        },
+        {
+          "role": "measurement",
+          "type": "number",
+          "purpose": "Original count or continuous expression with verified units and transform",
+          "required_for_analysis": true,
+          "source_column_hint": "(raw counts OR specified continuous values)"
+        },
+        {
+          "role": "batch",
+          "type": "category",
+          "purpose": "Sequencing/library/platform batch",
+          "required_for_analysis": false,
+          "source_column_hint": "(recorded batch variable)"
+        }
+      ],
+      "method_choices": [
+        {
+          "method": "DESeq2",
+          "preconditions": "Only raw nonnegative integer gene counts with suitable replicates/design; estimate dispersion and multiplicity adjustments.",
+          "reference_url": "https://doi.org/10.1186/s13059-014-0550-8",
+          "execution": "DISABLED_PENDING_DESIGN_REVIEW"
+        },
+        {
+          "method": "limma",
+          "preconditions": "Only appropriate processed/normalized continuous expression with documented transformation and model design.",
+          "reference_url": "https://doi.org/10.1093/nar/gkv007",
+          "execution": "DISABLED_PENDING_DESIGN_REVIEW"
+        }
+      ],
+      "figure_recipes": [
+        {
+          "figure": "Condition-grouped expression heatmap",
+          "uncertainty": "Shared scale with stated transforms, sample grouping and missingness",
+          "restriction": "Never normalize each condition independently or infer effect size from count color.",
+          "render_status": "PLAN_ONLY"
+        },
+        {
+          "figure": "Differential-expression volcano",
+          "uncertainty": "Effect estimates and adjusted testing outcomes when inference is valid",
+          "restriction": "Do not label adjusted p-values or CIs when absent.",
+          "render_status": "PLAN_ONLY"
+        }
+      ],
+      "review_gates": [
+        "Resolve exact GEO GSE/GSM/GPL correspondence and sample-to-column order",
+        "Record assay type, counts versus continuous intensities and transformations",
+        "Require independent subjects and inspect batch, contrasts and multiplicity"
+      ],
+      "access_review": "PENDING",
+      "scientific_review": "PENDING",
+      "data_import": "DISABLED",
+      "auto_statistics": "DISABLED",
+      "public_release": "BLOCKED"
+    },
+    {
+      "id": "ICI-02",
+      "program_id": "ICI",
+      "label": "Tumor immune single-cell metadata and pseudobulk planning",
+      "source_name": "NCBI GEO single-cell series and sample metadata",
+      "source_documentation_url": "https://www.ncbi.nlm.nih.gov/geo/info/soft.html",
+      "source_access_url": "https://www.ncbi.nlm.nih.gov/geo/info/geo_paccess.html",
+      "schema_status": "PRECOOKED_REFERENCE_WORKSPACE_ONLY",
+      "default_objective": "descriptive",
+      "analysis_unit": "cell nested in biological specimen nested in subject",
+      "analysis_family": "single_cell",
+      "variable_roles": [
+        {
+          "role": "series_accession",
+          "type": "text",
+          "purpose": "GEO accession or another verified source series",
+          "required_for_analysis": true,
+          "source_column_hint": "GSE accession"
+        },
+        {
+          "role": "subject_id",
+          "type": "text",
+          "purpose": "Donor/patient identity for biological replication",
+          "required_for_analysis": true,
+          "source_column_hint": "(original subject field)"
+        },
+        {
+          "role": "sample_id",
+          "type": "text",
+          "purpose": "Biospecimen identity; cannot be silently treated as a donor",
+          "required_for_analysis": true,
+          "source_column_hint": "(original sample field)"
+        },
+        {
+          "role": "cell_barcode",
+          "type": "text",
+          "purpose": "Unique within-library cell identity",
+          "required_for_analysis": true,
+          "source_column_hint": "(barcodes often repeat between libraries)"
+        },
+        {
+          "role": "library_id",
+          "type": "text",
+          "purpose": "Library/assay batch",
+          "required_for_analysis": true,
+          "source_column_hint": "(original library field)"
+        },
+        {
+          "role": "cell_type",
+          "type": "category",
+          "purpose": "Cluster/annotation with method provenance",
+          "required_for_analysis": false,
+          "source_column_hint": "(source annotation if validated)"
+        },
+        {
+          "role": "condition",
+          "type": "category",
+          "purpose": "Subject/sample condition",
+          "required_for_analysis": true,
+          "source_column_hint": "(study-specific group assignment)"
+        },
+        {
+          "role": "gene_count",
+          "type": "number",
+          "purpose": "Molecule/gene detection count in correct measurement unit",
+          "required_for_analysis": false,
+          "source_column_hint": "(original count/feature QC)"
+        }
+      ],
+      "method_choices": [
+        {
+          "method": "Pseudobulk design",
+          "preconditions": "Aggregate counts by subject/sample/cell type for group-level inference after independent replication and QC.",
+          "reference_url": "https://doi.org/10.1038/s41467-020-19894-4",
+          "execution": "DISABLED_PENDING_DESIGN_REVIEW"
+        }
+      ],
+      "figure_recipes": [
+        {
+          "figure": "Cell/sample QC distribution",
+          "uncertainty": "Per donor and library, with outliers/mitochondrial or library effects disclosed",
+          "restriction": "Cell-level count does not equal number of independent subjects.",
+          "render_status": "PLAN_ONLY"
+        },
+        {
+          "figure": "Donor-aware composition plot",
+          "uncertainty": "Subject-level cell proportions and uncertainty when applicable",
+          "restriction": "Never show cell-level confidence intervals as biological replication.",
+          "render_status": "PLAN_ONLY"
+        }
+      ],
+      "review_gates": [
+        "Require unique composite library+barcode and nonmissing subject/sample nesting",
+        "Verify dissociation/QC, donor balance, modality, clustering provenance",
+        "Do not fit subject-level comparisons on cells as independent replicates"
+      ],
+      "access_review": "PENDING",
+      "scientific_review": "PENDING",
+      "data_import": "DISABLED",
+      "auto_statistics": "DISABLED",
+      "public_release": "BLOCKED"
+    },
+    {
+      "id": "TEC-01",
+      "program_id": "TEC",
+      "label": "Cancer imaging cohort quality and metadata planning",
+      "source_name": "NCI TCIA collection/DICOM metadata",
+      "source_documentation_url": "https://www.cancerimagingarchive.net/browse-collections/",
+      "source_access_url": "https://www.cancerimagingarchive.net/about-the-cancer-imaging-archive-tcia/",
+      "schema_status": "PRECOOKED_REFERENCE_WORKSPACE_ONLY",
+      "default_objective": "descriptive",
+      "analysis_unit": "imaging examination and series nested within patient",
+      "analysis_family": "imaging",
+      "variable_roles": [
+        {
+          "role": "collection_id",
+          "type": "text",
+          "purpose": "TCIA collection and license/provenance reference",
+          "required_for_analysis": true,
+          "source_column_hint": "(official collection identifier)"
+        },
+        {
+          "role": "patient_group_key",
+          "type": "text",
+          "purpose": "Privacy-preserving analysis linkage, never a raw patient name",
+          "required_for_analysis": true,
+          "source_column_hint": "(approved pseudonymous patient key)"
+        },
+        {
+          "role": "study_uid",
+          "type": "text",
+          "purpose": "StudyInstanceUID in approved environment",
+          "required_for_analysis": true,
+          "source_column_hint": "(DICOM StudyInstanceUID)"
+        },
+        {
+          "role": "series_uid",
+          "type": "text",
+          "purpose": "SeriesInstanceUID unique within study",
+          "required_for_analysis": true,
+          "source_column_hint": "(DICOM SeriesInstanceUID)"
+        },
+        {
+          "role": "modality",
+          "type": "category",
+          "purpose": "CT/MR/PT etc with actual collection availability",
+          "required_for_analysis": true,
+          "source_column_hint": "(DICOM Modality)"
+        },
+        {
+          "role": "acquisition_metadata",
+          "type": "text",
+          "purpose": "Scanner/protocol details without patient identifiers",
+          "required_for_analysis": false,
+          "source_column_hint": "(approved sanitised fields)"
+        },
+        {
+          "role": "annotation_status",
+          "type": "category",
+          "purpose": "Reference-standard availability and source",
+          "required_for_analysis": false,
+          "source_column_hint": "(verified annotation metadata)"
+        }
+      ],
+      "method_choices": [
+        {
+          "method": "CLAIM 2024",
+          "preconditions": "Reporting checklist for medical imaging AI; independent test sets and reference standards require separate design.",
+          "reference_url": "https://doi.org/10.1148/ryai.240300",
+          "execution": "DISABLED_PENDING_DESIGN_REVIEW"
+        }
+      ],
+      "figure_recipes": [
+        {
+          "figure": "Modality/acquisition QC summary",
+          "uncertainty": "Counts grouped at *patient* and exam level plus missingness",
+          "restriction": "Do not expose pixel content or DICOM headers in public outputs.",
+          "render_status": "PLAN_ONLY"
+        },
+        {
+          "figure": "Annotation coverage review",
+          "uncertainty": "Fractions of exams with label/reference standard and uncertainty",
+          "restriction": "Do not claim segmentation accuracy without a validated reference standard.",
+          "render_status": "PLAN_ONLY"
+        }
+      ],
+      "review_gates": [
+        "Confirm collection-by-collection terms, access permissions and imaging modality",
+        "Check study/series/patient cardinality and disclosure-risk metadata",
+        "Require patient-level split before any ML; verify annotation ground truth"
+      ],
+      "access_review": "PENDING",
+      "scientific_review": "PENDING",
+      "data_import": "DISABLED",
+      "auto_statistics": "DISABLED",
+      "public_release": "BLOCKED"
+    }
+  ]
+}

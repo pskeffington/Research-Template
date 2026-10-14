@@ -67,6 +67,37 @@ The [program alignment matrix](references/DARTMOUTH_CANCER_PROGRAM_MATRIX_2026-1
 
 Read [cancer sector deployment guide](docs/CANCER_RESEARCH_SECTOR_CATALOG.md) for source provenance, design gates, and staged implementation order.
 
+### Pre-cooked workspaces for the four cancer research programs
+
+The optional cancer-sector catalog now contains **four reproducible,
+researcher-editable starter recipes** (one per program). These generate a
+blank protocol, variable-role mapping, model preconditions and planned
+figures; **they do not acquire data, fit a model or release outputs**.
+
+~~~bash
+research-template sectors recipes
+
+research-template sectors scaffold \
+  --id SGN-02 \
+  --out artifacts/studies/my-oncology-study
+
+research-template sectors check-scaffold \
+  --root artifacts/studies/my-oncology-study
+~~~
+
+| Sector | Starter ID | Initial configuration |
+| --- | --- | --- |
+| Cancer Population Sciences | CPS-02 | Survey-weighted screening design and uncertainty |
+| Cancer Signaling, Genomes, and Networks | SGN-02 | GEO sample/feature alignment and count/intensity inference gates |
+| Immunology and Cancer Immunotherapy | ICI-02 | Donor/sample/cell nesting and pseudobulk review |
+| Translational Engineering in Cancer | TEC-01 | TCIA patient/study/series hierarchy and imaging QA |
+
+**[Four starter workflows and access requirements](docs/SECTOR_STARTER_RECIPES.md)** —
+all references are independent, based on public source documentation, and
+**not affiliated with or endorsed by Dartmouth Cancer Center**. The
+public README [data access and security notice](docs/DATA_ACCESS_AND_SECURITY.md)
+still governs real datasets.
+
 ## Study Packs — connect published data dictionaries to your own files
 
 The generic core now supports **opt-in, source-qualified Study Packs**.

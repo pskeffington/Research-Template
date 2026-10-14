@@ -45,6 +45,18 @@ jobs:
           research-template sectors plan --id SGN-02
           pytest -q tests/test_study_scaffold.py tests/test_study_packs.py tests/test_sector_catalog.py
           git check-ignore artifacts/onboarding/study.json
+      - name: Generate and validate each public oncology sector starter without research data
+        run: |
+          research-template sectors recipes
+          research-template sectors scaffold --id CPS-02 --out artifacts/starter-cps
+          research-template sectors scaffold --id SGN-02 --out artifacts/starter-sgn
+          research-template sectors scaffold --id ICI-02 --out artifacts/starter-ici
+          research-template sectors scaffold --id TEC-01 --out artifacts/starter-tec
+          for sector in cps sgn ici tec; do
+            research-template sectors check-scaffold --root "artifacts/starter-$sector"
+          done
+          pytest -q tests/test_sector_starters.py
+          git check-ignore artifacts/starter-sgn/VARIABLE_MAPPING.csv
       - name: Execute synthetic demonstration
         run: research-template demo --out artifacts/ci --seed 711 --plots --ml
       - name: Confirm scaffold completeness (not clinical approval)

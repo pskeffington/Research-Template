@@ -27,8 +27,9 @@ and [Dartmouth Cancer Center research programs](https://cancer.dartmouth.edu/sci
 
 ## Pre-staged deployables
 
-*Discovery status:* **14/14 PRESTAGED_METADATA_ONLY, 0/14 oncology
-adapters or analyses approved for execution.** No cancer dataset or model has
+*Discovery status:* **14/14 PRESTAGED_METADATA_ONLY; 4/14 may now generate
+pre-cooked, source-linked draft workspaces; 0/14 oncology adapters or
+analyses approved for execution.** No cancer dataset or model has
 been fetched, compiled or installed. The separate generic NHANES 2017–2018
 component dictionary validator may be useful to investigate certain *risk
 factor* questions, but it does not itself establish a cancer cohort or
@@ -65,6 +66,8 @@ appropriate for an arbitrarily selected dataset. For example, DESeq2
 requires count data; limma requires its relevant expression preparation
 model; CLAIM 2024 addresses AI imaging reporting; STROBE describes
 observational study reporting rather than confounding control.
+
+**New:** [Generate one of four cancer research sector starters](SECTOR_STARTER_RECIPES.md) using `research-template sectors recipes` and `research-template sectors scaffold --id ... --out ...`. These prepare blank variable mappings and method/figure review plans; all actual data access, inference and publication remain disabled.
 
 ## How a researcher uses the catalog
 
