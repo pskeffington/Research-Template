@@ -78,10 +78,11 @@ without uploading or modifying their records:
 research-template pack list
 research-template pack plan --id nhanes-2017-2018
 research-template pack validate --id nhanes-2017-2018 \
-  --table DEMO_J --csv /approved/local/path/DEMO_J.csv
+  --table DEMO_J --csv /approved/local/path/DEMO_J.csv \
+  --confirm-authorized-local-use
 ~~~
 
-**Structural validation is not survey-weighted analysis or publication approval.**
+**Structural validation is not survey-weighted analysis or publication approval.** Before `pack validate` will open a local CSV, researchers must explicitly acknowledge approved local use with `--confirm-authorized-local-use`; the flag does not confer authorization.
 The pack documents SEQN joins, eligibility, units, missing-value codes, and
 the need for researcher-reviewed weights, strata and PSU handling. BRFSS,
 OMOP and GDC are documented as possible future packs, not working adapters.
