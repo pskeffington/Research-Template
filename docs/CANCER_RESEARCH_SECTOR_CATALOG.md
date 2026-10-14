@@ -78,6 +78,7 @@ research-template sectors plan --id TEC-01
 # A *separate*, existing NHANES schema pilot:
 research-template pack list
 research-template pack plan --id nhanes-2017-2018
+# Pack validation requires --confirm-authorized-local-use and approved local storage
 ~~~
 
 - **Sectors** return reference plans and mandatory gate checklists only.
