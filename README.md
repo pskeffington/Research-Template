@@ -39,6 +39,10 @@ storage. When authorization is uncertain, **use synthetic data only**.
 
 ---
 
+## Biomedical AI and RAG literature corpus (October 2026)
+
+The [biomedical AI and retrieval-augmented generation methods guide](docs/BIOMEDICAL_AI_RAG_METHODS.md) and its [27-source machine-readable literature matrix](references/BIOMEDICAL_AI_RAG_LITERATURE_2026-10-14.csv) cover clinical evidence retrieval, agentic medical RAG, computational pathology, single-cell/spatial ML and AI reporting frameworks. These are **scoping references for study design**, not prevalidated code or clinical decision support. Candidate sources and code links remain subject to independent bibliographic, licensing and runtime verification. A regression test guards their provenance/status fields. Restricted health data and externally hosted AI services are governed by the data-access restrictions above.
+
 ## Start a new study in five minutes
 
 Read the [first-project walkthrough](docs/QUICKSTART.md) to install the tool, run a synthetic demonstration, and generate a study-neutral workspace with no clinical or private data.
