@@ -15,7 +15,8 @@ research-template pack list
 research-template pack describe --id nhanes-2017-2018
 research-template pack plan --id nhanes-2017-2018
 research-template pack validate --id nhanes-2017-2018 \
-  --table DEMO_J --csv /approved/local/path/DEMO_J.csv
+  --table DEMO_J --csv /approved/local/path/DEMO_J.csv \
+  --confirm-authorized-local-use
 ~~~
 
 Run the validator separately for ALB_CR_J.csv and KIQ_U_J.csv. It
@@ -24,6 +25,8 @@ an exact cycle-specific filename. Obtain source data legally and convert
 SAS XPT or other supplied formats to CSV in your approved local environment.
 Do not silently recode columns, truncate identifiers, or erase original
 value labels. The pack **does not download data**.
+
+The validation CLI requires `--confirm-authorized-local-use` after the user independently confirms data rights and an approved local computing environment. The flag is a user acknowledgement, **not proof of authorization**. Without the flag the CLI fails before opening the file.
 
 The validator streams the CSV without producing any derived participant
 records. It checks header names, required fields, types, coded categories,
