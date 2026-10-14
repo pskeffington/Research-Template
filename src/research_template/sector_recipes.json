@@ -312,7 +312,7 @@
       "label": "Cancer imaging cohort quality and metadata planning",
       "source_name": "NCI TCIA collection/DICOM metadata",
       "source_documentation_url": "https://www.cancerimagingarchive.net/browse-collections/",
-      "source_access_url": "https://www.cancerimagingarchive.net/collections/",
+      "source_access_url": "https://www.cancerimagingarchive.net/about-the-cancer-imaging-archive-tcia/",
       "schema_status": "PRECOOKED_REFERENCE_WORKSPACE_ONLY",
       "default_objective": "descriptive",
       "analysis_unit": "imaging examination and series nested within patient",
