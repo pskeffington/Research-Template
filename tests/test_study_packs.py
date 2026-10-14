@@ -152,7 +152,8 @@ def test_cli_pack_listing_and_validation(tmp_path, capsys):
     assert json.loads(capsys.readouterr().out)["weighted_inference"] == "NOT_AUTHORIZED"
     path = make_csv(tmp_path, "DEMO_J", [demo_row()])
     assert main([
-        "pack", "validate", "--id", PACK, "--table", "DEMO_J", "--csv", str(path)
+        "pack", "validate", "--id", PACK, "--table", "DEMO_J", "--csv", str(path),
+        "--confirm-authorized-local-use",
     ]) == 0
     output = json.loads(capsys.readouterr().out)
     assert output["status"] == "STRUCTURE_PASS_ANALYSIS_REVIEW_REQUIRED"
@@ -162,6 +163,7 @@ def test_cli_pack_listing_and_validation(tmp_path, capsys):
 def test_cli_invalid_csv_fails_closed(tmp_path, capsys):
     path = make_csv(tmp_path, "DEMO_J", [dict(demo_row(), RIDAGEYR="x")])
     assert main([
-        "pack", "validate", "--id", PACK, "--table", "DEMO_J", "--csv", str(path)
+        "pack", "validate", "--id", PACK, "--table", "DEMO_J", "--csv", str(path),
+        "--confirm-authorized-local-use",
     ]) == 1
     assert json.loads(capsys.readouterr().out)["status"] == "STRUCTURE_BLOCKED"
