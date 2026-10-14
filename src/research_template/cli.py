@@ -5,10 +5,14 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import sys
 from pathlib import Path
 
 from .provenance import create_manifest, save_json
 from .quality import REQUIRED_COLUMNS, validate_cohort
+from .sector_catalog import CatalogError, list_sectors, plan_sector
+from .study import StudyScaffoldError, create_study, validate_study
+from .study_packs import PackError, list_packs, load_pack, plan_pack, validate_csv
 from .synthetic import make_cohort
 
 
@@ -98,10 +102,95 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--seed", type=int, default=711)
     run.add_argument("--plots", action="store_true", help="Requires pip install -e '.[plot]'")
     run.add_argument("--ml", action="store_true", help="Requires pip install -e '.[ml]'")
+    study_packs = commands.add_parser(
+        "pack", help="Browse source-qualified study dictionaries and validate user CSVs"
+    )
+    pack_commands = study_packs.add_subparsers(dest="pack_command", required=True)
+    pack_commands.add_parser("list", help="Show implemented opt-in dictionary packs")
+    details = pack_commands.add_parser("describe", help="View a pack and its source references")
+    details.add_argument("--id", required=True)
+    plan = pack_commands.add_parser("plan", help="Review needed files, joins and weights")
+    plan.add_argument("--id", required=True)
+    verify = pack_commands.add_parser("validate", help="Inspect local CSV schema without copying data")
+    verify.add_argument("--id", required=True)
+    verify.add_argument("--table", required=True)
+    verify.add_argument("--csv", type=Path, required=True)
+    verify.add_argument(
+        "--confirm-authorized-local-use", action="store_true",
+        help="I have independently verified permission and secure local processing",
+    )
+    sectors = commands.add_parser("sectors", help="Browse pre-staged cancer-sector research references")
+    sectors_commands = sectors.add_subparsers(dest="sectors_command", required=True)
+    sectors_list = sectors_commands.add_parser("list", help="List all four programs and deployables")
+    sectors_list.add_argument("--program", choices=("CPS", "SGN", "ICI", "TEC"))
+    sector_plan = sectors_commands.add_parser("plan", help="View a blocked, source-based study plan")
+    sector_plan.add_argument("--id", required=True)
+    create = commands.add_parser(
+        "init-study", help="Create an empty study workspace from researcher input"
+    )
+    create.add_argument("--out", type=Path, required=True)
+    create.add_argument("--title", required=True)
+    create.add_argument(
+        "--objective", choices=("descriptive", "inferential", "predictive"), required=True
+    )
+    create.add_argument("--analysis-unit", required=True)
+    verify = commands.add_parser(
+        "check-study", help="Check a study scaffold, not its scientific validity"
+    )
+    verify.add_argument("--root", type=Path, required=True)
     check = commands.add_parser("audit", help="Check scaffold; scientific release is blocked by default")
     check.add_argument("--root", type=Path, default=Path("."))
     check.add_argument("--require-release", action="store_true", help="Exit nonzero without approved science")
     args = parser.parse_args(argv)
+    if args.command == "init-study":
+        try:
+            project = create_study(
+                args.out, title=args.title, objective=args.objective,
+                analysis_unit=args.analysis_unit,
+            )
+        except (StudyScaffoldError, OSError) as error:
+            print(f"Study initialization blocked: {error}", file=sys.stderr)
+            return 2
+        print(json.dumps({"project_dir": str(project), **validate_study(project)}, indent=2))
+        return 0
+    if args.command == "check-study":
+        report = validate_study(args.root)
+        print(json.dumps(report, indent=2))
+        return 0 if report["scaffold_status"] == "PASS" else 1
+    if args.command == "sectors":
+        try:
+            result = (
+                list_sectors(args.program)
+                if args.sectors_command == "list" else plan_sector(args.id)
+            )
+        except (CatalogError, OSError, ValueError) as error:
+            print(json.dumps({"status": "BLOCKED", "reason": str(error)}, indent=2))
+            return 2
+        print(json.dumps(result, indent=2))
+        return 0
+    if args.command == "pack":
+        try:
+            if args.pack_command == "list":
+                result = list_packs()
+            elif args.pack_command == "describe":
+                result = load_pack(args.id)
+            elif args.pack_command == "plan":
+                result = plan_pack(args.id)
+            else:
+                if not args.confirm_authorized_local_use:
+                    raise PackError(
+                        "Review source permissions and approved storage first. "
+                        "Use --confirm-authorized-local-use only in an authorized environment; "
+                        "this flag does not grant data access."
+                    )
+                result = validate_csv(args.id, args.table, args.csv)
+        except (PackError, OSError, UnicodeError, ValueError) as error:
+            print(json.dumps({"status": "BLOCKED", "reason": str(error)}, indent=2))
+            return 2
+        print(json.dumps(result, indent=2))
+        if args.pack_command == "validate":
+            return 0 if result["status"] == "STRUCTURE_PASS_ANALYSIS_REVIEW_REQUIRED" else 1
+        return 0
     if args.command == "demo":
         demo(args.out, n=args.n, seed=args.seed, plots=args.plots, ml=args.ml)
         return 0

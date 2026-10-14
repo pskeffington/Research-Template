@@ -1,8 +1,8 @@
-# Research Template — Reproducible Biomedical Research Starter
+# Research Template — Reproducible Research Starter
 
 **Author: Paul Skeffington · Prepared with OpenAI**
 
-A reusable, independently written starter repository for biomedical data science, reproducible research, scientific figures, baseline machine learning, and auditable delivery. Everything in the demonstration is **synthetic**. It does not represent patient records, clinical evidence, regulatory qualification, or production-grade diagnostic software.
+A reusable starter repository for biomedical and general data science, reproducible research, scientific figures, baseline machine learning, and auditable delivery. Everything in the demonstration is **synthetic**. It does not represent patient records, clinical evidence, regulatory qualification, or production-grade diagnostic software.
 
 ## Research data access and security — read before importing data
 
@@ -39,9 +39,59 @@ storage. When authorization is uncertain, **use synthetic data only**.
 
 ---
 
-## R/tidyverse coding standard — preferred for biomedical studies
+## Start a new study in five minutes
 
-The R research workflow follows the [whole-repository coding contract](docs/CODING_CONVENTIONS.md), [local coding conventions](docs/CODING_CONVENTIONS.md), the [R style contract](R/STYLE_GUIDE.md), and the [complete R function sheet](R/README.md). It preserves original source names, uses snake_case analysis fields, explicit native `|>` with `dplyr` and `tidyr`, audited join cardinality, clear missing-value denominators, and layered `ggplot2` grammar.
+Read the [first-project walkthrough](docs/QUICKSTART.md) to install the tool, run a synthetic demonstration, and generate a study-neutral workspace with no clinical or private data.
+
+~~~bash
+python -m pip install -e '.[all]'
+research-template demo --out artifacts/demo --plots --ml
+research-template init-study --out artifacts/studies/my-study \
+  --title "My Research Question" --objective descriptive \
+  --analysis-unit "one observation per sample"
+research-template check-study --root artifacts/studies/my-study
+~~~
+
+The initializer produces a blank protocol, variable dictionary, source register, and explicitly blocked release state. It refuses to overwrite an existing directory; the structural checker cannot authorize scientific conclusions or publication.
+## Publicly documented cancer research sectors
+
+The optional catalog maps the **four Dartmouth Cancer Center research programs** to independent public dataset reference plans. It is an external thematic index, not a Dartmouth-created package, collaboration, affiliation or institutional endorsement. No institutional data, private research records or copyrighted code are included.
+
+```bash
+research-template sectors list
+research-template sectors list --program SGN
+research-template sectors plan --id TEC-01
+```
+
+The [program alignment matrix](references/DARTMOUTH_CANCER_PROGRAM_MATRIX_2026-10-13.csv), [14-deployable literature matrix](references/DARTMOUTH_CANCER_DEPLOYABLE_LITERATURE_MATRIX_2026-10-13.csv), and [methods/reporting bibliography](references/DARTMOUTH_CANCER_METHODS_MATRIX_2026-10-13.csv) are preloaded. **All 14 candidates are metadata-only** pending independent schema, licensing, methods, and scientific validation. The already separate NHANES Study Pack remains the only implemented CSV structure-validation pilot.
+
+Read [cancer sector deployment guide](docs/CANCER_RESEARCH_SECTOR_CATALOG.md) for source provenance, design gates, and staged implementation order.
+
+## Study Packs — connect published data dictionaries to your own files
+
+The generic core now supports **opt-in, source-qualified Study Packs**.
+The first implementation recognizes three CDC NHANES 2017–2018 files and can
+check your local CSVs against their published variables and coding rules
+without uploading or modifying their records:
+
+~~~bash
+research-template pack list
+research-template pack plan --id nhanes-2017-2018
+research-template pack validate --id nhanes-2017-2018 \
+  --table DEMO_J --csv /approved/local/path/DEMO_J.csv \
+  --confirm-authorized-local-use
+~~~
+
+**Structural validation is not survey-weighted analysis or publication approval.** Before `pack validate` will open a local CSV, researchers must explicitly acknowledge approved local use with `--confirm-authorized-local-use`; the flag does not confer authorization.
+The pack documents SEQN joins, eligibility, units, missing-value codes, and
+the need for researcher-reviewed weights, strata and PSU handling. BRFSS,
+OMOP and GDC are documented as possible future packs, not working adapters.
+Read the [Study Pack guide](docs/STUDY_PACKS.md) for source links, limits
+and development gates.
+
+## R/tidyverse coding standard — optional workflow
+
+The R research workflow follows the [whole-repository coding contract](docs/CODING_CONVENTIONS.md), the [R style contract](R/STYLE_GUIDE.md), and the [complete R function sheet](R/README.md). It preserves original source names, uses snake_case analysis fields, explicit native `|>` with `dplyr` and `tidyr`, audited join cardinality, clear missing-value denominators, and layered `ggplot2` grammar.
 
 ```r
 source("R/research_tidy.R")
