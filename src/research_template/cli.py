@@ -115,6 +115,10 @@ def main(argv: list[str] | None = None) -> int:
     verify.add_argument("--id", required=True)
     verify.add_argument("--table", required=True)
     verify.add_argument("--csv", type=Path, required=True)
+    verify.add_argument(
+        "--confirm-authorized-local-use", action="store_true",
+        help="I have independently verified permission and secure local processing",
+    )
     sectors = commands.add_parser("sectors", help="Browse pre-staged cancer-sector research references")
     sectors_commands = sectors.add_subparsers(dest="sectors_command", required=True)
     sectors_list = sectors_commands.add_parser("list", help="List all four programs and deployables")
@@ -173,6 +177,12 @@ def main(argv: list[str] | None = None) -> int:
             elif args.pack_command == "plan":
                 result = plan_pack(args.id)
             else:
+                if not args.confirm_authorized_local_use:
+                    raise PackError(
+                        "Review source permissions and approved storage first. "
+                        "Use --confirm-authorized-local-use only in an authorized environment; "
+                        "this flag does not grant data access."
+                    )
                 result = validate_csv(args.id, args.table, args.csv)
         except (PackError, OSError, UnicodeError, ValueError) as error:
             print(json.dumps({"status": "BLOCKED", "reason": str(error)}, indent=2))
