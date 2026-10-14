@@ -33,6 +33,18 @@ jobs:
         run: pytest -q
       - name: Validate sourced journal policies and reporting-guideline applicability
         run: python -m unittest discover -s scripts/tests -p 'test_journal_policy_matrix.py' -v
+      - name: Verify opt-in study initializer, secured output paths and research-sector catalog
+        run: |
+          research-template init-study --out artifacts/onboarding \
+            --title "Independent Test Study" --objective descriptive \
+            --analysis-unit "one observation"
+          research-template check-study --root artifacts/onboarding
+          research-template pack list
+          research-template pack plan --id nhanes-2017-2018
+          research-template sectors list
+          research-template sectors plan --id SGN-02
+          pytest -q tests/test_study_scaffold.py tests/test_study_packs.py tests/test_sector_catalog.py
+          git check-ignore artifacts/onboarding/study.json
       - name: Execute synthetic demonstration
         run: research-template demo --out artifacts/ci --seed 711 --plots --ml
       - name: Confirm scaffold completeness (not clinical approval)

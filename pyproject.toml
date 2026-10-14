@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "research-template-kit"
-version = "0.1.0"
-description = "Reproducible research starter with synthetic examples, plotting and optional machine learning"
+version = "0.2.0"
+description = "Study-neutral research starter with opt-in metadata packs and synthetic examples"
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
@@ -24,6 +24,9 @@ research-template = "research_template.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+research_template = ["packs/*.json", "sector_catalog.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

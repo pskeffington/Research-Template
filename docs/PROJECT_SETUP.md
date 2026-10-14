@@ -1,5 +1,11 @@
 # Set up a new research project
 
+Begin with the [five-minute walkthrough](QUICKSTART.md). Use `research-template init-study` to create a **blank** source register, protocol and variable dictionary. 
+
+Use `research-template pack list` for optional published-data dictionary schemas, or `research-template sectors list` to browse oncology reference plans. These are metadata aids, not data-use permits or approved analysis models.
+
+Before any real data is copied or processed, follow [the required access and security guide](DATA_ACCESS_AND_SECURITY.md). A local `data/` or `private/` folder and Git ignore settings are **not** approved secure storage.
+
 Use this as a working procedure, not a substitute for a study-specific approved protocol.
 
 1. **Frame the question.** Define population, observation unit, predictor/exposure, outcome, time horizon, purpose and whether the objective is descriptive, inferential or predictive.
