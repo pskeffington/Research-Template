@@ -107,3 +107,7 @@ access controls.
 ## Cancer-sector research discovery catalog
 
 The optional [Cancer Research Sector Catalog](CANCER_RESEARCH_SECTOR_CATALOG.md) lists 14 source-qualified deployment *candidates* grouped by four publicly documented Dartmouth Cancer Center research themes. View them with `research-template sectors list`, choose one with `sectors plan --id ...`, then obtain and validate the specific source dictionary in a separate approved project. All entries are metadata-only plans. They never download data, assume journal approval, or execute statistical models. The sector matrix is an independent public-source index, not a Dartmouth collaboration or study-specific dataset.
+
+## Sector-aligned pre-cooked reference workspaces
+
+Researchers can now create blank draft projects for one of four cancer research themes (CPS-02, SGN-02, ICI-02, TEC-01) using `research-template sectors scaffold`. See [the independent sector starter guide](SECTOR_STARTER_RECIPES.md). This is distinct from an executable Study Pack data adapter: 4/14 sector templates are scaffoldable, while source-specific cancer data ingestion, modeling and publication remain blocked.
