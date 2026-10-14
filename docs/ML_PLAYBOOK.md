@@ -41,3 +41,7 @@ This CPU-only demonstration sets a seed and trains a tiny network with training-
 - [ ] Model artifact sensitivity and allowed publication reviewed
 
 Relevant primary references: [scikit-learn common pitfalls](https://scikit-learn.org/stable/common_pitfalls.html), [model evaluation](https://scikit-learn.org/stable/modules/model_evaluation.html), [TRIPOD+AI](https://doi.org/10.1136/bmj-2023-078378), [PROBAST+AI](https://doi.org/10.1136/bmj-2024-082505), [PyTorch reproducibility](https://pytorch.org/docs/stable/notes/randomness.html).
+
+## Biomedical AI, RAG and foundation-model literature
+
+Use the [dated biomedical AI/RAG evidence-to-code guide](BIOMEDICAL_AI_RAG_METHODS.md) with the [27-record source register](../references/BIOMEDICAL_AI_RAG_LITERATURE_2026-10-14.csv) when planning biomedical document retrieval, language-model evaluation, pathology ML, or single-cell/spatial modeling. The register labels verified publisher records separately from unverified candidate citations; no upstream implementation has been locally reproduced or licensed for redistribution in this pass. All clinical evaluation and data-release gates above remain in force.
