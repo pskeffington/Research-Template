@@ -29,7 +29,7 @@ def test_blank_study_and_pack_plan_do_not_grant_access(tmp_path, capsys):
     plan = json.loads(capsys.readouterr().out)
     assert plan["weighted_inference"] == "NOT_AUTHORIZED"
     assert plan["data_ingestion"] == "USER_CONTROLLED_NOT_EXECUTED"
-    assert not any((study / folder).iterdir() for folder in ("data", "outputs", "private"))
+    assert all(not any((study / folder).iterdir()) for folder in ("data", "outputs", "private"))
     assert main(["sectors", "plan", "--id", "SGN-02"]) == 0
     reference = json.loads(capsys.readouterr().out)
     assert reference["analysis_execution"] == "DISABLED"
@@ -48,3 +48,17 @@ def test_new_study_explains_security_and_release_gate(tmp_path):
     assert "approved protected storage" in readme
     assert "Data-source permissions independently reviewed" in protocol
     assert "Privacy and publication approvals recorded" in protocol
+
+
+def test_local_csv_review_requires_explicit_security_acknowledgement(tmp_path, capsys):
+    filename = tmp_path / "DEMO_J.csv"
+    filename.write_text("SEQN\n90001\n", encoding="utf-8")
+    assert main([
+        "pack", "validate", "--id", "nhanes-2017-2018",
+        "--table", "DEMO_J", "--csv", str(filename),
+    ]) == 2
+    blocked = json.loads(capsys.readouterr().out)
+    assert blocked["status"] == "BLOCKED"
+    assert "confirm-authorized-local-use" in blocked["reason"]
+    # No raw data or participant values were emitted.
+    assert "90001" not in json.dumps(blocked)
