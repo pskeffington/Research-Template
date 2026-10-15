@@ -56,6 +56,10 @@ The command uses a fabricated corpus and reports retrieval metrics and negative 
 
 Use the [caret biomedical ML coding guide](docs/CARET_RESEARCH_WORKFLOW.md) with the [independent R implementation](R/research_caret.R) to train a synthetic grouped classifier and explicitly compare cross-validation estimates against an untouched subject-level test set. The [source register](references/LITERATURE_MATRIX.csv) records Kuhn's 2008 methods paper, the CRAN package and official guidance on splitting, training, and evaluation. Source the module and call `run_synthetic_caret_example()` only in an environment where the optional `caret` and `pROC` dependencies are installed. This does not make the template a clinical diagnostic tool.
 
+### Algorithm catalogs and essential R coding mechanics
+
+The [caret algorithm and model-selection catalog](docs/CARET_ALGORITHM_CATALOG.md) links 20 officially registered methods to exact tuning parameters, runtime dependencies, biomedical use cases and leakage safeguards. The [machine-readable 20-model index](references/CARET_MODEL_METHODS_2026-10-15.csv) is checked against a pinned upstream caret model manual; metadata availability does **not** mean those models have been fitted. The [essential R programming mechanics guide](docs/R_PROGRAMMING_MECHANICS.md) covers atomic vectors, named lists, exact `[[` extraction, factors, formulas, matrices, data frames, `lapply()`/`vapply()`, grouped fold indices, missing data and scientific-error contracts. Run `Rscript --vanilla R/tests/test_caret_algorithm_catalog.R` for model-metadata QA in a caret-enabled R environment. All new materials are independently authored and synthetic-only.
+
 ## Start a new study in five minutes
 
 Read the [first-project walkthrough](docs/QUICKSTART.md) to install the tool, run a synthetic demonstration, and generate a study-neutral workspace with no clinical or private data.
