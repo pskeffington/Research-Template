@@ -92,6 +92,8 @@ jobs:
         run: Rscript --vanilla R/tests/test_tidy_workflow.R
       - name: Validate caret grouped classification and holdout metrics
         run: Rscript --vanilla R/tests/test_caret_workflow.R
+      - name: Audit pinned caret algorithm metadata, lists and tuning grids
+        run: Rscript --vanilla R/tests/test_caret_algorithm_catalog.R
       - name: Test R summary and scientific plots
         run: Rscript --vanilla R/tests/test_research_plots.R
       - name: Test manuscript PDF and PNG delivery
