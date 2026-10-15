@@ -44,4 +44,8 @@ Relevant primary references: [scikit-learn common pitfalls](https://scikit-learn
 
 ## Biomedical AI, RAG and foundation-model literature
 
-Use the [dated biomedical AI/RAG evidence-to-code guide](BIOMEDICAL_AI_RAG_METHODS.md) with the [27-record source register](../references/BIOMEDICAL_AI_RAG_LITERATURE_2026-10-14.csv) when planning biomedical document retrieval, language-model evaluation, pathology ML, or single-cell/spatial modeling. The register labels verified publisher records separately from unverified candidate citations; no upstream implementation has been locally reproduced or licensed for redistribution in this pass. All clinical evaluation and data-release gates above remain in force.
+Use the [dated biomedical AI/RAG evidence-to-code guide](BIOMEDICAL_AI_RAG_METHODS.md) with the [28-record source register](../references/BIOMEDICAL_AI_RAG_LITERATURE_2026-10-14.csv) when planning biomedical document retrieval, language-model evaluation, pathology ML, or single-cell/spatial modeling. The register labels verified publisher records separately from unverified candidate citations; no upstream implementation has been locally reproduced or licensed for redistribution in this pass. All clinical evaluation and data-release gates above remain in force.
+
+## R caret: optional classification and regression training
+
+Use the [caret coding and source guide](CARET_RESEARCH_WORKFLOW.md) and `R/research_caret.R` for an independently authored, synthetic repeated-subject classification example. The source review covers [Kuhn (2008)](https://doi.org/10.18637/jss.v028.i05) and official CRAN/caret references. Grouped holdout and grouped CV, fold-local preprocessing, class-level ordering, and untouched test-set confusion metrics are mandatory. `caret` is an optional maintenance-mode R package, not an RAG implementation. No clinical claim follows from the synthetic demonstration.
