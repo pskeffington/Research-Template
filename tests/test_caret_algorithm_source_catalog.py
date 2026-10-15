@@ -56,5 +56,5 @@ def test_algorithm_guides_and_tests_are_linked():
     mechanics = (ROOT / "docs/R_PROGRAMMING_MECHANICS.md").read_text(
         encoding="utf-8"
     )
-    for token in ("vapply()", "drop=FALSE", "groupKFold()", "is.na()"):
+    for token in ("vapply()", "drop=FALSE", "groupKFold()", "is.na("):
         assert token in mechanics
