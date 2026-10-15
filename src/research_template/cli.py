@@ -108,6 +108,11 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--seed", type=int, default=711)
     run.add_argument("--plots", action="store_true", help="Requires pip install -e '.[plot]'")
     run.add_argument("--ml", action="store_true", help="Requires pip install -e '.[ml]'")
+    rag = commands.add_parser(
+        "rag-demo", help="Synthetic-only lexical retrieval evaluation (no LLM)"
+    )
+    rag.add_argument("--out", type=Path, default=Path("artifacts/rag/retrieval.json"))
+    rag.add_argument("--top-k", type=int, default=2)
     study_packs = commands.add_parser(
         "pack", help="Browse source-qualified study dictionaries and validate user CSVs"
     )
@@ -161,6 +166,12 @@ def main(argv: list[str] | None = None) -> int:
     check.add_argument("--root", type=Path, default=Path("."))
     check.add_argument("--require-release", action="store_true", help="Exit nonzero without approved science")
     args = parser.parse_args(argv)
+    if args.command == "rag-demo":
+        from .retrieval_eval import main as run_retrieval_demo
+
+        return run_retrieval_demo(
+            ["--out", str(args.out), "--top-k", str(args.top_k)]
+        )
     if args.command == "init-study":
         try:
             project = create_study(
