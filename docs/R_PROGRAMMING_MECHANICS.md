@@ -147,6 +147,8 @@ stopifnot(audit[["scientific_release_status"]] == "BLOCKED")
 
 The package's `modelLookup()` enumerates parameters, classification/regression compatibility and whether class probabilities are supported. `getModelInfo()` gives the underlying named list, packages, tuning metadata and implementation functions. Neither invocation trains a model. If a model method exists but `train()` cannot run, inspect optional package dependencies and data types; do not automatically install packages from a script run or change the training method.
 
+**Untuned method handling:** Some legacy `caret` wrappers expose a registry placeholder named `parameter` despite declaring no true tuning arguments. The callable catalog normalizes this documented case for `null`, `glm`, `lda`, and `qda` only. Do not mistake an internal placeholder for a scientific hyperparameter or automatically relax other source-versus-runtime mismatches.
+
 ## Reproducibility and benchmark mechanics
 
 | Stage | Required code-level behavior | Test |
