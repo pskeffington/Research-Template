@@ -4,7 +4,7 @@
 
 ## Corpus and claim boundaries
 
-The [27-source literature matrix](../references/BIOMEDICAL_AI_RAG_LITERATURE_2026-10-14.csv) separates peer-reviewed experimental papers, benchmarks, reviews, and reporting standards. The fields `bibliography_status`, `code_link_status`, `rights_review`, and `local_execution_status` distinguish bibliographic discovery from paper/code verification and actual replication. **All 27 DOI/title/year/lead-author records were checked against primary publication pages or official scholarly indexes on 2026-10-14; this was metadata verification, not full-text study appraisal. None has been locally reproduced.** An upstream GitHub link does not establish license clearance, permitted model-weight use, package safety, or verification that a paper's results can be reproduced.
+The [28-source literature matrix](../references/BIOMEDICAL_AI_RAG_LITERATURE_2026-10-14.csv) separates peer-reviewed experimental papers, benchmarks, reviews, and reporting standards. The fields `bibliography_status`, `code_link_status`, `rights_review`, and `local_execution_status` distinguish bibliographic discovery from paper/code verification and actual replication. **All 28 DOI/title/year/lead-author records were checked against primary publication pages or official scholarly indexes on 2026-10-14; this was metadata verification, not full-text study appraisal. None has been locally reproduced.** An upstream GitHub link does not establish license clearance, permitted model-weight use, package safety, or verification that a paper's results can be reproduced.
 
 ### Source-to-code decision table
 
@@ -110,10 +110,14 @@ weights.
 
 ## Next gates
 
-- **G0 (metadata complete):** All 27 DOI/title/year/lead-author records checked 2026-10-14; full-text methods extraction and version-specific source appraisal still pending.
-- **G1 (links complete, rights pending):** All 12 public repository URLs resolve; exact revisions, code and model-weight licenses still require separate review. Do not vendor upstream code without permission.
+- **G0 (metadata complete):** All 28 DOI/title/year/lead-author records checked 2026-10-14; full-text methods extraction and version-specific source appraisal still pending.
+- **G1 (links complete, rights pending):** All 13 public repository URLs resolve; exact revisions, code and model-weight licenses still require separate review. Do not vendor upstream code without permission.
 - **G2 (implemented, CI pending):** Synthetic positive/negative relevance labels, deterministic BM25 baseline, source-family split tests and CLI have been added; CI must pass before the gate closes.
 - **G3:** Add repeatable evaluation harness, uncertainty estimates, expert-grounding rubric, prompt-injection regression tests and drift/retrieval observability.
 - **G4:** Require independent scientific and legal/IRB review for any actual biomedical data, clinical claims or clinical deployment.
 
 **Current disposition:** Bibliography extension only. **Not reproduced, not clinically validated, not approved for medical use.**
+
+### Classical R machine learning and caret
+
+The [caret research workflow](CARET_RESEARCH_WORKFLOW.md) adds a sourced, optional R classification path using a grouped holdout, `caret::train()`, `caret::groupKFold()`, fold-local preprocessing and carefully labeled `caret::confusionMatrix()` results. This supervised-model workflow is distinct from retrieval-augmented generation; the Kuhn (2008) methods source is included in this broader biomedical ML register as `BML-011`. A running synthetic example does not reproduce or validate a published clinical model.
