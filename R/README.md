@@ -118,3 +118,24 @@ Use the generic `rt_complex_heatmap()` for feature-by-sample matrices when its i
 For any publication-facing graphic, record the analysis unit, original units, transformations, all explicit color-scale decisions, source version and figure review status. Export with `rt_manuscript_export()`, inspect the physical PDF and PNG, and retain the generated metadata alongside the figure.
 
 See [the manuscript-delivery guide](../docs/MANUSCRIPT_VISUALIZATION_DELIVERY.md) for study-neutral examples and [the complete call sheet](../docs/FUNCTION_CALL_SHEET.md) for functions and required inputs.
+
+## Algorithms and programming reference
+
+The [20-method caret algorithm catalog](../docs/CARET_ALGORITHM_CATALOG.md), [essential R coding mechanics guide](../docs/R_PROGRAMMING_MECHANICS.md), and [source-qualified CSV index](../references/CARET_MODEL_METHODS_2026-10-15.csv) give exact method identifiers, algorithm families, package requirements, tunable parameters, R list/data-frame contracts and biomedical evaluation boundaries. Source `R/caret_algorithm_catalog.R` to inspect the installed `caret` model registry; no model is trained or installed by that file. The separate `R/research_caret.R` below is the executable, synthetic-only classifier.
+
+## Optional caret: grouped classification and test-set reporting
+
+The independently authored [caret methods and literature guide](../docs/CARET_RESEARCH_WORKFLOW.md) documents the primary [Kuhn (2008) software-methods article](https://doi.org/10.18637/jss.v028.i05), CRAN version, train/test leakage controls and class-dependent confusion-matrix interpretation.
+
+With **optional** packages `caret` and `pROC` installed, run the entirely simulated example:
+
+~~~r
+source("R/research_caret.R")
+results <- run_synthetic_caret_example(seed = 711L)
+print(results$fold_audit)
+print(results$confusion_matrix$table)
+print(results$holdout_metrics)
+stopifnot(results$n_shared_subjects == 0L)
+~~~
+
+This code splits 80 simulated subjects before using 5-fold, **group-aware** cross-validation for logistic regression. It excludes IDs and visit indices from model predictors, fits median imputation and numeric transforms within training folds, and assesses held-out sensitivity, specificity, PPV, NPV, balanced accuracy, AUROC and Brier score. Results are synthetic and internally validated only; no patient data or external diagnostic claim. An untuned final test set must never be used as a training or resampling set. See `R/tests/test_caret_workflow.R` for positive and negative quality checks.

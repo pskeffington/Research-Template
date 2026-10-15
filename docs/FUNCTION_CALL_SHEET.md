@@ -362,6 +362,50 @@ Load `R/research_tidy.R`, `R/research_plots.R`, and the relevant module. The ful
 Preserve exact user-provided variable casing and source identifier labels.
 
 
+## R algorithm registry, lists and model-specific tuning discovery
+
+The [caret algorithm reference](CARET_ALGORITHM_CATALOG.md) and [R-language mechanics guide](R_PROGRAMMING_MECHANICS.md) explain exact `train(method=...)` identifiers and the difference between extracting a scalar from a named list and retaining a sublist. The source-locked [20-method CSV registry](../references/CARET_MODEL_METHODS_2026-10-15.csv) is checked against `caret::getModelInfo()` at runtime, **without fitting models**.
+
+| Function | Contract | Failure boundary |
+| --- | --- | --- |
+| `rt_read_caret_algorithm_catalog(path)` | Explicit local CSV read returning typed data frame | Reject malformed fields, duplicate methods or unsupported provenance status |
+| `rt_select_caret_algorithms(catalog, task, family)` | Task/family-filtered model metadata | No implicit package installation |
+| `rt_caret_runtime_metadata(methods)` | `caret::getModelInfo()` task, packages, tuning fields and probability flags | Reject unregistered method or missing `caret` package |
+| `rt_audit_caret_algorithm_catalog(catalog)` | Named `list(status, differences, runtime, caret_version, ...)` | Metadata only; release always `BLOCKED` |
+| `rt_check_caret_tuning_grid(method, grid)` | Validate exact hyperparameter names without model fitting | Reject unknown/duplicated/invalid grids |
+
+~~~r
+source("R/caret_algorithm_catalog.R")
+registry <- rt_read_caret_algorithm_catalog()
+models <- rt_select_caret_algorithms(registry, task = "classification")
+audit <- rt_audit_caret_algorithm_catalog(registry)
+stopifnot(audit[["status"]] == "CATALOG_RUNTIME_METADATA_PASS")
+print(models[, c("method", "tuning_parameters"), drop = FALSE])
+~~~
+
+## Optional R caret model and audit calls
+
+The [caret methodology guide](CARET_RESEARCH_WORKFLOW.md) contains the primary citations, package/version notes and leakage controls. This research software module is deliberately **not** loaded by the default plotting runtime, and has no side effects when sourced.
+
+| Call | Return and expected behavior | Contract |
+| --- | --- | --- |
+| `make_synthetic_caret_cohort(n_subjects = 80L, visits = 3L, seed = 711L)` | Invented 80-subject longitudinal-shaped frame | No real records; positive class is explicitly `Impaired` |
+| `validate_caret_research_data(data, group_col, outcome_col, predictors, positive_class)` | Input and subject-label assertions | Stops missing group IDs, conflicting labels, invalid target factor and bad predictors |
+| `run_grouped_caret_classifier(data, ...)` | In-memory model, group-CV audits, test confusion matrix and metrics | Zero group overlap in holdout and folds; preprocessing only within training; holdout not used for tuning |
+| `run_synthetic_caret_example(seed = 711L)` | End-to-end demonstration using invented measurements | Status `SYNTHETIC_DEMONSTRATION_ONLY`; `scientific_release_status=BLOCKED` |
+
+~~~r
+source("R/research_caret.R")
+demo <- run_synthetic_caret_example(seed = 711L)
+print(demo$confusion_matrix$table)
+print(demo$holdout_metrics[c(
+  "sensitivity", "specificity", "ppv", "npv", "balanced_accuracy"
+)])
+stopifnot(demo$n_shared_subjects == 0L)
+~~~
+
+An explicit `caret::confusionMatrix(data = predicted, reference = observed, positive = "Impaired")` distinguishes event sensitivity from specificity. Its result cannot substitute for external validation, prevalence-shift analysis or cluster-aware uncertainty; see the [ML playbook](ML_PLAYBOOK.md).
+
 ## Custom study extensions
 
 The public calls above accept general numeric, categorical, longitudinal, sample-by-feature, and externally fitted estimate data. Use them only where the data match the documented input contract. A new study should implement its own local schema validators, scientific estimands, source/version pins, group ordering, figure captions, and release approvals.

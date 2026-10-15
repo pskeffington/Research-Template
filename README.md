@@ -39,6 +39,27 @@ storage. When authorization is uncertain, **use synthetic data only**.
 
 ---
 
+## Biomedical AI and RAG literature corpus (October 2026)
+
+The [biomedical AI and retrieval-augmented generation methods guide](docs/BIOMEDICAL_AI_RAG_METHODS.md) and its [28-source machine-readable literature matrix](references/BIOMEDICAL_AI_RAG_LITERATURE_2026-10-14.csv) cover clinical evidence retrieval, agentic medical RAG, computational pathology, single-cell/spatial ML and AI reporting frameworks.
+
+The [dated source-verification ledger](docs/BIOMEDICAL_AI_RAG_SOURCE_AUDIT.md) records publisher/index checks of all 28 references, 13 resolvable upstream repository URLs and author/title corrections. This is metadata verification only, not license clearance or scientific reproduction. A dependency-free, **synthetic-only lexical retrieval baseline** can be run after installation:
+
+~~~bash
+research-template rag-demo --out artifacts/rag/synthetic_retrieval.json --top-k 2
+~~~
+
+The command uses a fabricated corpus and reports retrieval metrics and negative controls; it does **not** call an LLM, ingest biomedical records, or generate clinical recommendations. These are **scoping references for study design**, not prevalidated code or clinical decision support. Candidate sources and code links remain subject to independent bibliographic, licensing and runtime verification. A regression test guards their provenance/status fields. Restricted health data and externally hosted AI services are governed by the data-access restrictions above.
+
+
+### Optional R `caret` supervised-learning pathway
+
+Use the [caret biomedical ML coding guide](docs/CARET_RESEARCH_WORKFLOW.md) with the [independent R implementation](R/research_caret.R) to train a synthetic grouped classifier and explicitly compare cross-validation estimates against an untouched subject-level test set. The [source register](references/LITERATURE_MATRIX.csv) records Kuhn's 2008 methods paper, the CRAN package and official guidance on splitting, training, and evaluation. Source the module and call `run_synthetic_caret_example()` only in an environment where the optional `caret` and `pROC` dependencies are installed. This does not make the template a clinical diagnostic tool.
+
+### Algorithm catalogs and essential R coding mechanics
+
+The [caret algorithm and model-selection catalog](docs/CARET_ALGORITHM_CATALOG.md) links 20 officially registered methods to exact tuning parameters, runtime dependencies, biomedical use cases and leakage safeguards. The [machine-readable 20-model index](references/CARET_MODEL_METHODS_2026-10-15.csv) is checked against a pinned upstream caret model manual; metadata availability does **not** mean those models have been fitted. The [essential R programming mechanics guide](docs/R_PROGRAMMING_MECHANICS.md) covers atomic vectors, named lists, exact `[[` extraction, factors, formulas, matrices, data frames, `lapply()`/`vapply()`, grouped fold indices, missing data and scientific-error contracts. Run `Rscript --vanilla R/tests/test_caret_algorithm_catalog.R` for model-metadata QA in a caret-enabled R environment. All new materials are independently authored and synthetic-only.
+
 ## Start a new study in five minutes
 
 Read the [first-project walkthrough](docs/QUICKSTART.md) to install the tool, run a synthetic demonstration, and generate a study-neutral workspace with no clinical or private data.
