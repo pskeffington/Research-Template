@@ -4,7 +4,7 @@
 
 ## Corpus and claim boundaries
 
-The [28-source literature matrix](../references/BIOMEDICAL_AI_RAG_LITERATURE_2026-10-14.csv) separates peer-reviewed experimental papers, benchmarks, reviews, and reporting standards. The fields `bibliography_status`, `code_link_status`, `rights_review`, and `local_execution_status` distinguish bibliographic discovery from paper/code verification and actual replication. **All 28 DOI/title/year/lead-author records were checked against primary publication pages or official scholarly indexes on 2026-10-14; this was metadata verification, not full-text study appraisal. None has been locally reproduced.** An upstream GitHub link does not establish license clearance, permitted model-weight use, package safety, or verification that a paper's results can be reproduced.
+The [28-source literature matrix](../references/BIOMEDICAL_AI_RAG_LITERATURE_2026-10-14.csv) separates peer-reviewed experimental papers, benchmarks, reviews, and reporting standards. The fields `bibliography_status`, `code_link_status`, `rights_review`, and `local_execution_status` distinguish bibliographic discovery from paper/code verification and actual replication. **The first 27 DOI/title/year/lead-author records were checked against primary publication pages or official scholarly indexes on 2026-10-14; the caret methods article was checked on 2026-10-15; this was metadata verification, not full-text study appraisal. None has been locally reproduced.** An upstream GitHub link does not establish license clearance, permitted model-weight use, package safety, or verification that a paper's results can be reproduced.
 
 ### Source-to-code decision table
 
@@ -110,7 +110,7 @@ weights.
 
 ## Next gates
 
-- **G0 (metadata complete):** All 28 DOI/title/year/lead-author records checked 2026-10-14; full-text methods extraction and version-specific source appraisal still pending.
+- **G0 (metadata complete):** All 28 DOI/title/year/lead-author records checked across 2026-10-14 and 2026-10-15; full-text methods extraction and version-specific source appraisal still pending.
 - **G1 (links complete, rights pending):** All 13 public repository URLs resolve; exact revisions, code and model-weight licenses still require separate review. Do not vendor upstream code without permission.
 - **G2 (implemented, CI pending):** Synthetic positive/negative relevance labels, deterministic BM25 baseline, source-family split tests and CLI have been added; CI must pass before the gate closes.
 - **G3:** Add repeatable evaluation harness, uncertainty estimates, expert-grounding rubric, prompt-injection regression tests and drift/retrieval observability.
