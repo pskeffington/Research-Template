@@ -6,7 +6,9 @@ documents <- c(
   "R/README.md",
   "R/STYLE_GUIDE.md",
   "docs/FUNCTION_CALL_SHEET.md",
-  "docs/CODING_CONVENTIONS.md"
+  "docs/CODING_CONVENTIONS.md",
+  "docs/CARET_ALGORITHM_CATALOG.md",
+  "docs/R_PROGRAMMING_MECHANICS.md"
 )
 n_blocks <- 0L
 for (file in documents) {
