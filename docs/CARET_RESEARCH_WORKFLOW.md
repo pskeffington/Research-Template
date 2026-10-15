@@ -3,6 +3,8 @@
 **Author:** Paul Skeffington · **Prepared with OpenAI** · **Source review:** 2026-10-15  
 **Scope:** Independently written methods and a runnable, invented-data example. Neither a clinical prediction study nor a reproducibility claim about upstream models.
 
+For a full inventory of supervised algorithms and their exact `train(method=...)` names, consult the [caret algorithm catalog](CARET_ALGORITHM_CATALOG.md) and [20-method CSV registry](../references/CARET_MODEL_METHODS_2026-10-15.csv). The companion [essential R coding mechanics guide](R_PROGRAMMING_MECHANICS.md) explains lists, types, indexing, formulas, tuning grids and fail-closed group checks. The catalog is a documentation/discovery aid; only the logistic-regression synthetic demonstration below performs a model fit.
+
 ## Evidence and software provenance
 
 | Evidence | Verified primary reference | Correct interpretation and adoption |
