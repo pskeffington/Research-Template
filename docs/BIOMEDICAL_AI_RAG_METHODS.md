@@ -57,11 +57,62 @@ This interface is a **future design contract**; no runnable `rag-evaluate` comma
 
 Use **TRIPOD+AI / PROBAST+AI** for clinical prediction-model reporting/appraisal, **STARD-AI** for diagnostic accuracy, and **TRIPOD-LLM / applicable LLM-specific guidance** for relevant language-model studies. Check each source's intended scope. No checklist can replace clinician evaluation, protected-data authorization, external validation or deployment-specific risk assessment.
 
+## Executable G2: synthetic lexical retrieval baseline
+
+A dependency-free BM25 reference evaluator is available in
+[src/research_template/retrieval_eval.py](../src/research_template/retrieval_eval.py).
+It is original educational code, built from standard mathematical definitions,
+not copied from MedRAG, MedCPT, or publisher supplements. This run requires only
+Python 3.11+ and **does not download publications, clinical data, embeddings,
+model weights, or call an LLM**.
+
+~~~bash
+python -m research_template.retrieval_eval \
+  --out artifacts/rag/synthetic_retrieval.json --top-k 2
+pytest -q tests/test_retrieval_eval.py tests/test_biomedical_literature_corpus.py
+~~~
+
+The five documents and six questions are fabricated. Two development
+questions and four held-out questions represent **different document source
+families**, which the implementation asserts have zero overlap. Three
+holdout questions have hand-labeled relevance, while the fourth has
+**no relevant source in the corpus**. It reports per-question rankings,
+rank scores, Hit@k, Recall@k, MRR@k, nDCG@k, and a separate
+no-answer/empty-retrieval rate. Every denominator and configuration is
+recorded, together with a SHA-256 of the synthetic fixture and an
+explicitly **BLOCKED** scientific release state.
+
+**Important interpretation:** The no-answer/empty-retrieval metric is not an
+LLM refusal test. Retrieval success is not evidence of correct medical
+generation, valid citations, harmless advice, clinical accuracy, or external
+transportability. The fixture was designed to make the expected lexical
+rankings obvious; a perfect synthetic score does not demonstrate superiority
+over BM25, MedCPT, MedRAG, graph retrieval, or other models.
+
+The tests reject duplicate identifiers, mismatched relevance labels,
+unknown documents, overlapping held-out source families, invalid
+configurations, and missing evaluation partitions. Prompt-like text
+inserted into a synthetic document is treated only as inert indexable
+text; **this is not a full adversarial prompt-injection test** because no
+generator or tool-using agent is present.
+
+### G3 expansion conditions
+
+Build a separate, opt-in adapter for genuinely licensed corpora only after
+document access/retention and PHI/security checks. Additional retrieval
+variants (BM25, dense, hybrid, reranker), answer generation, citation
+support, clinician-rated safety and confidence intervals require **their
+own** baseline configurations, independent relevance annotations,
+negative controls, versioned parameters and reviewer approval. Keep
+sample/donor/patient/site IDs out of logs and public artifacts. Do not
+treat untested upstream code links as permission to redistribute code or
+weights.
+
 ## Next gates
 
 - **G0:** Verify all candidate DOI/author/title/year pairs directly against primary publisher or scholarly indexing records, correcting any discrepancies.
 - **G1:** Verify upstream repository URLs, exact revisions, code and model-weight licenses separately; do not vendor upstream code without permission.
-- **G2:** Implement synthetic retrieval fixtures with positive and negative qrels, CI and deterministic baselines.
+- **G2:** Implement synthetic retrieval fixtures with positive/negative relevance labels and deterministic BM25 baseline; verify in CI before marking complete.
 - **G3:** Add repeatable evaluation harness, uncertainty estimates, expert-grounding rubric, prompt-injection regression tests and drift/retrieval observability.
 - **G4:** Require independent scientific and legal/IRB review for any actual biomedical data, clinical claims or clinical deployment.
 
