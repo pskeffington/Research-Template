@@ -59,6 +59,11 @@ jobs:
           git check-ignore artifacts/starter-sgn/VARIABLE_MAPPING.csv
       - name: Execute synthetic demonstration
         run: research-template demo --out artifacts/ci --seed 711 --plots --ml
+      - name: Audit synthetic biomedical lexical retrieval baseline
+        run: |
+          research-template rag-demo --out artifacts/rag/ci_retrieval.json --top-k 2
+          python -m research_template.retrieval_eval \
+            --out artifacts/rag/ci_direct.json --top-k 2
       - name: Confirm scaffold completeness (not clinical approval)
         run: research-template audit --root .
       - name: Verify sample outputs are ignored
