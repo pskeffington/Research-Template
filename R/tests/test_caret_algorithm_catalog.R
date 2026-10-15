@@ -60,6 +60,11 @@ stopifnot(
 stopifnot(is.character(audit[["status"]]), is.list(audit["status"]))
 stopifnot(identical(audit[["status"]], audit$status))
 
+# caret internally registers a non-tunable placeholder named "parameter"
+# for a few legacy wrappers. Normalization must not invent hyperparameters.
+untuned <- rt_caret_runtime_metadata(c("null", "glm", "lda", "qda"))
+stopifnot(all(!nzchar(untuned$tuning_parameters)))
+
 # Validate tuning names against the caret-registered model, with no model fitting.
 grid <- data.frame(alpha = c(0.1, 0.5), lambda = c(0.01, 0.1))
 stopifnot(isTRUE(rt_check_caret_tuning_grid("glmnet", grid)))
