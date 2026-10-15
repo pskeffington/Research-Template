@@ -20,6 +20,10 @@ Programmatic: `run_classification(make_cohort(n=240, seed=90), seed=90)`.
 
 The included logistic baseline uses median imputation, standard scaling and model fitting only within training data. A `DummyClassifier` provides majority-class reference. AUROC is undefined for a holdout containing a single class, so the helper rejects that split rather than producing an invented score. This demonstration has **no clinical utility claim**.
 
+## Algorithm discovery and R programming mechanics
+
+Select supervised model families from the [20-method caret catalog](CARET_ALGORITHM_CATALOG.md) and use the [R programming mechanics reference](R_PROGRAMMING_MECHANICS.md) for lists, factors, formula declarations, typed iteration and safe resampling-index handling. The source-locked [method CSV](../references/CARET_MODEL_METHODS_2026-10-15.csv) distinguishes registered algorithms from tested implementations; `R/caret_algorithm_catalog.R` audits installed method metadata and tuning-grid names without fitting models. The goal is reproducible **choice and verification** of algorithms, not a claim that every model is suitable for every clinical question.
+
 ## Optional PyTorch
 
 ```bash
