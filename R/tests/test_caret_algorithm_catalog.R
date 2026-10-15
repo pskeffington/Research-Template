@@ -33,6 +33,18 @@ stopifnot(
 )
 
 audit <- rt_audit_caret_algorithm_catalog(catalog)
+if (audit$status != "CATALOG_RUNTIME_METADATA_PASS") {
+  for (method in audit$differences) {
+    source_row <- catalog[catalog$method == method, , drop = FALSE]
+    live_row <- audit$runtime[audit$runtime$method == method, , drop = FALSE]
+    cat(sprintf(
+      "METADATA_DIFFERENCE %s\n  task: %s / %s\n  packages: %s / %s\n  tuning: %s / %s\n",
+      method, source_row$task, live_row$task,
+      source_row$implementation_packages, live_row$implementation_packages,
+      source_row$tuning_parameters, live_row$tuning_parameters
+    ))
+  }
+}
 stopifnot(
   is.list(audit),
   audit[["status"]] == "CATALOG_RUNTIME_METADATA_PASS",
