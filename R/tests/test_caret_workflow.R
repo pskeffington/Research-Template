@@ -19,7 +19,6 @@ stopifnot(
   result$n_shared_subjects == 0L,
   result$n_training_subjects + result$n_holdout_subjects == 80L,
   result$n_training_rows + result$n_holdout_rows == 240L,
-  result$nrow == NULL,
   nrow(result$predictions) == result$n_holdout_rows,
   all(result$fold_audit$n_group_overlap == 0L),
   nrow(result$fold_audit) == 5L,
