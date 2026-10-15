@@ -26,6 +26,8 @@ Reusable R modules may only define functions or the existing explicit
 `rt_make_synthetic` compatibility alias when sourced. File I/O must be a
 named action. R test scripts are separate executable entry points.
 
+For algorithms and foundational language behavior, see [the 20-method `caret` algorithm index](CARET_ALGORITHM_CATALOG.md) and [essential R programming mechanics](R_PROGRAMMING_MECHANICS.md). Runtime introspection uses original `R/caret_algorithm_catalog.R` functions and a version-pinned official method source, never arbitrary unreviewed downloaded code. A catalog audit verifies model *metadata* only; it does not certify 20 executable biomedical classifiers.
+
 ## Python: PEP 8 and research software contracts
 
 Use snake_case for Python functions, variables and files, and PascalCase
