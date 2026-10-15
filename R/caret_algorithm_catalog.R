@@ -92,11 +92,18 @@ rt_caret_runtime_metadata <- function(methods) {
       stop(sprintf("Caret method %s has unexpected task type.", method))
     }
     packages <- if (is.null(info$library)) character() else as.character(info$library)
+    parameters <- as.character(info$parameters$parameter)
+    # In caret 7.0-1, untuned wrappers use a sentinel named "parameter".
+    # The official model manual declares NONE for these four methods;
+    # it is not a legitimate tuneGrid column or tunable hyperparameter.
+    if (method %in% c("null", "glm", "lda", "qda") &&
+        identical(parameters, "parameter")) {
+      parameters <- character()
+    }
     data.frame(
       method = method, task = task,
       implementation_packages = paste(packages, collapse = ";"),
-      tuning_parameters = paste(as.character(info$parameters$parameter),
-                                collapse = ";"),
+      tuning_parameters = paste(parameters, collapse = ";"),
       supports_class_probabilities = !is.null(info$prob),
       stringsAsFactors = FALSE
     )
