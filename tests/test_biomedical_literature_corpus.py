@@ -22,7 +22,11 @@ def test_corpus_metadata_and_stable_identifiers():
         assert reader.fieldnames is not None
         assert set(reader.fieldnames) == REQUIRED
         rows = list(reader)
-    assert len(rows) >= 27
+    assert len(rows) >= 28
+    caret = next(row for row in rows if row["id"] == "BML-011")
+    assert caret["doi"] == "10.18637/jss.v028.i05"
+    assert caret["domain"] == "classical-biomedical-ml"
+    assert caret["local_execution_status"] == "NOT_EXECUTED"
     assert len({row["id"] for row in rows}) == len(rows)
     assert len({row["doi"].lower() for row in rows}) == len(rows)
     for row in rows:
