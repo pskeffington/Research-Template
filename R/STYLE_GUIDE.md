@@ -116,6 +116,10 @@ CI installs R, ggplot2, dplyr, tidyr, and tibble, tests full plots and joins/wid
 
 The [repository coding contract](../docs/CODING_CONVENTIONS.md) distinguishes tidyverse-style R from idiomatic Python. CI discovers every `R/**/*.R` file, checks parseability, snake_case function names, explicit namespaces, native pipes and no source-time execution in reusable modules. A second gate parses complete R examples in Markdown. Existing source identifiers are never renamed by the style checker.
 
+## Algorithm metadata, typed lists and indexing
+
+The [essential R coding mechanics guide](../docs/R_PROGRAMMING_MECHANICS.md) documents scientific distinctions among vectors, factors, data frames, model matrices, named lists and formula objects. Prefer `plan[[name, exact = TRUE]]` for exact programmatic list lookup, `drop = FALSE` for single-column data frames, `vapply()` when a scalar type is expected, and explicit `is.na()`/`is.finite()` rather than unvalidated type coercion. The [caret model catalog](../docs/CARET_ALGORITHM_CATALOG.md) pairs officially registered model methods with exact tuning fields; `R/caret_algorithm_catalog.R` checks them without source-time execution.
+
 ## caret research-classifier extensions
 
 In optional R predictive modeling, use `caret::` and `pROC::` explicit namespaces and keep heavy package dependencies out of module imports. Validate subject and outcome identifiers before group-level holdout splitting. Supply `trainControl(index=...)` with group-disjoint analysis-fold row indices; fold-exclusive imputation and scaling belong in `caret::train(preProcess=...)`. Declare the positive class as the first factor level and repeat it in `confusionMatrix(positive=...)`. Never combine training-fold AUROC and independent holdout accuracy. Return model artifacts without writing or publishing them automatically.
