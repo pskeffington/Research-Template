@@ -79,6 +79,8 @@ print(method_spec$library)
 
 The registered model specification is a named **R list**. `[["glmnet"]]` extracts that specific component, while `["glmnet"]` would keep a one-element list. For the full explanation of vectors, lists, factor levels, formulas, indexing and predictable iteration, see [Essential R coding mechanics](R_PROGRAMMING_MECHANICS.md).
 
+**Legacy metadata sentinel:** In the installed `caret` 7.0-1 model registry, certain untuned wrappers (`null`, `glm`, `lda`, `qda`) internally expose a placeholder called `parameter`. The official model manual says these have **no tuning parameters**. The reference helper normalizes this placeholder to an empty tuning list, rather than encouraging users to create an artificial `tuneGrid(parameter=...)` column. The normalization applies only to those explicitly reviewed methods; other mismatches remain blocked.
+
 ## Explicit hyperparameter grids
 
 Never guess exact tuning field names: they vary by model and package version. Read `caret::modelLookup(method)` and compare against the source-locked matrix. This helper validates **argument structure** without fitting a model:
