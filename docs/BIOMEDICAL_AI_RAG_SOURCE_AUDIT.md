@@ -43,6 +43,8 @@ are for citation identity only, **not** scientific replication or license cleara
 | STD-006 | [Collins et al. 2024](https://doi.org/10.1136/bmj-2023-078378) | 2024 | Verified DOI, title, year, lead author | No upstream code link registered |
 
 
+| BML-011 | [Kuhn 2008; *Journal of Statistical Software*](https://www.jstatsoft.org/article/view/v028i05) | 2008 | Verified DOI, title, year, lead author | [Caret GitHub repository resolves](https://github.com/topepo/caret) — scope and rights unreviewed |
+
 ## Metadata corrections relative to initial intake
 
 | ID | Correction | Primary evidence |
@@ -59,6 +61,7 @@ are for citation identity only, **not** scientific replication or license cleara
 
 | Publication | What the publication reports | What our independent code must test | Boundary |
 | --- | --- | --- | --- |
+| [Kuhn 2008](https://doi.org/10.18637/jss.v028.i05) | Describes caret's unified R modeling, preprocessing, resampling and tuning interfaces | Independent synthetic repeated-subject split, groupKFold CV, fold-local preprocessing and held-out confusion metrics | Reference for algorithms and code practices, not validation of any clinical model |
 | [Qasim et al. 2026](https://www.nature.com/articles/s41598-026-74252-6) | Metadata-linked FAISS retrieval logs; ranking, similarity, Hit Rate@K and MRR; model/chunking comparisons | Stable evidence IDs, frozen queries, deterministic rankings, qrel coverage and accuracy of retrieved evidence | Our BM25 demonstration is *not* the article's FAISS implementation |
 | [Li et al. 2026](https://doi.org/10.1093/jamia/ocag056) | Evaluates corpus structure, retrieval strategies and RAG architecture in sleep medicine | Predefined factorial ablations by source format, retriever and query type; no hidden holdout tuning | Domain-specific cohort; may not generalize |
 | [MedRAG/MIRAGE, Xiong et al. 2024](https://aclanthology.org/2024.findings-acl.372/) | 7,663 questions across 5 medical QA datasets, comparing corpora, retrievers and backbone LLMs | Compare fixed corpus and question partitions across retrieval methods and baselines; report generator separately | Benchmarks are not prospective clinical trials |
@@ -70,8 +73,8 @@ are for citation identity only, **not** scientific replication or license cleara
 
 ## Release classification
 
-- **G0 — bibliographic identity:** Verified at publisher or official index for 27/27 DOI records; details should be rechecked when sources revise.
-- **G1 — code links:** 12/12 GitHub repository URLs resolve; corresponding release commits, licenses, model-weight licenses and dependencies **pending**.
+- **G0 — bibliographic identity:** Verified at publisher or official index for 28/28 DOI records; details should be rechecked when sources revise.
+- **G1 — code links:** 13/13 GitHub repository URLs resolve; corresponding release commits, licenses, model-weight licenses and dependencies **pending**.
 - **G2 — internal synthetic baseline:** Original, self-contained BM25 implementation and positive/negative tests added to this PR; CI acceptance remains the gate.
 - **G3 — paper-specific reproduction:** NOT EXECUTED for all 27; do not claim paper implementation equivalence.
 - **G4 — clinical/data/privacy review:** BLOCKED; no patient-level or restricted research data used.
