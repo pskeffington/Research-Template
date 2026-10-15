@@ -4,7 +4,6 @@ import csv
 from pathlib import Path
 from urllib.parse import urlparse
 
-
 CORPUS = Path(__file__).resolve().parents[1] / "references" / (
     "BIOMEDICAL_AI_RAG_LITERATURE_2026-10-14.csv"
 )
