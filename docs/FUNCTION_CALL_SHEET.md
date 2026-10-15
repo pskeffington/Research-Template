@@ -362,6 +362,29 @@ Load `R/research_tidy.R`, `R/research_plots.R`, and the relevant module. The ful
 Preserve exact user-provided variable casing and source identifier labels.
 
 
+## Optional R caret model and audit calls
+
+The [caret methodology guide](CARET_RESEARCH_WORKFLOW.md) contains the primary citations, package/version notes and leakage controls. This research software module is deliberately **not** loaded by the default plotting runtime, and has no side effects when sourced.
+
+| Call | Return and expected behavior | Contract |
+| --- | --- | --- |
+| `make_synthetic_caret_cohort(n_subjects = 80L, visits = 3L, seed = 711L)` | Invented 80-subject longitudinal-shaped frame | No real records; positive class is explicitly `Impaired` |
+| `validate_caret_research_data(data, group_col, outcome_col, predictors, positive_class)` | Input and subject-label assertions | Stops missing group IDs, conflicting labels, invalid target factor and bad predictors |
+| `run_grouped_caret_classifier(data, ...)` | In-memory model, group-CV audits, test confusion matrix and metrics | Zero group overlap in holdout and folds; preprocessing only within training; holdout not used for tuning |
+| `run_synthetic_caret_example(seed = 711L)` | End-to-end demonstration using invented measurements | Status `SYNTHETIC_DEMONSTRATION_ONLY`; `scientific_release_status=BLOCKED` |
+
+~~~r
+source("R/research_caret.R")
+demo <- run_synthetic_caret_example(seed = 711L)
+print(demo$confusion_matrix$table)
+print(demo$holdout_metrics[c(
+  "sensitivity", "specificity", "ppv", "npv", "balanced_accuracy"
+)])
+stopifnot(demo$n_shared_subjects == 0L)
+~~~
+
+An explicit `caret::confusionMatrix(data = predicted, reference = observed, positive = "Impaired")` distinguishes event sensitivity from specificity. Its result cannot substitute for external validation, prevalence-shift analysis or cluster-aware uncertainty; see the [ML playbook](ML_PLAYBOOK.md).
+
 ## Custom study extensions
 
 The public calls above accept general numeric, categorical, longitudinal, sample-by-feature, and externally fitted estimate data. Use them only where the data match the documented input contract. A new study should implement its own local schema validators, scientific estimands, source/version pins, group ordering, figure captions, and release approvals.
