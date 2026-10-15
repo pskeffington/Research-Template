@@ -1,6 +1,6 @@
 # Source verification ledger: biomedical AI and RAG
 
-**Author:** Paul Skeffington · **Prepared with OpenAI** · **Checked:** 2026-10-14
+**Author:** Paul Skeffington · **Prepared with OpenAI** · **Checked:** 2026-10-14 to 2026-10-15
 
 This ledger records bibliographic identity checking against publisher pages,
 professional scholarly indexes, or DOI landing pages. It is a **narrative
@@ -76,7 +76,7 @@ are for citation identity only, **not** scientific replication or license cleara
 - **G0 — bibliographic identity:** Verified at publisher or official index for 28/28 DOI records; details should be rechecked when sources revise.
 - **G1 — code links:** 13/13 GitHub repository URLs resolve; corresponding release commits, licenses, model-weight licenses and dependencies **pending**.
 - **G2 — internal synthetic baseline:** Original, self-contained BM25 implementation and positive/negative tests added to this PR; CI acceptance remains the gate.
-- **G3 — paper-specific reproduction:** NOT EXECUTED for all 27; do not claim paper implementation equivalence.
+- **G3 — paper-specific reproduction:** NOT EXECUTED for all 28; do not claim paper implementation equivalence.
 - **G4 — clinical/data/privacy review:** BLOCKED; no patient-level or restricted research data used.
 
 The machine-readable [CSV source register](../references/BIOMEDICAL_AI_RAG_LITERATURE_2026-10-14.csv)
