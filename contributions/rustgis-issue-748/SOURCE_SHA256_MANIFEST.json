@@ -1,0 +1,25 @@
+{
+  "schema": "rustgis_issue_748_synthetic_pack_v1",
+  "issue": "opengeos/RustGIS#748",
+  "contains_public_or_private_source_gis": false,
+  "patch_applicability_target": "f3aaf35de7db4f1c394c7b69e314b0322fe6b3ec",
+  "tested_release_commit": "25bf787f99d3ca10cf2281f5b7159292757a3236",
+  "tested_development_commit": "2aaa0f06eaabc852270c89dcd507afa8a17bfb1c",
+  "latest_upstream_executable_validated": false,
+  "upstream_repository_modified": false,
+  "file_sha256": {
+    "tests/field_validation/.gitignore": "cc54dff5eacd4bf67881f5b0382ab84588cccc29bdf11c372833ac8a8b67b76a",
+    "tests/field_validation/CLI_CONTRACT.md": "7dfa4f2ee1f717d04e529e475d43a17644feeb9e3a2853188e56d499d8f142c3",
+    "tests/field_validation/README.md": "24ead28746381d6d76ecd2f3b9759a4163fa814de1287729d292437540f7a6f8",
+    "tests/field_validation/cli_plan.py": "ac7c6b854bdef01b4a6214dee5bba77a17cdd637bb1e819dadbb58072a554226",
+    "tests/field_validation/expected/reference_snapshot.json": "2d2f1f8e9e9608de6547533b11b36f9cc92863b65e07e081d50b0eb5b655a570",
+    "tests/field_validation/expected/upstream_cli_contract.json": "0d78510c5e13bfd9e411a7d093db9e90d8d0ed560879ca3a4f925d6f49f29982",
+    "tests/field_validation/generate_fixtures.py": "629b406f825ba609ef45196400b7a385e5c01ddd33d06107e927e5e0069ae137",
+    "tests/field_validation/qa_local.py": "74dc9bf378ee879e98dec701a94837165fb52ab9f376c98a9e3e14cae3ba44e1",
+    "tests/field_validation/reference_oracle.py": "0a8e65fb7d46ca63c3d2cfb81f25e98a8511c75e3669e4b9e1b3ce316a5b5428",
+    "tests/field_validation/requirements-reference.txt": "d69a331e05ff661eda3286e2ecb57d170c385796bc592f69e168f2fce7bf6339",
+    "tests/field_validation/run_validation.py": "34fba414deac9fd14834ac6380e74ede94bd75fa6f32b2c7e36c6f8a87fa6c61",
+    "tests/field_validation/tests/test_cli_plan.py": "c4cc7b3d5942b0f66d2ac50e9e73ebfe48d7459abb44731de91641da40288d4c",
+    "tests/field_validation/tests/test_reference.py": "29d329908e99f2ff37b96414f6f2d4a19f7d91b364883208fbeece752f89312f"
+  }
+}

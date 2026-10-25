@@ -1,0 +1,106 @@
+{
+  "data_classification": "ENTIRELY_SYNTHETIC",
+  "distance_model": "RustGIS analysis documents a 6371000 m spherical Earth; independent Oracle uses the same documented radius; WGS84 ellipsoidal comparison is diagnostic only.",
+  "expected_null_attribute_ids": [
+    "PLY-03",
+    "MCD-02"
+  ],
+  "expected_null_geometry_ids": [
+    "NULL-01"
+  ],
+  "feature_counts": {
+    "missing_points": 2,
+    "points": 10,
+    "topology_cases": 3,
+    "transects": 3,
+    "zones": 4
+  },
+  "fixture_version": "1.2.0",
+  "joins_intersects": {
+    "MCD-01": [
+      "MCD-A"
+    ],
+    "MCD-02": [
+      "MCD-A"
+    ],
+    "MCD-03": [
+      "MCD-B"
+    ],
+    "MCD-04": [],
+    "MCD-EDGE": [
+      "MCD-A",
+      "MCD-B"
+    ],
+    "PLY-01": [
+      "PLY-A"
+    ],
+    "PLY-02": [
+      "PLY-A"
+    ],
+    "PLY-03": [
+      "PLY-B"
+    ],
+    "PLY-04": [],
+    "PLY-EDGE": [
+      "PLY-A",
+      "PLY-B"
+    ]
+  },
+  "joins_within": {
+    "MCD-01": [
+      "MCD-A"
+    ],
+    "MCD-02": [
+      "MCD-A"
+    ],
+    "MCD-03": [
+      "MCD-B"
+    ],
+    "MCD-04": [],
+    "MCD-EDGE": [],
+    "PLY-01": [
+      "PLY-A"
+    ],
+    "PLY-02": [
+      "PLY-A"
+    ],
+    "PLY-03": [
+      "PLY-B"
+    ],
+    "PLY-04": [],
+    "PLY-EDGE": []
+  },
+  "length_tolerance_km": 0.008,
+  "projected_crs": {
+    "MCD": "EPSG:26917",
+    "PLY": "EPSG:26986"
+  },
+  "projected_roundtrip_tolerance_m": 0.5,
+  "reference_spherical_lengths_km": {
+    "MCD-L1": 1.111949266,
+    "PLY-L1": 0.826988325,
+    "PLY-L2": 1.65393773
+  },
+  "roundtrip_tolerance_degrees": 1e-06,
+  "source_crs": "EPSG:4326",
+  "topology_cases": {
+    "MCD-MULTI": {
+      "holes": 0,
+      "parts": 2
+    },
+    "PLY-HOLE": {
+      "holes": 1,
+      "parts": 1
+    },
+    "PLY-SINGLE": {
+      "holes": 0,
+      "parts": 1
+    }
+  },
+  "zone_intersect_counts": {
+    "MCD-A": 3,
+    "MCD-B": 2,
+    "PLY-A": 3,
+    "PLY-B": 2
+  }
+}

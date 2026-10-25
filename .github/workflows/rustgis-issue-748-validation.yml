@@ -1,0 +1,110 @@
+name: RustGIS #748 — Public Synthetic CLI Validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "contributions/rustgis-issue-748/**"
+      - ".github/workflows/rustgis-issue-748-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      UPSTREAM_SHA: c7bf8e1f9ebe82d25ee56f76a1aa6c43b4cd98ec
+      PATCH_SHA256: 316f55c2247037334bb4510ceaed5a099da6bf4b4157d4acddd1291eef84e710
+      RELEASE_SHA256: 6ccd39f1c35ff824e2ce9d875922394a00ab2468057ad183080205d17f1e07a1
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Checkout public contribution without stored credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Checkout pinned upstream without stored credentials
+        uses: actions/checkout@v4
+        with:
+          repository: opengeos/RustGIS
+          ref: c7bf8e1f9ebe82d25ee56f76a1aa6c43b4cd98ec
+          path: rustgis-upstream
+          persist-credentials: false
+
+      - name: Verify 13 source checksums and exact patch integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root=Path("contributions/rustgis-issue-748")
+          hashes=json.loads((root/"SOURCE_SHA256_MANIFEST.json").read_text())["file_sha256"]
+          assert len(hashes)==13
+          for rel, expected in hashes.items():
+              file=root/rel
+              assert file.is_file() and not file.is_symlink()
+              assert hashlib.sha256(file.read_bytes()).hexdigest()==expected,rel
+          print("13/13 synthetic source hashes PASS")
+          PY
+          patch="$GITHUB_WORKSPACE/contributions/rustgis-issue-748/rustgis_issue_748_synthetic_field_validation.patch"
+          printf '%s  %s\n' "$PATCH_SHA256" "$patch" | sha256sum --check
+          test "$(git -C rustgis-upstream rev-parse HEAD)" = "$UPSTREAM_SHA"
+          git -C rustgis-upstream apply --check --whitespace=error "$patch"
+          git -C rustgis-upstream apply "$patch"
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install four independent GIS reference libraries
+        run: python -m pip install -r rustgis-upstream/tests/field_validation/requirements-reference.txt
+
+      - name: Execute 37 standalone tests
+        working-directory: rustgis-upstream
+        run: python -m unittest discover -s tests/field_validation/tests -v
+
+      - name: Execute offline oracle and CLI plan
+        working-directory: rustgis-upstream
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tests/field_validation/run_validation.py --offline --out "$RUNNER_TEMP/rustgis-748-oracle"
+          python tests/field_validation/run_validation.py --plan-only --out "$RUNNER_TEMP/rustgis-748-plan"
+
+      - name: Fetch checksum-verified RustGIS v0.4.0 executable
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/RustGIS-0.4.0-linux-x86_64.tar.gz"
+          curl --fail --location --silent --show-error --retry 3 --max-time 240 \
+            "https://github.com/opengeos/RustGIS/releases/download/v0.4.0/RustGIS-0.4.0-linux-x86_64.tar.gz" \
+            --output "$archive"
+          printf '%s  %s\n' "$RELEASE_SHA256" "$archive" | sha256sum --check
+          tar -xzf "$archive" -C "$RUNNER_TEMP"
+          test -x "$RUNNER_TEMP/RustGIS-0.4.0-linux-x86_64/rustgis-cli"
+
+      - name: Execute 16 real RustGIS CLI cases
+        working-directory: rustgis-upstream
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tests/field_validation/run_validation.py \
+            --cli "$RUNNER_TEMP/RustGIS-0.4.0-linux-x86_64/rustgis-cli" \
+            --require-cli --out "$RUNNER_TEMP/rustgis-748-engine"
+
+      - name: Publish non-sensitive aggregate CI evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rustgis-748-public-cli-evidence
+          path: |
+            ${{ runner.temp }}/rustgis-748-oracle/validation_report.json
+            ${{ runner.temp }}/rustgis-748-plan/validation_report.json
+            ${{ runner.temp }}/rustgis-748-engine/validation_report.json
+          if-no-files-found: warn
+          retention-days: 30

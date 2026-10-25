@@ -1,0 +1,5 @@
+# Optional synthetic RustGIS issue #748 validation dependencies only.
+shapely>=2.0,<3
+pyproj>=3.5,<4
+fiona>=1.9,<2
+Pillow>=10,<13

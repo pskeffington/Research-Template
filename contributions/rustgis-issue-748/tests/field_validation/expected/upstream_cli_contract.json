@@ -1,0 +1,25 @@
+{
+  "type": "read_only_upstream_source_review",
+  "reviewed_utc_date": "2026-10-25",
+  "repository": "opengeos/RustGIS",
+  "head_sha_observed": "314fdb7085908d1d798390b74c7f09b6625ed6bc",
+  "engine_execution_evidence": false,
+  "files": {
+    "apps/rustgis-cli/src/main.rs": "ce0ec841b24242181b257f2714fea9b49e53eb75",
+    "crates/engine/src/cmd/gp.rs": "f7c0e80959453c8a626cae8237e86613830a31da",
+    "crates/engine/src/cmd/layer.rs": "271c61e97dfa2e5abc83d0862386f6a76fa436d9",
+    "crates/engine/src/cmd/share.rs": "b22652254ab5db716067ea719832e3f8cf865bba",
+    "crates/data/src/io.rs": "441acf50c1d68904872cb3cbbf1dd1183319f464",
+    "crates/analysis/src/tools.rs": "94e0fb95258cf9fda05cd381df31f2d57b32c541",
+    "docs/cli.md": "c05b09e20f312799544773f9d59053edaf4de41f"
+  },
+  "reviewed_interfaces": [
+    "rustgis-cli run --data PATH --cmd ID=JSON --cmd ID=JSON",
+    "rustgis-cli render INPUT OUTPUT --width 640 --height 480",
+    "layer.addData with explicit path, x, y, crs and name",
+    "gp.run with countPoints, spatialJoin and calculateGeometry",
+    "share.exportLayer to .geojson and .gpkg",
+    "select.byAttributes and select.layerFromSelection"
+  ],
+  "caveat": "Source signatures were inspected through read-only GitHub access; the RustGIS CLI binary has not been built or executed. Head and file blob SHAs are observations at review time, not a claim of a synchronized checkout."
+}

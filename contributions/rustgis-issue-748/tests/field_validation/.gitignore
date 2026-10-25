@@ -1,0 +1,6 @@
+# Generated fixtures, reports and bytecode stay outside the public source corpus.
+__pycache__/
+.pytest_cache/
+*.pyc
+generated/
+results/
